@@ -8,7 +8,7 @@ import "../globals.css";
 import { routing } from "@/i18n/routing";
 import { getSiteSettings, getTheme } from "@/lib/bakery/queries";
 import { themeToCssVars } from "@/lib/theme/css-vars";
-import { t } from "@/lib/i18n/text";
+import { t as tField } from "@/lib/i18n/text";
 import type { Locale } from "@/lib/bakery/types";
 import { LenisProvider } from "@/components/layout/lenis-provider";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
@@ -39,8 +39,22 @@ export async function generateMetadata(
   props: Omit<LayoutProps<"/[locale]">, "children">,
 ): Promise<Metadata> {
   const { locale } = await props.params;
-  const t = await getTranslations({ locale: locale as Locale, namespace: "Metadata" });
-  return { title: t("title"), description: t("description") };
+  const [t, settingsRow] = await Promise.all([
+    getTranslations({ locale: locale as Locale, namespace: "Metadata" }),
+    getSiteSettings(),
+  ]);
+  const seo = settingsRow?.data.seo;
+  const brandName = settingsRow ? tField(settingsRow.data.brand_name, locale as Locale) : undefined;
+
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    title: {
+      default: (seo?.title && tField(seo.title, locale as Locale)) || t("title"),
+      template: brandName ? `%s | ${brandName}` : "%s",
+    },
+    description: (seo?.description && tField(seo.description, locale as Locale)) || t("description"),
+    openGraph: { images: seo?.og_image ? [{ url: seo.og_image }] : undefined },
+  };
 }
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
@@ -65,7 +79,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <LenisProvider enabled={theme?.effects.smooth_scroll ?? true}>
             {theme?.announcement_bar ? <AnnouncementBar config={theme.announcement_bar} /> : null}
             {settings ? (
-              <Header brandName={t(settings.brand_name, locale as Locale)} logoUrl={settings.logo_url} />
+              <Header brandName={tField(settings.brand_name, locale as Locale)} logoUrl={settings.logo_url} />
             ) : null}
             <main className="flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
             {settings ? <Footer settings={settings} locale={locale as Locale} /> : null}

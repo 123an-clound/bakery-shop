@@ -318,6 +318,10 @@ export type Database = {
     Functions: {
       bakery_next_order_code: { Args: Record<string, never>; Returns: string };
       bakery_unaccent: { Args: { txt: string }; Returns: string };
+      search_products: {
+        Args: { result_limit?: number; search_query: string };
+        Returns: Database["public"]["Tables"]["bakery"]["Row"][];
+      };
     };
     Enums: {
       [_ in never]: never;
