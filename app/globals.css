@@ -113,6 +113,10 @@
   color-scheme: light;
 
   /* Playful Pastel 3D — matches the seeded `theme` DB row (muc 7.1) */
+  /* Static fallback if the `theme` row is ever missing — normally overridden
+     by the inline style themeToCssVars() sets on <html> (muc 9.6). */
+  --font-heading: var(--font-baloo-2, system-ui);
+  --font-body: var(--font-be-vietnam-pro, system-ui);
   --background: #fffbf7;
   --foreground: #3a2a22;
   --card: #ffffff;

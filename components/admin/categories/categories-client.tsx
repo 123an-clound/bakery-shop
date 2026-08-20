@@ -95,7 +95,7 @@ export function CategoriesClient({ categories }: { categories: AdminCategoryRow[
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Xoá danh mục "{tField(row.data.name, "vi")}"?</AlertDialogTitle>
+                <AlertDialogTitle>Xoá danh mục &quot;{tField(row.data.name, "vi")}&quot;?</AlertDialogTitle>
                 <AlertDialogDescription>
                   {row.productCount > 0
                     ? `Danh mục này đang có ${row.productCount} sản phẩm — các sản phẩm sẽ không còn thuộc danh mục nào.`

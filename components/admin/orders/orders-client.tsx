@@ -15,6 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const DELIVERY_WARNING_MS = 24 * 60 * 60 * 1000;
+// Module scope, not inside the component — evaluated once when this client
+// bundle loads, so it isn't an impure call "during render" (React's
+// components-and-hooks-must-be-idempotent rule). Good enough for a soft
+// "delivery is within 24h" visual cue that doesn't need to tick live.
+const PAGE_LOADED_AT = Date.now();
 
 export function OrdersClient({ orders }: { orders: AdminOrderRow[] }) {
   const [search, setSearch] = useState("");
@@ -92,7 +97,7 @@ export function OrdersClient({ orders }: { orders: AdminOrderRow[] }) {
               const deliverySoon =
                 order.status !== "completed" &&
                 order.status !== "cancelled" &&
-                new Date(order.data.delivery_at).getTime() - Date.now() < DELIVERY_WARNING_MS;
+                new Date(order.data.delivery_at).getTime() - PAGE_LOADED_AT < DELIVERY_WARNING_MS;
               return (
                 <TableRow key={order.id}>
                   <TableCell>

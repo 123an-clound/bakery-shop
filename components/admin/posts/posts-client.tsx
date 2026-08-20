@@ -87,7 +87,7 @@ export function PostsClient({ posts }: { posts: AdminPostRow[] }) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Xoá bài viết "{post.data.title.vi}"?</AlertDialogTitle>
+                        <AlertDialogTitle>Xoá bài viết &quot;{post.data.title.vi}&quot;?</AlertDialogTitle>
                         <AlertDialogDescription>Hành động này không thể hoàn tác.</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

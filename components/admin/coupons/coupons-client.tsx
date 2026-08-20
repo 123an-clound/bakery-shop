@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -255,7 +255,7 @@ export function CouponsClient({ coupons }: { coupons: AdminCouponRow[] }) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Xoá mã "{c.data.code}"?</AlertDialogTitle>
+                        <AlertDialogTitle>Xoá mã &quot;{c.data.code}&quot;?</AlertDialogTitle>
                         <AlertDialogDescription>Hành động này không thể hoàn tác.</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
