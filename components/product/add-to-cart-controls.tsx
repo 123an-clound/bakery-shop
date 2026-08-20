@@ -5,22 +5,32 @@ import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { useRouter } from "@/i18n/navigation";
 import type { ProductData } from "@/lib/bakery/schemas";
 import type { Locale } from "@/lib/bakery/types";
 import { t as tField } from "@/lib/i18n/text";
 import { formatMoney } from "@/lib/utils/format";
+import { useCartStore } from "@/lib/store/cart";
 import { fireConfetti } from "@/components/motion/confetti";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- * Cart state (Zustand) isn't wired up until Phase 4 — variant/quantity
- * selection and live price math are real here (no cart dependency needed),
- * but the two action buttons are honest about not persisting anything yet,
- * same pattern as the newsletter section.
- */
-export function AddToCartControls({ data, locale }: { data: ProductData; locale: Locale }) {
+export function AddToCartControls({
+  productId,
+  slug,
+  data,
+  locale,
+  confettiEnabled = true,
+}: {
+  productId: number;
+  slug: string;
+  data: ProductData;
+  locale: Locale;
+  confettiEnabled?: boolean;
+}) {
   const t = useTranslations("ProductDetail");
+  const router = useRouter();
+  const addItem = useCartStore((s) => s.addItem);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() =>
     Object.fromEntries(data.options.map((opt) => [opt.key, opt.choices[0]?.value ?? ""])),
   );
@@ -42,12 +52,24 @@ export function AddToCartControls({ data, locale }: { data: ProductData; locale:
   const outOfStock = data.stock !== null && data.stock !== undefined && data.stock <= 0;
 
   function handleAction(action: "cart" | "buy") {
-    fireConfetti({ enabled: true, particleCount: 40 });
-    toast.info(
-      action === "cart"
-        ? "Gio hang se hoat dong day du o buoc tiep theo cua du an."
-        : "Thanh toan se hoat dong day du o buoc tiep theo cua du an.",
+    addItem(
+      {
+        productId,
+        slug,
+        name: tField(data.name, locale),
+        image: data.images[0],
+        unitPrice,
+        options: selectedOptions,
+      },
+      qty,
     );
+    fireConfetti({ enabled: confettiEnabled, particleCount: 40 });
+
+    if (action === "buy") {
+      router.push("/gio-hang");
+    } else {
+      toast.success(t("addedToCart"));
+    }
   }
 
   return (

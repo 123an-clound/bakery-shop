@@ -15,6 +15,7 @@ import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { CartHydration } from "@/components/cart/cart-hydration";
 import { Toaster } from "@/components/ui/sonner";
 
 const baloo2 = Baloo_2({
@@ -79,7 +80,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <LenisProvider enabled={theme?.effects.smooth_scroll ?? true}>
             {theme?.announcement_bar ? <AnnouncementBar config={theme.announcement_bar} /> : null}
             {settings ? (
-              <Header brandName={tField(settings.brand_name, locale as Locale)} logoUrl={settings.logo_url} />
+              <Header
+                brandName={tField(settings.brand_name, locale as Locale)}
+                logoUrl={settings.logo_url}
+                locale={locale as Locale}
+              />
             ) : null}
             <main className="flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
             {settings ? <Footer settings={settings} locale={locale as Locale} /> : null}
@@ -87,6 +92,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           </LenisProvider>
         </NextIntlClientProvider>
         <Toaster richColors position="top-center" />
+        <CartHydration />
       </body>
     </html>
   );

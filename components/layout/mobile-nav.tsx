@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { cartCount as getCartCount, useCartStore } from "@/lib/store/cart";
 import { Badge } from "@/components/ui/badge";
 
 const ITEMS = [
@@ -15,9 +16,11 @@ const ITEMS = [
 ] as const;
 
 /** Bottom tab bar for mobile — muc 8.11. */
-export function MobileNav({ cartCount = 0 }: { cartCount?: number }) {
+export function MobileNav() {
   const t = useTranslations("MobileNav");
   const pathname = usePathname();
+  const items = useCartStore((s) => s.items);
+  const cartCount = getCartCount(items);
 
   return (
     <nav className="bg-background/95 border-border fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t px-2 py-1.5 backdrop-blur lg:hidden">

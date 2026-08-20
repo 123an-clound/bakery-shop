@@ -14,9 +14,17 @@ function localizedUrls(path: string): { url: string; lang: Record<string, string
   };
 }
 
-// Only routes that exist as of this phase. Phase 4 adds /dat-banh-theo-yeu-cau
-// and /tra-cuu-don-hang here once those pages are built.
-const STATIC_PATHS = ["/", "/san-pham", "/tin-tuc", "/gioi-thieu", "/lien-he", "/chinh-sach-giao-hang", "/dieu-khoan"];
+const STATIC_PATHS = [
+  "/",
+  "/san-pham",
+  "/dat-banh-theo-yeu-cau",
+  "/tin-tuc",
+  "/gioi-thieu",
+  "/lien-he",
+  "/tra-cuu-don-hang",
+  "/chinh-sach-giao-hang",
+  "/dieu-khoan",
+];
 
 /** Sinh dong tu Supabase (san pham, danh muc, bai viet), ca 2 locale — muc 11. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

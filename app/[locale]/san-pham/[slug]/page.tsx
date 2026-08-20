@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getApprovedReviewsForProduct, getProductBySlug, getRelatedProducts } from "@/lib/bakery/catalog";
+import { getTheme } from "@/lib/bakery/queries";
 import { buildMetadata } from "@/lib/seo/metadata";
 import type { Locale } from "@/lib/bakery/types";
 import { t as tField } from "@/lib/i18n/text";
@@ -44,11 +45,13 @@ export default async function ProductDetailPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [t, reviews, related] = await Promise.all([
+  const [t, reviews, related, themeRow] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "ProductDetail" }),
     getApprovedReviewsForProduct(product.id),
     product.parent_id ? getRelatedProducts(product.parent_id, product.id, 4) : Promise.resolve([]),
+    getTheme(),
   ]);
+  const confettiEnabled = themeRow?.data.effects.confetti_on_add_to_cart ?? true;
   const name = tField(product.data.name, locale as Locale);
 
   return (
@@ -97,7 +100,13 @@ export default async function ProductDetailPage({
           ) : null}
 
           <div className="mt-6">
-            <AddToCartControls data={product.data} locale={locale as Locale} />
+            <AddToCartControls
+              productId={product.id}
+              slug={slug}
+              data={product.data}
+              locale={locale as Locale}
+              confettiEnabled={confettiEnabled}
+            />
           </div>
         </FadeIn>
       </div>

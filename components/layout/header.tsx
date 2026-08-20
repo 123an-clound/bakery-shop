@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Menu, Search, ShoppingBag, User } from "lucide-react";
+import { Menu, Search, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import type { Locale } from "@/lib/bakery/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { MiniCart } from "@/components/cart/mini-cart";
 
 const NAV_ITEMS = [
   { key: "home", href: "/" },
@@ -25,11 +26,11 @@ const NAV_ITEMS = [
 export function Header({
   brandName,
   logoUrl,
-  cartCount = 0,
+  locale,
 }: {
   brandName: string;
   logoUrl?: string;
-  cartCount?: number;
+  locale: Locale;
 }) {
   const t = useTranslations("Nav");
   const [scrolled, setScrolled] = useState(false);
@@ -82,16 +83,7 @@ export function Header({
               <User className="size-5" />
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" className="relative rounded-full" asChild>
-            <Link href="/gio-hang" aria-label={t("cart")}>
-              <ShoppingBag className="size-5" />
-              {cartCount > 0 ? (
-                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center rounded-full px-1">
-                  {cartCount}
-                </Badge>
-              ) : null}
-            </Link>
-          </Button>
+          <MiniCart locale={locale} />
 
           <Sheet>
             <SheetTrigger asChild>
