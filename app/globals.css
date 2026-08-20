@@ -195,6 +195,40 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Admin console — muc 9: "tong mau sach se, trung tinh hon trang khach nhung
+   van giu accent hong". Scoped to app/admin's own root, never affected by
+   the customer-facing runtime theme injected in [locale]/layout.tsx. */
+.admin-theme {
+  --background: #fafafa;
+  --foreground: #262220;
+  --card: #ffffff;
+  --card-foreground: #262220;
+  --popover: #ffffff;
+  --popover-foreground: #262220;
+  --primary: #e87ba6;
+  --primary-foreground: #fffbf7;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #262220;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b6560;
+  --accent: #fdf1f5;
+  --accent-foreground: #9c3d64;
+  --destructive: #d1435a;
+  --destructive-foreground: #fffbf7;
+  --border: #e7e5e4;
+  --input: #e7e5e4;
+  --ring: #e87ba6;
+  --radius: 0.65rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #262220;
+  --sidebar-primary: #e87ba6;
+  --sidebar-primary-foreground: #fffbf7;
+  --sidebar-accent: #fdf1f5;
+  --sidebar-accent-foreground: #9c3d64;
+  --sidebar-border: #e7e5e4;
+  --sidebar-ring: #e87ba6;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
