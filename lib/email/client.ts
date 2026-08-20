@@ -20,7 +20,10 @@ export async function sendEmail({
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.log(`[email] RESEND_API_KEY chua duoc cau hinh. Bo qua gui email that.`);
-    console.log(`[email] TODO: to=${JSON.stringify(to)} subject="${subject}"`);
+    // mục 6.3: khong log du lieu ca nhan (email khach) ra console o production —
+    // dev van thay dia chi that de debug de dang.
+    const recipients = process.env.NODE_ENV === "production" ? "[redacted]" : JSON.stringify(to);
+    console.log(`[email] TODO: to=${recipients} subject="${subject}"`);
     return { sent: false, error: "RESEND_API_KEY not configured" };
   }
 

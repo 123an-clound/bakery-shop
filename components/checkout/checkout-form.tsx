@@ -104,19 +104,56 @@ export function CheckoutForm({
         <h2 className="font-heading mb-4 text-xl font-semibold">{t("customerInfoTitle")}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium">{t("fullName")}</label>
-            <Input {...register("customerName")} className="rounded-full" />
-            {errors.customerName ? <p className="text-destructive mt-1 text-xs">{errors.customerName.message}</p> : null}
+            <label htmlFor="checkout-name" className="mb-1 block text-sm font-medium">
+              {t("fullName")}
+            </label>
+            <Input
+              id="checkout-name"
+              {...register("customerName")}
+              className="rounded-full"
+              aria-invalid={!!errors.customerName}
+              aria-describedby={errors.customerName ? "checkout-name-error" : undefined}
+            />
+            {errors.customerName ? (
+              <p id="checkout-name-error" className="text-destructive mt-1 text-xs">
+                {errors.customerName.message}
+              </p>
+            ) : null}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">{t("phone")}</label>
-            <Input {...register("phone")} className="rounded-full" />
-            {errors.phone ? <p className="text-destructive mt-1 text-xs">{errors.phone.message}</p> : null}
+            <label htmlFor="checkout-phone" className="mb-1 block text-sm font-medium">
+              {t("phone")}
+            </label>
+            <Input
+              id="checkout-phone"
+              {...register("phone")}
+              className="rounded-full"
+              aria-invalid={!!errors.phone}
+              aria-describedby={errors.phone ? "checkout-phone-error" : undefined}
+            />
+            {errors.phone ? (
+              <p id="checkout-phone-error" className="text-destructive mt-1 text-xs">
+                {errors.phone.message}
+              </p>
+            ) : null}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">{t("email")}</label>
-            <Input type="email" {...register("email")} className="rounded-full" />
-            {errors.email ? <p className="text-destructive mt-1 text-xs">{errors.email.message}</p> : null}
+            <label htmlFor="checkout-email" className="mb-1 block text-sm font-medium">
+              {t("email")}
+            </label>
+            <Input
+              id="checkout-email"
+              type="email"
+              {...register("email")}
+              className="rounded-full"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "checkout-email-error" : undefined}
+            />
+            {errors.email ? (
+              <p id="checkout-email-error" className="text-destructive mt-1 text-xs">
+                {errors.email.message}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -125,31 +162,75 @@ export function CheckoutForm({
         <h2 className="font-heading mb-4 text-xl font-semibold">{t("addressTitle")}</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="sm:col-span-3">
-            <label className="mb-1 block text-sm font-medium">{t("addressLine")}</label>
-            <Input {...register("addressLine")} className="rounded-full" />
-            {errors.addressLine ? <p className="text-destructive mt-1 text-xs">{errors.addressLine.message}</p> : null}
+            <label htmlFor="checkout-address-line" className="mb-1 block text-sm font-medium">
+              {t("addressLine")}
+            </label>
+            <Input
+              id="checkout-address-line"
+              {...register("addressLine")}
+              className="rounded-full"
+              aria-invalid={!!errors.addressLine}
+              aria-describedby={errors.addressLine ? "checkout-address-line-error" : undefined}
+            />
+            {errors.addressLine ? (
+              <p id="checkout-address-line-error" className="text-destructive mt-1 text-xs">
+                {errors.addressLine.message}
+              </p>
+            ) : null}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">{t("ward")}</label>
-            <Input {...register("ward")} className="rounded-full" />
+            <label htmlFor="checkout-ward" className="mb-1 block text-sm font-medium">
+              {t("ward")}
+            </label>
+            <Input id="checkout-ward" {...register("ward")} className="rounded-full" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">{t("district")}</label>
-            <Input {...register("district")} className="rounded-full" />
+            <label htmlFor="checkout-district" className="mb-1 block text-sm font-medium">
+              {t("district")}
+            </label>
+            <Input id="checkout-district" {...register("district")} className="rounded-full" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">{t("city")}</label>
-            <Input {...register("city")} className="rounded-full" />
-            {errors.city ? <p className="text-destructive mt-1 text-xs">{errors.city.message}</p> : null}
+            <label htmlFor="checkout-city" className="mb-1 block text-sm font-medium">
+              {t("city")}
+            </label>
+            <Input
+              id="checkout-city"
+              {...register("city")}
+              className="rounded-full"
+              aria-invalid={!!errors.city}
+              aria-describedby={errors.city ? "checkout-city-error" : undefined}
+            />
+            {errors.city ? (
+              <p id="checkout-city-error" className="text-destructive mt-1 text-xs">
+                {errors.city.message}
+              </p>
+            ) : null}
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium">{t("deliveryAt")}</label>
-            <Input type="datetime-local" {...register("deliveryAt")} className="rounded-full" />
-            {errors.deliveryAt ? <p className="text-destructive mt-1 text-xs">{errors.deliveryAt.message}</p> : null}
+            <label htmlFor="checkout-delivery-at" className="mb-1 block text-sm font-medium">
+              {t("deliveryAt")}
+            </label>
+            <Input
+              id="checkout-delivery-at"
+              type="datetime-local"
+              {...register("deliveryAt")}
+              className="rounded-full"
+              aria-invalid={!!errors.deliveryAt}
+              aria-describedby={errors.deliveryAt ? "checkout-delivery-at-error" : undefined}
+            />
+            {errors.deliveryAt ? (
+              <p id="checkout-delivery-at-error" className="text-destructive mt-1 text-xs">
+                {errors.deliveryAt.message}
+              </p>
+            ) : null}
           </div>
           <div className="sm:col-span-3">
-            <label className="mb-1 block text-sm font-medium">{t("note")}</label>
+            <label htmlFor="checkout-note" className="mb-1 block text-sm font-medium">
+              {t("note")}
+            </label>
             <textarea
+              id="checkout-note"
               {...register("note")}
               rows={2}
               className="border-input w-full rounded-2xl border p-3 text-sm"
@@ -192,7 +273,7 @@ export function CheckoutForm({
         </div>
         <div className="border-border flex justify-between border-t pt-2 text-base font-semibold">
           <span>{t("total")}</span>
-          <span className="text-primary">{formatMoney(totals.total, locale)}</span>
+          <span className="text-brand-accent">{formatMoney(totals.total, locale)}</span>
         </div>
       </div>
 

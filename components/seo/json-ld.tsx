@@ -5,7 +5,13 @@ import { t } from "@/lib/i18n/text";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 function JsonLdScript({ data }: { data: Record<string, unknown> }) {
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  // Escape `<` so a field containing "</script>" (product name, post title,
+  // shop address... all admin-entered, but a compromised admin session
+  // shouldn't be able to plant stored XSS that fires for every visitor)
+  // can't break out of the script tag. < is equivalent to `<` once
+  // parsed, so this never changes the JSON-LD payload itself.
+  const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />;
 }
 
 /** muc 11: JSON-LD LocalBusiness cho trang chu, lay tu `setting`. */

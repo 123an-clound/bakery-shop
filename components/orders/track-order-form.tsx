@@ -31,16 +31,27 @@ export function TrackOrderForm({ locale }: { locale: Locale }) {
   return (
     <div>
       <form action={formAction} className="flex flex-col gap-3 sm:flex-row">
-        <Input name="code" placeholder={t("orderCode")} required className="rounded-full" />
-        <Input
-          name="last4Phone"
-          placeholder={t("last4Phone")}
-          required
-          maxLength={4}
-          pattern="\d{4}"
-          inputMode="numeric"
-          className="rounded-full sm:max-w-40"
-        />
+        <div className="flex-1">
+          <label htmlFor="track-order-code" className="sr-only">
+            {t("orderCode")}
+          </label>
+          <Input id="track-order-code" name="code" placeholder={t("orderCode")} required className="rounded-full" />
+        </div>
+        <div>
+          <label htmlFor="track-order-last4" className="sr-only">
+            {t("last4Phone")}
+          </label>
+          <Input
+            id="track-order-last4"
+            name="last4Phone"
+            placeholder={t("last4Phone")}
+            required
+            maxLength={4}
+            pattern="\d{4}"
+            inputMode="numeric"
+            className="rounded-full sm:max-w-40"
+          />
+        </div>
         <Button type="submit" disabled={isPending} className="shrink-0 rounded-full px-8">
           {isPending ? "..." : t("submit")}
         </Button>
@@ -52,7 +63,7 @@ export function TrackOrderForm({ locale }: { locale: Locale }) {
         <div className="bg-secondary/30 mt-8 rounded-3xl p-6">
           <div className="flex items-center justify-between">
             <span className="font-heading text-xl font-bold">{state.order.code}</span>
-            <span className="text-primary font-semibold">{formatMoney(state.order.total, locale)}</span>
+            <span className="text-brand-accent font-semibold">{formatMoney(state.order.total, locale)}</span>
           </div>
           <p className="text-muted-foreground mt-1 text-sm">
             {t("deliveryAt")}: {formatDateTime(state.order.deliveryAt, locale)}

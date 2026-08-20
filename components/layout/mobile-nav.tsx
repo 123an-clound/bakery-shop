@@ -32,7 +32,7 @@ export function MobileNav() {
             href={href}
             className={cn(
               "relative flex min-w-14 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium",
-              active ? "text-primary" : "text-muted-foreground",
+              active ? "text-brand-accent" : "text-muted-foreground",
             )}
           >
             <Icon className="size-5" />

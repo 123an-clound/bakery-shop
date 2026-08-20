@@ -108,6 +108,7 @@
     "submitReview": "Submit review",
     "relatedTitle": "You may also like",
     "outOfStock": "Out of stock",
+    "thumbnailLabel": "View photo {index}",
     "allergensLabel": "May contain",
     "prepTime": "Prep time: {hours}h",
     "storageNote": "Keep refrigerated at 2-8°C, best enjoyed within 24 hours.",

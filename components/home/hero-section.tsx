@@ -53,6 +53,8 @@ export async function HeroSection({ hero, locale }: { hero: ThemeData["hero"]; l
                 width={640}
                 height={640}
                 priority
+                fetchPriority="high"
+                sizes="(min-width: 768px) 448px, 100vw"
                 className="size-full rounded-4xl object-cover"
               />
             </Tilt3D>

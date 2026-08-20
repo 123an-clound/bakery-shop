@@ -99,7 +99,7 @@ export function AddToCartControls({
       ))}
 
       <div className="flex items-center gap-3">
-        <span className="font-heading text-primary text-3xl font-bold">{formatMoney(unitPrice, locale)}</span>
+        <span className="font-heading text-brand-accent text-3xl font-bold">{formatMoney(unitPrice, locale)}</span>
         {hasSale ? (
           <span className="text-muted-foreground text-lg line-through">
             {formatMoney(originalUnitPrice, locale)}

@@ -32,7 +32,7 @@ export function CopyableRow({ label, value }: { label: string; value: string }) 
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         }}
-        className="text-muted-foreground hover:text-primary shrink-0"
+        className="text-muted-foreground hover:text-brand-accent shrink-0"
         aria-label={t("copy")}
       >
         {copied ? <Check className="size-4" /> : <Copy className="size-4" />}

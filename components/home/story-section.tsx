@@ -39,18 +39,20 @@ export async function StorySection({ locale }: { locale: Locale }) {
         <FadeIn delay={0.1}>
           <h2 className="font-heading text-2xl font-bold sm:text-3xl">{t("storyTitle")}</h2>
           <p className="text-muted-foreground mt-4 leading-relaxed">{excerpt}…</p>
-          <Button variant="link" className="text-primary mt-1 px-0" asChild>
+          <Button variant="link" className="mt-1 px-0" asChild>
             <Link href="/gioi-thieu">{t("storyReadMore")} →</Link>
           </Button>
 
           <dl className="mt-8 grid grid-cols-3 gap-4">
             {STATS.map((stat) => (
-              <div key={stat.key} className="text-center sm:text-left">
-                <dt className="sr-only">{t(stat.key)}</dt>
-                <dd className="font-heading text-primary text-2xl font-bold sm:text-3xl">
+              // axe "definition-list": a <dl> may only directly contain
+              // dt/dd groups — flex-col-reverse keeps dt before dd in DOM
+              // order (required) while still showing the number on top.
+              <div key={stat.key} className="flex flex-col-reverse text-center sm:text-left">
+                <dt className="text-muted-foreground mt-1 text-xs sm:text-sm">{t(stat.key)}</dt>
+                <dd className="font-heading text-brand-accent text-2xl font-bold sm:text-3xl">
                   <CountUp value={stat.value} suffix={stat.suffix} />
                 </dd>
-                <p className="text-muted-foreground mt-1 text-xs sm:text-sm">{t(stat.key)}</p>
               </div>
             ))}
           </dl>

@@ -81,7 +81,7 @@ export function ProductsFilters({
             onClick={() => router.push(pathname)}
             className={cn(
               "rounded-xl px-3 py-1.5 text-left text-sm hover:bg-muted",
-              !activeCategorySlug && "bg-primary/15 text-primary font-medium",
+              !activeCategorySlug && "bg-primary/15 text-brand-accent font-medium",
             )}
           >
             {t("allCategories")}
@@ -93,7 +93,7 @@ export function ProductsFilters({
               asChild
               className={cn(
                 "h-auto justify-start rounded-xl px-3 py-1.5 text-sm no-underline hover:bg-muted",
-                activeCategorySlug === c.slug && "bg-primary/15 text-primary font-medium",
+                activeCategorySlug === c.slug && "bg-primary/15 text-brand-accent font-medium",
               )}
             >
               <Link href={`/danh-muc/${c.slug}`}>{tField(c.data.name, locale)}</Link>
@@ -134,6 +134,7 @@ export function ProductsFilters({
         <select
           value={currentParams.sort ?? "newest"}
           onChange={(e) => pushParams({ sort: e.target.value })}
+          aria-label={t("sortBy")}
           className="border-input bg-background w-full rounded-full border px-3 py-2 text-sm"
         >
           {SORT_OPTIONS.map((opt) => (

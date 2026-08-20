@@ -13,10 +13,28 @@ import { cn } from "@/lib/utils";
 const TOTAL_STEPS = 5;
 const MAX_IMAGES = 3;
 
+// A <input type="datetime-local"> value/min is interpreted in the BROWSER's
+// local time, with no timezone marker — toISOString() returns UTC, which on
+// any machine not at UTC+0 silently shifts the represented instant by the
+// local offset (e.g. -7h in Vietnam, so a "+26h" UTC string reads back as
+// only ~19h away once the browser parses it as local time). Build the
+// string from local getters instead so it means what it says.
+function toDatetimeLocalValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// The server re-checks "needAt is at least 24h from now" at the moment the
+// form is actually submitted, not at mount time — defaulting to exactly
+// +24h means any real user who takes more than an instant to fill the
+// 5-step form would have this valid-looking default silently rejected.
+// +26h gives two hours of headroom for that gap.
+function defaultNeedAt(): string {
+  return toDatetimeLocalValue(new Date(Date.now() + 26 * 60 * 60 * 1000));
+}
+
 function minNeedAt(): string {
-  const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  d.setSeconds(0, 0);
-  return d.toISOString().slice(0, 16);
+  return toDatetimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
 }
 
 const initialState: CustomCakeState = { status: "idle" };
@@ -37,7 +55,7 @@ export function CustomCakeWizard() {
     flavor: "",
     colorTheme: "",
     messageOnCake: "",
-    needAt: minNeedAt(),
+    needAt: defaultNeedAt(),
     budget: "",
     customerName: "",
     phone: "",
@@ -132,8 +150,11 @@ export function CustomCakeWizard() {
           <div className="space-y-4">
             <h2 className="font-heading text-xl font-semibold">{t("step1Title")}</h2>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("size")}</label>
+              <label htmlFor="cake-size" className="mb-1 block text-sm font-medium">
+                {t("size")}
+              </label>
               <Input
+                id="cake-size"
                 value={form.size}
                 onChange={(e) => update("size", e.target.value)}
                 placeholder={t("sizePlaceholder")}
@@ -141,8 +162,11 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("layers")}</label>
+              <label htmlFor="cake-layers" className="mb-1 block text-sm font-medium">
+                {t("layers")}
+              </label>
               <Input
+                id="cake-layers"
                 type="number"
                 min={1}
                 max={10}
@@ -158,8 +182,11 @@ export function CustomCakeWizard() {
           <div className="space-y-4">
             <h2 className="font-heading text-xl font-semibold">{t("step2Title")}</h2>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("sponge")}</label>
+              <label htmlFor="cake-sponge" className="mb-1 block text-sm font-medium">
+                {t("sponge")}
+              </label>
               <Input
+                id="cake-sponge"
                 value={form.sponge}
                 onChange={(e) => update("sponge", e.target.value)}
                 placeholder={t("spongePlaceholder")}
@@ -167,8 +194,11 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("cream")}</label>
+              <label htmlFor="cake-cream" className="mb-1 block text-sm font-medium">
+                {t("cream")}
+              </label>
               <Input
+                id="cake-cream"
                 value={form.cream}
                 onChange={(e) => update("cream", e.target.value)}
                 placeholder={t("creamPlaceholder")}
@@ -176,8 +206,11 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("flavor")}</label>
+              <label htmlFor="cake-flavor" className="mb-1 block text-sm font-medium">
+                {t("flavor")}
+              </label>
               <Input
+                id="cake-flavor"
                 value={form.flavor}
                 onChange={(e) => update("flavor", e.target.value)}
                 placeholder={t("flavorPlaceholder")}
@@ -185,8 +218,11 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("colorTheme")}</label>
+              <label htmlFor="cake-color-theme" className="mb-1 block text-sm font-medium">
+                {t("colorTheme")}
+              </label>
               <Input
+                id="cake-color-theme"
                 value={form.colorTheme}
                 onChange={(e) => update("colorTheme", e.target.value)}
                 placeholder={t("colorThemePlaceholder")}
@@ -200,8 +236,11 @@ export function CustomCakeWizard() {
           <div className="space-y-4">
             <h2 className="font-heading text-xl font-semibold">{t("step3Title")}</h2>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("messageOnCake")}</label>
+              <label htmlFor="cake-message" className="mb-1 block text-sm font-medium">
+                {t("messageOnCake")}
+              </label>
               <Input
+                id="cake-message"
                 value={form.messageOnCake}
                 onChange={(e) => update("messageOnCake", e.target.value)}
                 maxLength={120}
@@ -210,8 +249,10 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("referenceImages")}</label>
-              <div className="flex flex-wrap gap-3">
+              <span id="cake-ref-images-label" className="mb-1 block text-sm font-medium">
+                {t("referenceImages")}
+              </span>
+              <div role="group" aria-labelledby="cake-ref-images-label" className="flex flex-wrap gap-3">
                 {images.map((url) => (
                   <div key={url} className="relative size-24 overflow-hidden rounded-2xl">
                     <Image src={url} alt="" fill sizes="96px" className="object-cover" />
@@ -234,6 +275,7 @@ export function CustomCakeWizard() {
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/avif"
+                      aria-label={t("referenceImages")}
                       className="hidden"
                       onChange={handleFileSelect}
                       disabled={uploading}
@@ -250,8 +292,11 @@ export function CustomCakeWizard() {
           <div className="space-y-4">
             <h2 className="font-heading text-xl font-semibold">{t("step4Title")}</h2>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("needAt")}</label>
+              <label htmlFor="cake-need-at" className="mb-1 block text-sm font-medium">
+                {t("needAt")}
+              </label>
               <Input
+                id="cake-need-at"
                 type="datetime-local"
                 min={minNeedAt()}
                 value={form.needAt}
@@ -260,8 +305,11 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("budget")}</label>
+              <label htmlFor="cake-budget" className="mb-1 block text-sm font-medium">
+                {t("budget")}
+              </label>
               <Input
+                id="cake-budget"
                 type="number"
                 min={0}
                 value={form.budget}
@@ -277,20 +325,33 @@ export function CustomCakeWizard() {
           <div className="space-y-4">
             <h2 className="font-heading text-xl font-semibold">{t("step5Title")}</h2>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("customerName")}</label>
+              <label htmlFor="cake-customer-name" className="mb-1 block text-sm font-medium">
+                {t("customerName")}
+              </label>
               <Input
+                id="cake-customer-name"
                 value={form.customerName}
                 onChange={(e) => update("customerName", e.target.value)}
                 className="rounded-full"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("phone")}</label>
-              <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} className="rounded-full" />
+              <label htmlFor="cake-phone" className="mb-1 block text-sm font-medium">
+                {t("phone")}
+              </label>
+              <Input
+                id="cake-phone"
+                value={form.phone}
+                onChange={(e) => update("phone", e.target.value)}
+                className="rounded-full"
+              />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("email")}</label>
+              <label htmlFor="cake-email" className="mb-1 block text-sm font-medium">
+                {t("email")}
+              </label>
               <Input
+                id="cake-email"
                 type="email"
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
@@ -298,8 +359,11 @@ export function CustomCakeWizard() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t("note")}</label>
+              <label htmlFor="cake-note" className="mb-1 block text-sm font-medium">
+                {t("note")}
+              </label>
               <textarea
+                id="cake-note"
                 value={form.note}
                 onChange={(e) => update("note", e.target.value)}
                 rows={3}

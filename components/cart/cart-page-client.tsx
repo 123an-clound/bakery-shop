@@ -93,7 +93,7 @@ export function CartPageClient({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <Link href={`/san-pham/${item.slug}`} className="hover:text-primary font-medium">
+                    <Link href={`/san-pham/${item.slug}`} className="hover:text-brand-accent font-medium">
                       {item.name}
                     </Link>
                     {Object.keys(item.options).length > 0 ? (
@@ -129,7 +129,7 @@ export function CartPageClient({
                       <Plus className="size-3.5" />
                     </button>
                   </div>
-                  <span className="text-primary font-semibold">
+                  <span className="text-brand-accent font-semibold">
                     {formatMoney(item.unitPrice * item.qty, locale)}
                   </span>
                 </div>
@@ -149,10 +149,16 @@ export function CartPageClient({
           ) : (
             <div>
               <div className="flex gap-2">
+                <label htmlFor="coupon-input" className="sr-only">
+                  {t("couponPlaceholder")}
+                </label>
                 <Input
+                  id="coupon-input"
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
                   placeholder={t("couponPlaceholder")}
+                  aria-invalid={!!couponError}
+                  aria-describedby={couponError ? "coupon-error" : undefined}
                   className="rounded-full"
                 />
                 <Button
@@ -165,7 +171,11 @@ export function CartPageClient({
                   {t("applyCoupon")}
                 </Button>
               </div>
-              {couponError ? <p className="text-destructive mt-1 text-xs">{couponError}</p> : null}
+              {couponError ? (
+                <p id="coupon-error" className="text-destructive mt-1 text-xs">
+                  {couponError}
+                </p>
+              ) : null}
             </div>
           )}
 
@@ -186,7 +196,7 @@ export function CartPageClient({
             </div>
             <div className="border-border flex justify-between border-t pt-2 font-semibold">
               <span>{t("total")}</span>
-              <span className="text-primary text-lg">{formatMoney(total, locale)}</span>
+              <span className="text-brand-accent text-lg">{formatMoney(total, locale)}</span>
             </div>
           </div>
 

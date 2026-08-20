@@ -24,9 +24,17 @@ import { Toaster } from "@/components/ui/sonner";
 // its own `--font-<slug>` variable (see lib/theme/fonts.ts) — switching the
 // admin's heading/body pick only ever re-selects which variable
 // `--font-heading`/`--font-body` aliases (lib/theme/css-vars.ts), never
-// changes what's fetched at build time. Next.js self-hosts all 6 but a
-// browser only downloads the @font-face actually referenced by rendered
-// text, so an unpicked font never costs a real request.
+// changes what's fetched at build time.
+//
+// Phase 7 perf pass: `next/font/google` defaults `preload: true`, which
+// emits an eager `<link rel=preload as=font>` for EVERY font object created
+// here — regardless of whether it's the theme's actually-selected font.
+// Lighthouse mobile-throttled LCP showed the hero image competing with a
+// dozen+ preloaded font files most visits never use. Only the two fonts the
+// seeded default theme actually picks (Baloo 2 heading / Be Vietnam Pro
+// body — lib/theme/default-theme.ts) get preloaded; the other 4 still
+// declare @font-face (so an admin can switch to them with zero rebuild) but
+// load normally, on demand, once actually referenced.
 const baloo2 = Baloo_2({
   variable: "--font-baloo-2",
   subsets: ["vietnamese", "latin"],
@@ -44,24 +52,28 @@ const quicksand = Quicksand({
   subsets: ["vietnamese", "latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["vietnamese", "latin"],
   weight: ["400", "600", "700", "800"],
   display: "swap",
+  preload: false,
 });
 const lora = Lora({
   variable: "--font-lora",
   subsets: ["vietnamese", "latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
   subsets: ["vietnamese", "latin"],
   weight: ["500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 const THEME_FONT_VARIABLES = [baloo2, beVietnamPro, quicksand, nunito, lora, playfairDisplay]
   .map((f) => f.variable)

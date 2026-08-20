@@ -42,7 +42,7 @@ export function ProductPreviewCard({ data }: { data: ProductData }) {
           </div>
         ) : null}
         <div className="flex items-center gap-2">
-          <span className="text-primary font-bold">{formatMoney(hasSale ? data.sale_price! : data.price)}</span>
+          <span className="text-brand-accent font-bold">{formatMoney(hasSale ? data.sale_price! : data.price)}</span>
           {hasSale ? <span className="text-muted-foreground text-xs line-through">{formatMoney(data.price)}</span> : null}
         </div>
       </div>

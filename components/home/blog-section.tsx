@@ -21,7 +21,7 @@ export async function BlogSection({ locale }: { locale: Locale }) {
       <FadeIn>
         <div className="mb-8 flex items-end justify-between">
           <h2 className="font-heading text-2xl font-bold sm:text-3xl">{t("blogTitle")}</h2>
-          <Link href="/tin-tuc" className="text-primary text-sm font-medium hover:underline">
+          <Link href="/tin-tuc" className="text-brand-accent text-sm font-medium hover:underline">
             {t("blogViewAll")}
           </Link>
         </div>
@@ -44,7 +44,7 @@ export async function BlogSection({ locale }: { locale: Locale }) {
               <p className="text-muted-foreground mt-3 text-xs">
                 {post.data.published_at ? formatDate(post.data.published_at, locale) : formatDate(post.created_at, locale)}
               </p>
-              <h3 className="group-hover:text-primary mt-1 line-clamp-2 font-semibold transition-colors">
+              <h3 className="group-hover:text-brand-accent mt-1 line-clamp-2 font-semibold transition-colors">
                 {tField(post.data.title, locale)}
               </h3>
             </Link>

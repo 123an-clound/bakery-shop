@@ -131,10 +131,16 @@
   --muted-foreground: #6b5a4e;
   --accent: #f3e9e1;
   --accent-foreground: #3a2a22;
-  --destructive: #e76a6a;
-  /* Not cream/white: measured contrast on #E76A6A is only 3.06:1 (fails WCAG
-     AA 4.5:1). This deepened cocoa passes at 5.19:1 — muc 7.4 "phai do,
-     khong doan". */
+  /* Phase 7 muc 7.4 WCAG re-pass: --destructive is rendered as TEXT
+     (text-destructive) everywhere on the customer site - form errors,
+     out-of-stock labels, delete icons - never as a solid background here.
+     The original #e76a6a only hit 3.15:1 against the cream/white body
+     background (fails 4.5:1). Deepened to #b84545, measured at 5.13-5.28:1
+     against cream/white, keeping the same coral-red hue. */
+  --destructive: #b84545;
+  /* Kept for the (currently unused on the customer site) bg-destructive
+     solid-background pairing — measured contrast on #E76A6A was only
+     3.06:1 (fails WCAG AA 4.5:1); this deepened cocoa passes at 5.19:1. */
   --destructive-foreground: #2a1d16;
   --border: #f0e2d6;
   --input: #f0e2d6;
@@ -209,7 +215,11 @@
   --card-foreground: #262220;
   --popover: #ffffff;
   --popover-foreground: #262220;
-  --primary: #e87ba6;
+  /* Phase 7 mục 7.4 WCAG pass: the original --primary (#e87ba6) only hit
+     2.61:1 with a light --primary-foreground — every "Lưu"/"Xuất bản" button
+     in the admin failed AA. Deepened both --primary and --destructive
+     (measured, not guessed) so white/cream text on them clears 4.5:1. */
+  --primary: #b83d70;
   --primary-foreground: #fffbf7;
   --secondary: #f4f4f5;
   --secondary-foreground: #262220;
@@ -217,20 +227,20 @@
   --muted-foreground: #6b6560;
   --accent: #fdf1f5;
   --accent-foreground: #9c3d64;
-  --destructive: #d1435a;
+  --destructive: #b8334a;
   --destructive-foreground: #fffbf7;
   --border: #e7e5e4;
   --input: #e7e5e4;
-  --ring: #e87ba6;
+  --ring: #b83d70;
   --radius: 0.65rem;
   --sidebar: #ffffff;
   --sidebar-foreground: #262220;
-  --sidebar-primary: #e87ba6;
+  --sidebar-primary: #b83d70;
   --sidebar-primary-foreground: #fffbf7;
   --sidebar-accent: #fdf1f5;
   --sidebar-accent-foreground: #9c3d64;
   --sidebar-border: #e7e5e4;
-  --sidebar-ring: #e87ba6;
+  --sidebar-ring: #b83d70;
 }
 
 /* Admin invoice print page — mục 9.4: "trang in riêng khổ A5, @media print". */

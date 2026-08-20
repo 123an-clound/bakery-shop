@@ -69,7 +69,7 @@ export function ProductCard({
       </div>
 
       <div className="mt-3 space-y-1">
-        <h3 className="group-hover:text-primary line-clamp-1 text-sm font-semibold transition-colors sm:text-base">
+        <h3 className="group-hover:text-brand-accent line-clamp-1 text-sm font-semibold transition-colors sm:text-base">
           {t(data.name, locale)}
         </h3>
         {data.rating_count > 0 ? (
@@ -80,7 +80,7 @@ export function ProductCard({
           </div>
         ) : null}
         <div className="flex items-center gap-2">
-          <span className="font-heading text-primary font-bold">
+          <span className="font-heading text-brand-accent font-bold">
             {formatMoney(hasSale ? data.sale_price! : data.price, locale)}
           </span>
           {hasSale ? (

@@ -44,14 +44,22 @@ export function ReviewForm({ productId }: { productId: number }) {
         })}
       </div>
 
+      <label htmlFor="review-author" className="sr-only">
+        {t("reviewAuthorPlaceholder")}
+      </label>
       <Input
+        id="review-author"
         name="author"
         placeholder={t("reviewAuthorPlaceholder")}
         required
         maxLength={80}
         className="rounded-full"
       />
+      <label htmlFor="review-content" className="sr-only">
+        {t("reviewContentPlaceholder")}
+      </label>
       <textarea
+        id="review-content"
         name="content"
         required
         minLength={5}

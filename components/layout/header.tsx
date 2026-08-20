@@ -65,11 +65,14 @@ export function Header({
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
+        <Link href="/" className="flex min-w-0 items-center gap-2">
           {logoUrl ? (
-            <Image src={logoUrl} alt={brandName} width={40} height={40} className="rounded-full" />
+            <Image src={logoUrl} alt={brandName} width={40} height={40} className="shrink-0 rounded-full" />
           ) : null}
-          <span className="font-heading text-primary text-xl font-bold">{brandName}</span>
+          {/* Admin-configurable brand name — truncate instead of overflowing
+              the header on narrow viewports (min-w-0 lets this flex child
+              shrink below its content size so truncate can take effect). */}
+          <span className="font-heading text-brand-accent truncate text-xl font-bold">{brandName}</span>
         </Link>
 
         <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex">
@@ -77,7 +80,7 @@ export function Header({
             <Link
               key={item.key}
               href={item.href}
-              className="hover:text-primary text-sm font-medium transition-colors"
+              className="hover:text-brand-accent text-sm font-medium transition-colors"
             >
               {t(item.key)}
             </Link>
@@ -86,7 +89,7 @@ export function Header({
 
         <div className="relative hidden flex-1 max-w-xs items-center md:flex lg:max-w-56">
           <Search className="text-muted-foreground pointer-events-none absolute left-3 size-4" />
-          <Input placeholder={t("search")} className="rounded-full pl-9" />
+          <Input placeholder={t("search")} aria-label={t("search")} className="rounded-full pl-9" />
         </div>
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">

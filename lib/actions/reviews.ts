@@ -36,7 +36,7 @@ export async function submitReview(
   });
 
   if (!parsed.success) {
-    return { status: "error", message: "Vui long dien day du va hop le cac truong." };
+    return { status: "error", message: "Vui lòng điền đầy đủ và hợp lệ các trường." };
   }
 
   try {
@@ -51,12 +51,12 @@ export async function submitReview(
       },
     });
   } catch {
-    return { status: "error", message: "Co loi xay ra, vui long thu lai sau." };
+    return { status: "error", message: "Có lỗi xảy ra, vui lòng thử lại sau." };
   }
 
   // Note: a pending review is invisible to anon reads (RLS only exposes
   // `approved`), so this doesn't actually change what the submitter sees —
   // still correct to invalidate in case an admin views this same session.
   updateTag("reviews");
-  return { status: "success", message: "Cam on ban da danh gia! Danh gia se hien thi sau khi duoc duyet." };
+  return { status: "success", message: "Cảm ơn bạn đã đánh giá! Đánh giá sẽ hiển thị sau khi được duyệt." };
 }

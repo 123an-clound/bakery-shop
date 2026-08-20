@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t("vi")} className="rounded-full">
+        <Button variant="ghost" size="icon" aria-label={t(locale as "vi" | "en")} className="rounded-full">
           <Languages className="size-5" />
         </Button>
       </DropdownMenuTrigger>

@@ -21,16 +21,22 @@ export function SignUpForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium">{t("fullName")}</label>
-        <Input name="fullName" required className="rounded-full" />
+        <label htmlFor="signup-name" className="mb-1 block text-sm font-medium">
+          {t("fullName")}
+        </label>
+        <Input id="signup-name" name="fullName" required className="rounded-full" />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">{t("email")}</label>
-        <Input name="email" type="email" required className="rounded-full" />
+        <label htmlFor="signup-email" className="mb-1 block text-sm font-medium">
+          {t("email")}
+        </label>
+        <Input id="signup-email" name="email" type="email" required className="rounded-full" />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">{t("password")}</label>
-        <Input name="password" type="password" required minLength={6} className="rounded-full" />
+        <label htmlFor="signup-password" className="mb-1 block text-sm font-medium">
+          {t("password")}
+        </label>
+        <Input id="signup-password" name="password" type="password" required minLength={6} className="rounded-full" />
       </div>
 
       {state.status === "error" ? <p className="text-destructive text-sm">{state.message}</p> : null}
@@ -41,7 +47,7 @@ export function SignUpForm() {
 
       <p className="text-muted-foreground text-center text-sm">
         {t("haveAccount")}{" "}
-        <Link href="/tai-khoan/dang-nhap" className="text-primary hover:underline">
+        <Link href="/tai-khoan/dang-nhap" className="text-brand-accent underline underline-offset-2">
           {t("signInLink")}
         </Link>
       </p>

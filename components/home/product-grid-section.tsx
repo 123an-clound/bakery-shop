@@ -29,7 +29,7 @@ export function ProductGridSection({
         <div className="mb-8 flex items-end justify-between">
           <h2 className="font-heading text-2xl font-bold sm:text-3xl">{title}</h2>
           {viewAllHref ? (
-            <Link href={viewAllHref} className="text-primary text-sm font-medium hover:underline">
+            <Link href={viewAllHref} className="text-brand-accent text-sm font-medium hover:underline">
               {viewAllLabel}
             </Link>
           ) : null}

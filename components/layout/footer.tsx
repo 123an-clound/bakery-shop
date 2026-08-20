@@ -15,7 +15,7 @@ export function Footer({ settings, locale }: { settings: SettingSiteData; locale
     <footer className="bg-secondary/40 border-border mt-16 border-t">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4 lg:px-8">
         <div className="space-y-3 md:col-span-2">
-          <span className="font-heading text-primary text-lg font-bold">
+          <span className="font-heading text-brand-accent text-lg font-bold">
             {t(settings.brand_name, locale)}
           </span>
           {settings.tagline ? (
@@ -40,16 +40,16 @@ export function Footer({ settings, locale }: { settings: SettingSiteData; locale
         <div className="space-y-2">
           <h3 className="font-heading text-sm font-semibold">{tf("policyTitle")}</h3>
           <nav className="text-muted-foreground flex flex-col gap-1.5 text-sm">
-            <Link href="/gioi-thieu" className="hover:text-primary">
+            <Link href="/gioi-thieu" className="hover:text-brand-accent">
               {tn("about")}
             </Link>
-            <Link href="/chinh-sach-giao-hang" className="hover:text-primary">
+            <Link href="/chinh-sach-giao-hang" className="hover:text-brand-accent">
               {tf("shippingPolicy")}
             </Link>
-            <Link href="/dieu-khoan" className="hover:text-primary">
+            <Link href="/dieu-khoan" className="hover:text-brand-accent">
               {tf("terms")}
             </Link>
-            <Link href="/lien-he" className="hover:text-primary">
+            <Link href="/lien-he" className="hover:text-brand-accent">
               {tn("contact")}
             </Link>
           </nav>

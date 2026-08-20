@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 export function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
+  const t = useTranslations("ProductDetail");
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const current = images[active];
@@ -25,6 +27,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           alt={alt}
           fill
           priority
+          fetchPriority="high"
           sizes="(min-width: 1024px) 45vw, 100vw"
           className="object-cover transition-transform duration-300 hover:scale-105"
         />
@@ -37,6 +40,8 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               key={img}
               type="button"
               onClick={() => setActive(i)}
+              aria-label={t("thumbnailLabel", { index: i + 1 })}
+              aria-pressed={i === active}
               className={cn(
                 "relative size-16 shrink-0 overflow-hidden rounded-2xl border-2 transition-colors",
                 i === active ? "border-primary" : "border-transparent",

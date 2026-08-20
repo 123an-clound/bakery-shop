@@ -50,7 +50,13 @@ export function OrdersClient({ orders }: { orders: AdminOrderRow[] }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Input placeholder="Tìm mã đơn / SĐT / tên..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-9 w-64" />
+          <Input
+            placeholder="Tìm mã đơn / SĐT / tên..."
+            aria-label="Tìm đơn hàng"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 w-64"
+          />
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="h-9 w-44">
               <SelectValue placeholder="Trạng thái" />

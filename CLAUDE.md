@@ -171,4 +171,53 @@
       hiệu lực ngay, không rebuild; thêm 1 sản phẩm mới qua admin → xuất
       hiện ngay trong danh sách sản phẩm khách (25 → sau khi xoá lại 24).
       Đã xoá/khôi phục toàn bộ dữ liệu test sau khi xác minh.
-- [ ] Phase 7 — Kiểm thử, tối ưu, bàn giao.
+- [x] Phase 7 — Kiểm thử, tối ưu, bàn giao: **Security/OWASP** — sửa 1 XSS thật
+      (`components/seo/json-ld.tsx` không escape `<` trước khi nhét JSON-LD vào
+      `dangerouslySetInnerHTML`, cho phép admin-entered string phá vỡ thẻ
+      `<script>`), 1 rò rỉ PII thật (log email khách khi Resend chưa cấu hình —
+      redact khi `NODE_ENV=production`), thêm CSP header, thêm `requireAdmin()`
+      trực tiếp vào route export CSV cho defense-in-depth.
+      **Accessibility/WCAG** — sửa contrast thật trên CẢ hai theme: admin
+      `--primary`/`--destructive` (Phase 6 cũ chỉ 2.61:1/4.37:1) và customer
+      `--destructive` dùng làm text (3.15:1); phát hiện `text-primary` (màu nền
+      hồng) bị dùng SAI làm màu CHỮ ở 20+ chỗ (header/footer/giá tiền/link) chỉ
+      1.75-2.19:1 — đổi sang `text-brand-accent` (cocoa đậm, đúng vai trò "chữ dễ
+      đọc", giữ nguyên `text-primary` ở các cặp nền+chữ đã đúng). Sửa thiếu
+      label/aria-label trên ~10 form (checkout, đăng nhập/ký, tra cứu đơn, đặt
+      bánh riêng, review, coupon, dropdown sắp xếp, nút thumbnail gallery, Radix
+      Slider). Sửa `<dl>` sai cấu trúc (story-section), link trong đoạn văn chỉ
+      phân biệt bằng màu (thiếu underline cố định), header brand name gây tràn
+      ngang thật ở 360px (thiếu `min-w-0`/`truncate`).
+      **Performance/Web Vitals** — phát hiện `next/font/google` mặc định
+      `preload:true` khiến CẢ 6 font Theme Editor được eager-preload trên mọi
+      trang dù chỉ 1-2 đang dùng, cạnh tranh băng thông với ảnh LCP trên mobile
+      — tắt preload cho 4 font không phải mặc định. Next.js `priority` trên
+      `<Image>` KHÔNG tự set `fetchpriority="high"` (xác nhận qua Context7) —
+      thêm `fetchPriority="high"` cho ảnh hero + ảnh gallery sản phẩm. Đo được
+      (Lighthouse mobile, throttling thật): LCP trang chủ 6.6s → 4.0s, điểm
+      Performance 68 → 80. **Chưa đạt ngưỡng ≥90/LCP<2.5s mục 11** — nguyên
+      nhân còn lại là ảnh placeholder Lorem Picsum (đã chốt là ảnh TẠM từ Phase
+      0) cộng với server chạy local không có CDN thật; sẽ tự cải thiện đáng kể
+      khi chủ tiệm thay ảnh thật + deploy lên hạ tầng thật, không cần sửa code.
+      **Bug thật khác phát hiện qua Playwright trên bản production thật**: form
+      đặt bánh riêng — `defaultNeedAt()` dùng `toISOString()` (UTC) làm giá trị
+      cho `<input type="datetime-local">` (đọc là giờ ĐỊA PHƯƠNG, không phải
+      UTC) — trên máy VN (UTC+7) khiến giá trị mặc định luôn bị server từ chối
+      âm thầm vì thực tế chưa đủ 24h tối thiểu; sửa bằng cách dựng chuỗi từ các
+      getter giờ địa phương. 2 file Server Action (`lib/actions/coupon.ts`,
+      `lib/actions/reviews.ts`) trả thông báo tiếng Việt KHÔNG dấu hiển thị
+      thẳng cho khách — đã thêm dấu đầy đủ.
+      **Playwright e2e đầy đủ** (`tests/e2e/`, 6 file, 31 test, 13 kịch bản mục
+      13) chạy trên `pnpm build && pnpm start` thật — phát hiện bug thật next-
+      intl tự redirect `/` → `/en` khi Accept-Language mặc định của Chromium là
+      en-US (đã cố định `locale: "vi-VN"` trong `playwright.config.ts`).
+      Vitest thêm `t()` fallback i18n (49/49 unit test xanh). Test responsive
+      360/768/1024/1440/1920px (không tràn ngang), `prefers-reduced-motion`,
+      điều hướng bàn phím — đều xanh.
+      **README.md** thêm trọn phần "Hướng dẫn cho chủ tiệm (không cần biết
+      code)" ở đầu file: đăng nhập/đổi mật khẩu, thêm/sửa sản phẩm, thay ảnh,
+      đổi tài khoản ngân hàng, đổi màu/thứ tự section, bảng tra cứu các trang
+      hay dùng.
+      ✅ **DoD**: `pnpm build && pnpm start` chạy sạch; toàn bộ e2e (31/31),
+      unit test (49/49), typecheck, lint đều xanh trên bản production thật;
+      kiến trúc + toàn bộ quyết định Phase 7 đã ghi vào `codebase-memory-mcp`.

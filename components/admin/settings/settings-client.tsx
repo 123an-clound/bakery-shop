@@ -255,13 +255,14 @@ export function SettingsClient({ initial, initialNotifyEmails }: { initial: Shop
           <Textarea id="seo-desc" rows={3} value={data.seo?.description?.vi ?? ""} onChange={(e) => patch({ seo: { ...data.seo, description: { ...data.seo?.description, vi: e.target.value } } })} />
         </div>
         <div className="space-y-3">
-          <Label>Ảnh Open Graph</Label>
+          <Label htmlFor="seo-og-image">Ảnh Open Graph</Label>
           {data.seo?.og_image ? (
             <div className="relative h-32 w-56 overflow-hidden rounded-lg border">
               <Image src={data.seo.og_image} alt="" fill sizes="224px" className="object-cover" />
             </div>
           ) : null}
           <Input
+            id="seo-og-image"
             value={data.seo?.og_image ?? ""}
             onChange={(e) => patch({ seo: { ...data.seo, og_image: e.target.value } })}
             placeholder="https://..."

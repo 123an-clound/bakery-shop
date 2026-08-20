@@ -23,22 +23,22 @@ export type ApplyCouponResult =
 export async function applyCoupon(code: string, subtotal: number): Promise<ApplyCouponResult> {
   const parsed = inputSchema.safeParse({ code, subtotal });
   if (!parsed.success) {
-    return { ok: false, message: "Ma giam gia khong hop le." };
+    return { ok: false, message: "Mã giảm giá không hợp lệ." };
   }
 
   const coupon = await getActiveCouponByCode(parsed.data.code);
   if (!coupon) {
-    return { ok: false, message: "Ma giam gia khong ton tai hoac da bi vo hieu hoa." };
+    return { ok: false, message: "Mã giảm giá không tồn tại hoặc đã bị vô hiệu hoá." };
   }
 
   const result = validateCoupon(coupon.data, parsed.data.subtotal);
   if (!result.valid) {
     const messages: Record<typeof result.reason, string> = {
-      expired: "Ma giam gia da het han.",
-      not_started: "Ma giam gia chua co hieu luc.",
-      usage_limit_reached: "Ma giam gia da het luot su dung.",
-      min_order_not_met: "Don hang chua dat gia tri toi thieu de ap dung ma nay.",
-      disabled: "Ma giam gia khong con hoat dong.",
+      expired: "Mã giảm giá đã hết hạn.",
+      not_started: "Mã giảm giá chưa có hiệu lực.",
+      usage_limit_reached: "Mã giảm giá đã hết lượt sử dụng.",
+      min_order_not_met: "Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.",
+      disabled: "Mã giảm giá không còn hoạt động.",
     };
     return { ok: false, message: messages[result.reason] };
   }

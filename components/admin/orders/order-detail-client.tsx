@@ -127,7 +127,13 @@ export function OrderDetailClient({ order }: { order: AdminOrderRow }) {
             <CardTitle>Ghi chú nội bộ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Chỉ admin nhìn thấy..." />
+            <Textarea
+              aria-label="Ghi chú nội bộ"
+              rows={3}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Chỉ admin nhìn thấy..."
+            />
             <Button size="sm" variant="outline" disabled={isPending} onClick={handleSaveNote}>
               Lưu ghi chú
             </Button>

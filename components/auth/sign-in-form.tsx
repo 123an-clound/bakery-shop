@@ -17,12 +17,16 @@ export function SignInForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium">{t("email")}</label>
-        <Input name="email" type="email" required className="rounded-full" />
+        <label htmlFor="signin-email" className="mb-1 block text-sm font-medium">
+          {t("email")}
+        </label>
+        <Input id="signin-email" name="email" type="email" required className="rounded-full" />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">{t("password")}</label>
-        <Input name="password" type="password" required className="rounded-full" />
+        <label htmlFor="signin-password" className="mb-1 block text-sm font-medium">
+          {t("password")}
+        </label>
+        <Input id="signin-password" name="password" type="password" required className="rounded-full" />
       </div>
 
       {state.status === "error" ? <p className="text-destructive text-sm">{state.message}</p> : null}
@@ -33,7 +37,7 @@ export function SignInForm() {
 
       <p className="text-muted-foreground text-center text-sm">
         {t("noAccount")}{" "}
-        <Link href="/tai-khoan/dang-ky" className="text-primary hover:underline">
+        <Link href="/tai-khoan/dang-ky" className="text-brand-accent underline underline-offset-2">
           {t("signUpLink")}
         </Link>
       </p>

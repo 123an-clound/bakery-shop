@@ -182,6 +182,8 @@ export function ThemeEditor({
                     className="h-8 w-10 shrink-0 cursor-pointer rounded border"
                   />
                   <Input
+                    id={`color-hex-${key}`}
+                    aria-label={`${COLOR_LABELS[key]} (mã hex)`}
                     value={theme.colors[key]}
                     onChange={(e) => patchTheme({ colors: { ...theme.colors, [key]: e.target.value } })}
                     className="h-8 text-xs"
@@ -231,8 +233,10 @@ export function ThemeEditor({
         <div className="space-y-4 rounded-lg border p-4">
           <h2 className="font-semibold">Bo góc & hiệu ứng</h2>
           <div className="space-y-1.5">
-            <Label>Độ bo góc ({radiusRemToSlider(theme.radius)}rem)</Label>
+            <Label htmlFor="radius-slider">Độ bo góc ({radiusRemToSlider(theme.radius)}rem)</Label>
             <Slider
+              id="radius-slider"
+              aria-label="Độ bo góc"
               value={[radiusRemToSlider(theme.radius)]}
               min={0}
               max={3}

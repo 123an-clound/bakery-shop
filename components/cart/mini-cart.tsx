@@ -58,7 +58,7 @@ export function MiniCart({ locale }: { locale: Locale }) {
                     {Object.keys(item.options).length > 0 ? (
                       <p className="text-muted-foreground text-xs">{Object.values(item.options).join(", ")}</p>
                     ) : null}
-                    <p className="text-primary text-sm font-semibold">{formatMoney(item.unitPrice, locale)}</p>
+                    <p className="text-brand-accent text-sm font-semibold">{formatMoney(item.unitPrice, locale)}</p>
                     <div className="mt-1 flex items-center gap-2">
                       <button
                         type="button"
@@ -94,7 +94,7 @@ export function MiniCart({ locale }: { locale: Locale }) {
             <div className="border-border space-y-3 border-t px-4 pt-4 pb-2">
               <div className="flex items-center justify-between font-semibold">
                 <span>{t("subtotal")}</span>
-                <span className="text-primary">{formatMoney(cartSubtotal(items), locale)}</span>
+                <span className="text-brand-accent">{formatMoney(cartSubtotal(items), locale)}</span>
               </div>
               <Button asChild className="w-full rounded-full">
                 <Link href="/gio-hang">{t("viewCart")}</Link>

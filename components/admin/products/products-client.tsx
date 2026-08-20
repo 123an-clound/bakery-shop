@@ -190,6 +190,7 @@ export function ProductsClient({
         <div className="flex flex-wrap items-center gap-2">
           <Input
             placeholder="Tìm sản phẩm..."
+            aria-label="Tìm sản phẩm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-9 w-56"
