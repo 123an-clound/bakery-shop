@@ -12,7 +12,11 @@ const nextConfig: NextConfig = {
     {
       source: "/(.*)",
       headers: [
-        { key: "X-Frame-Options", value: "DENY" },
+        // SAMEORIGIN, not DENY: the Theme Editor (Phase 6, mục 9.6) embeds
+        // the customer site in its own live-preview iframe
+        // (/?preview=1) — still blocks any *other* origin from framing us
+        // (the actual clickjacking threat), just not ourselves.
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       ],

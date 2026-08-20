@@ -91,7 +91,40 @@ export function SortableDataTable<T>({
 
   const rowIds = items.map(getRowId);
 
-  return (
+  const tableBody = (
+    <TableBody>
+      {onReorder ? (
+        items.map((row) => (
+          <SortableRow key={getRowId(row)} id={getRowId(row)}>
+            {columns.map((col) => (
+              <TableCell key={col.id} className={col.className}>
+                {col.cell(row)}
+              </TableCell>
+            ))}
+          </SortableRow>
+        ))
+      ) : (
+        items.map((row) => (
+          <TableRow key={getRowId(row)}>
+            {columns.map((col) => (
+              <TableCell key={col.id} className={col.className}>
+                {col.cell(row)}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))
+      )}
+      {items.length === 0 ? (
+        <TableRow>
+          <TableCell colSpan={columns.length + (onReorder ? 1 : 0)} className="text-muted-foreground py-8 text-center">
+            {emptyMessage}
+          </TableCell>
+        </TableRow>
+      ) : null}
+    </TableBody>
+  );
+
+  const table = (
     <div className="overflow-x-auto rounded-lg border">
       <Table>
         <TableHeader>
@@ -104,41 +137,23 @@ export function SortableDataTable<T>({
             ))}
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {onReorder ? (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={rowIds} strategy={verticalListSortingStrategy}>
-                {items.map((row) => (
-                  <SortableRow key={getRowId(row)} id={getRowId(row)}>
-                    {columns.map((col) => (
-                      <TableCell key={col.id} className={col.className}>
-                        {col.cell(row)}
-                      </TableCell>
-                    ))}
-                  </SortableRow>
-                ))}
-              </SortableContext>
-            </DndContext>
-          ) : (
-            items.map((row) => (
-              <TableRow key={getRowId(row)}>
-                {columns.map((col) => (
-                  <TableCell key={col.id} className={col.className}>
-                    {col.cell(row)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          )}
-          {items.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={columns.length + (onReorder ? 1 : 0)} className="text-muted-foreground py-8 text-center">
-                {emptyMessage}
-              </TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
+        {tableBody}
       </Table>
     </div>
+  );
+
+  // DndContext renders its own a11y helper elements (a hidden live-region
+  // div) as siblings of its children — nesting it inside <TableBody> put
+  // those divs directly under <tbody>, which isn't valid HTML (only <tr>
+  // can be a child of <tbody>) and triggered a real hydration error. It
+  // must wrap the whole table instead, never just the rows.
+  if (!onReorder) return table;
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={rowIds} strategy={verticalListSortingStrategy}>
+        {table}
+      </SortableContext>
+    </DndContext>
   );
 }
