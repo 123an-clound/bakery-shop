@@ -106,7 +106,20 @@
       `updateTag()` trong Server Action thay thế. Đã tìm & sửa 2 bug thật
       qua browser thật (Playwright): thiếu `priority` cho ảnh LCP hàng đầu,
       trang chi tiết sản phẩm thiếu giá gốc gạch ngang khi có sale.
-- [ ] Phase 4 — Giỏ hàng, đặt hàng, custom cake.
+- [x] Phase 4 — Giỏ hàng, đặt hàng, custom cake: Zustand cart (persist +
+      `skipHydration`, xem `lib/store/cart.ts`), mini-cart trong Header/
+      MobileNav, `/gio-hang` (coupon + free-ship progress), `/thanh-toan`
+      (react-hook-form + zod) → `POST /api/orders` (tính giá lại hoàn toàn
+      từ DB, validate option/price_delta, sinh mã đơn, gửi email) →
+      `/dat-hang-thanh-cong/[code]` (VietQR, confetti) → `/tra-cuu-don-hang`
+      (mã + 4 số cuối SĐT). `POST /api/upload` (magic bytes, uuid rename).
+      `/dat-banh-theo-yeu-cau` wizard 5 bước. **Bug RLS thật đã sửa**: migration
+      0004 — `coupon` chưa từng được liệt kê trong policy đọc công khai
+      (từ 0002), khiến mọi mã giảm giá luôn báo "không tồn tại" cho khách —
+      phát hiện và sửa qua kiểm thử trình duyệt thật, verify lại bằng đơn
+      hàng thật (FREESHIP áp dụng đúng, order xuất hiện trong Supabase với
+      giá tính lại ở server, đã test cả 2 kịch bản tấn công: gửi `total`
+      giả bị bỏ qua, gửi option không tồn tại bị từ chối 400).
 - [ ] Phase 5 — Tài khoản khách hàng.
 - [ ] Phase 6 — Trang admin.
 - [ ] Phase 7 — Kiểm thử, tối ưu, bàn giao.
