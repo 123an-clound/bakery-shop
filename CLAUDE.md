@@ -77,7 +77,20 @@
       (`pnpm seed`) đã chạy: 2 setting, 1 theme, 6 category, 24 product, 3 banner, 3 post,
       4 page, 2 coupon, 6 review, 3 order. Xác nhận anon key insert bị chặn (401/RLS), anon đọc
       được sản phẩm active nhưng không đọc được setting/private (draft).
-- [ ] Phase 2 — Design system & layout.
+- [x] Phase 2 — Design system & layout: `app/` restructured dưới `app/[locale]/`
+      (next-intl, vi mặc định không prefix). Next.js 16 đổi `middleware.ts` thành
+      `proxy.ts` — dùng `proxy.ts` cho i18n routing. `globals.css` có token
+      Playful Pastel 3D, đổi màu runtime qua inline style trên `<html>`
+      (`lib/theme/css-vars.ts`, đọc từ `getTheme()`/`getSiteSettings()` —
+      cached bằng `unstable_cache`, tag `theme`/`settings`). Font Baloo 2 +
+      Be Vietnam Pro (`next/font`, subset vietnamese). Header/Footer/MobileNav/
+      AnnouncementBar, 5 component motion (FadeIn/Parallax/Tilt3D/Marquee/
+      Confetti), `/dev/ui` component gallery. Đã sửa 1 lỗi WCAG thật (cream
+      trên destructive chỉ 3.06:1 → đổi sang cocoa đậm 5.19:1) và 1 lỗi
+      hydration thật (đọc localStorage/matchMedia qua nhánh `typeof window`
+      trong lazy `useState` — sửa bằng `useSyncExternalStore`). lucide-react
+      bản đang dùng đã bỏ icon brand (Facebook/Instagram) — dùng SVG inline
+      riêng (`components/icons/social.tsx`).
 - [ ] Phase 3 — Trang khách hàng phần đọc.
 - [ ] Phase 4 — Giỏ hàng, đặt hàng, custom cake.
 - [ ] Phase 5 — Tài khoản khách hàng.
