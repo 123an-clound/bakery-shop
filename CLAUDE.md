@@ -69,7 +69,14 @@
 - [x] Phase 0 — Chuẩn bị: scaffold Next.js 16 + Tailwind v4 + shadcn/ui (nova/radix), cài đặt
       toàn bộ dependency theo mục 3 kế hoạch, `.env.local` đã điền đủ, `tsconfig` strict +
       `noUncheckedIndexedAccess`.
-- [ ] Phase 1 — Nền tảng dữ liệu (migration `0001_bakery_core.sql`, Zod schemas, queries/mutations, seed).
+- [x] Phase 1 — Nền tảng dữ liệu: migration `0001_bakery_core.sql` + `0002_..._fix_advisors.sql`
+      (advisors sạch, trừ 2 cảnh báo thuộc dự án khác/Auth toàn project — xem ADR), types sinh từ
+      `Supabase.generate_typescript_types` (`lib/supabase/database.types.ts`), 3 client Supabase
+      (`client.ts`/`server.ts`/`admin.ts`), Zod schema cho đủ 15 `type`
+      (`lib/bakery/schemas.ts`, 13 unit test xanh), `queries.ts` + `mutations.ts`, seed script
+      (`pnpm seed`) đã chạy: 2 setting, 1 theme, 6 category, 24 product, 3 banner, 3 post,
+      4 page, 2 coupon, 6 review, 3 order. Xác nhận anon key insert bị chặn (401/RLS), anon đọc
+      được sản phẩm active nhưng không đọc được setting/private (draft).
 - [ ] Phase 2 — Design system & layout.
 - [ ] Phase 3 — Trang khách hàng phần đọc.
 - [ ] Phase 4 — Giỏ hàng, đặt hàng, custom cake.

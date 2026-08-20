@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# bakery-store
 
-## Getting Started
+Website bán bánh kem & bánh ngọt — Next.js 16 (App Router) + Supabase. Đặc tả đầy đủ ở
+[`KE-HOACH-DU-AN.md`](./KE-HOACH-DU-AN.md). Hướng dẫn dành cho chủ tiệm (không cần biết code)
+sẽ được viết đầy đủ ở Phase 7 — bản này là hướng dẫn kỹ thuật cho quá trình phát triển.
 
-First, run the development server:
+## Chạy dự án
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Biến môi trường
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.local.example` thành `.env.local` và điền đủ giá trị (xem file đó để biết từng biến
+dùng để làm gì). `SUPABASE_SERVICE_ROLE_KEY` và `ADMIN_PASSWORD` không bao giờ được commit hay
+lộ ra phía client.
 
-## Learn More
+## Dữ liệu mẫu (seed)
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Script `scripts/seed.ts` chèn dữ liệu mẫu vào bảng `public.bakery` (setting, theme, 6 danh mục,
+24 sản phẩm, banner, blog, trang tĩnh, coupon, review, đơn hàng mẫu). Script chỉ chạy khi bảng
+đang trống, để tránh chèn trùng.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> **Ảnh trong dữ liệu mẫu là ảnh placeholder** từ [Lorem Picsum](https://picsum.photos) (dịch vụ
+> ảnh chờ ổn định, không vi phạm bản quyền) — **không phải ảnh sản phẩm thật**. Chủ tiệm cần thay
+> bằng ảnh bánh thật của tiệm qua trang quản trị (`/admin/san-pham`, `/admin/danh-muc`,
+> `/admin/giao-dien`) trước khi vận hành thật.
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Lệnh | Mục đích |
+|---|---|
+| `pnpm dev` | Chạy dev server |
+| `pnpm build` | Build production |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm test` | Unit test (Vitest) |
+| `pnpm e2e` | E2E test (Playwright) |
+| `pnpm seed` | Seed dữ liệu mẫu vào Supabase |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Kiến trúc dữ liệu
+
+Toàn bộ dữ liệu nằm trong **một bảng duy nhất** `public.bakery` (single-table polymorphic +
+JSONB), phân biệt bằng cột `type`. Xem `CLAUDE.md` và mục 4 của `KE-HOACH-DU-AN.md` để hiểu chi
+tiết mô hình dữ liệu, và `lib/bakery/schemas.ts` cho Zod schema của từng `type`.
+
+## Deploy
+
+Dự án hiện **chỉ chạy local**, chưa deploy theo yêu cầu ban đầu, nhưng code được viết sẵn sàng
+để deploy lên Vercel khi cần (Server Components, Route Handlers, env vars chuẩn Next.js).
