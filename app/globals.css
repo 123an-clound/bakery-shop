@@ -4,12 +4,31 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Playful Pastel 3D design system — KE-HOACH-DU-AN.md muc 7.
+ *
+ * `theme.colors` (8 keys) from the `theme` DB row are runtime-overridable:
+ * app/[locale]/layout.tsx sets these as inline style="--primary: ...; ..." on
+ * <html>, which wins over the :root fallbacks below with zero rebuild. Every
+ * `@theme inline` entry below is an ALIAS (`var(--x)`), never a literal — that
+ * indirection is what makes the runtime override actually reach the compiled
+ * Tailwind utilities (a literal in @theme bakes the hex into the CSS at build
+ * time and a later inline-style override would have nothing to touch).
+ *
+ * shadcn's own UI-mechanics tokens (--accent/--accent-foreground for hover
+ * surfaces, --border/--input/--ring) are intentionally NOT 1:1 mapped to the
+ * plan's brand "accent" (cocoa brown, #7B4B2A) — that's a decorative brand
+ * color, not a hover-surface color, and reusing it as --accent would make
+ * dropdown/select hover states render as a dark brown overlay. The brand
+ * accent lives in --color-brand-accent instead.
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,6 +46,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -39,6 +59,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Brand palette (runtime-overridable from the `theme` DB row) */
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,41 +73,87 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-blob: var(--radius-blob-base);
+
+  /* Fixed decorative tokens (not admin-editable) — mục 7.1 */
+  --color-blush-deep: #e87ba6;
+  --color-mint: #a8dcc4;
+  --color-berry: #e76a6a;
+  --shadow-soft: 0 8px 30px -8px rgb(123 75 42 / 0.15);
+  --shadow-lift: 0 20px 45px -12px rgb(232 123 166 / 0.35);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-blob: blob-float 12s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Blob nền pastel — animate bang CSS @keyframes, khong dung JS (muc 7.2) */
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(2%, 4%) scale(1.05);
+  }
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* No dark-mode toggle in this project — declare light explicitly so
+     Chromium's forced/auto-dark-mode heuristic doesn't invert the pastel
+     palette when the OS/browser is set to dark. */
+  color-scheme: light;
+
+  /* Playful Pastel 3D — matches the seeded `theme` DB row (muc 7.1) */
+  --background: #fffbf7;
+  --foreground: #3a2a22;
+  --card: #ffffff;
+  --card-foreground: #3a2a22;
+  --popover: #ffffff;
+  --popover-foreground: #3a2a22;
+  --primary: #f7a8c4;
+  --primary-foreground: #3a2a22;
+  --secondary: #ffe7c7;
+  --secondary-foreground: #3a2a22;
+  --muted: #f3e9e1;
+  --muted-foreground: #6b5a4e;
+  --accent: #f3e9e1;
+  --accent-foreground: #3a2a22;
+  --destructive: #e76a6a;
+  /* Not cream/white: measured contrast on #E76A6A is only 3.06:1 (fails WCAG
+     AA 4.5:1). This deepened cocoa passes at 5.19:1 — muc 7.4 "phai do,
+     khong doan". */
+  --destructive-foreground: #2a1d16;
+  --border: #f0e2d6;
+  --input: #f0e2d6;
+  --ring: #f7a8c4;
+  --brand-accent: #7b4b2a;
+  --brand-accent-foreground: #fffbf7;
+  --success: #8bc79a;
+  --success-foreground: #1f3d27;
+  --radius: 1.5rem;
+  --radius-blob-base: 2.5rem;
+  --chart-1: #f7a8c4;
+  --chart-2: #ffe7c7;
+  --chart-3: #a8dcc4;
+  --chart-4: #7b4b2a;
+  --chart-5: #e76a6a;
+  --sidebar: #fff6ee;
+  --sidebar-foreground: #3a2a22;
+  --sidebar-primary: #f7a8c4;
+  --sidebar-primary-foreground: #3a2a22;
+  --sidebar-accent: #f3e9e1;
+  --sidebar-accent-foreground: #3a2a22;
+  --sidebar-border: #f0e2d6;
+  --sidebar-ring: #f7a8c4;
 }
 
 .dark {
@@ -99,9 +172,14 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.145 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --brand-accent: oklch(0.708 0 0);
+  --brand-accent-foreground: oklch(0.145 0 0);
+  --success: oklch(0.6 0.15 145);
+  --success-foreground: oklch(0.145 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -126,5 +204,23 @@
   }
   html {
     @apply font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+  }
+}
+
+/* Respect prefers-reduced-motion — mục 7.3: tat toan bo parallax/confetti/smooth-scroll */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

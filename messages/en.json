@@ -1,0 +1,50 @@
+{
+  "Metadata": {
+    "title": "Sweet Bakery — Fresh cakes & pastries every day",
+    "description": "Birthday cakes, cupcakes, cookies... order online, delivered in Ho Chi Minh City."
+  },
+  "Nav": {
+    "home": "Home",
+    "products": "Menu",
+    "customCake": "Custom Cake",
+    "blog": "Blog",
+    "about": "About",
+    "contact": "Contact",
+    "cart": "Cart",
+    "account": "Account",
+    "search": "Search cakes..."
+  },
+  "MobileNav": {
+    "home": "Home",
+    "products": "Categories",
+    "cart": "Cart",
+    "account": "Account"
+  },
+  "Footer": {
+    "aboutTitle": "About us",
+    "policyTitle": "Policies",
+    "shippingPolicy": "Shipping policy",
+    "terms": "Terms of service",
+    "contactTitle": "Contact",
+    "followTitle": "Follow us",
+    "newsletterTitle": "Subscribe",
+    "newsletterPlaceholder": "Your email",
+    "newsletterSubmit": "Subscribe",
+    "rights": "All rights reserved."
+  },
+  "LanguageSwitcher": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "AnnouncementBar": {
+    "close": "Dismiss announcement"
+  },
+  "Home": {
+    "heroTitleFallback": "Fresh cakes every day",
+    "heroCtaFallback": "Order now",
+    "viewMenu": "View menu",
+    "marqueeFresh": "🍰 Fresh cakes daily",
+    "marqueeDelivery": "2h fast delivery",
+    "marqueeCustomCake": "Custom cake orders"
+  }
+}

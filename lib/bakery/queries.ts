@@ -1,6 +1,9 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 import { settingSiteDataSchema, themeDataSchema } from "./schemas";
 import type { BakeryRow, BakeryType } from "./types";
@@ -58,16 +61,44 @@ export async function getById(id: number): Promise<BakeryRow | null> {
   return data as BakeryRow | null;
 }
 
-/** `setting` row with slug `site` — public shop info, parsed against its Zod schema. */
-export async function getSiteSettings() {
-  const row = await getBySlug("setting", "site");
-  if (!row) return null;
-  return { ...row, data: settingSiteDataSchema.parse(row.data) };
+async function getPublicBySlug(type: BakeryType, slug: string): Promise<BakeryRow | null> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("bakery")
+    .select("*")
+    .eq("type", type)
+    .eq("slug", slug)
+    .eq("status", "active")
+    .maybeSingle();
+  if (error) throw error;
+  return data as BakeryRow | null;
 }
 
-/** `theme` row with slug `default` — drives colors/fonts/home sections. */
-export async function getTheme() {
-  const row = await getBySlug("theme", "default");
-  if (!row) return null;
-  return { ...row, data: themeDataSchema.parse(row.data) };
-}
+/**
+ * `setting` row with slug `site` — public shop info, parsed against its Zod schema.
+ * Cached and tagged `settings`; admin writes call `revalidateTag("settings")`.
+ */
+export const getSiteSettings = unstable_cache(
+  async () => {
+    const row = await getPublicBySlug("setting", "site");
+    if (!row) return null;
+    return { ...row, data: settingSiteDataSchema.parse(row.data) };
+  },
+  ["bakery-setting-site"],
+  { tags: ["settings"] },
+);
+
+/**
+ * `theme` row with slug `default` — drives colors/fonts/home sections.
+ * Cached and tagged `theme`; admin Theme Editor calls `revalidateTag("theme")`
+ * after saving, so a color change shows up without a rebuild.
+ */
+export const getTheme = unstable_cache(
+  async () => {
+    const row = await getPublicBySlug("theme", "default");
+    if (!row) return null;
+    return { ...row, data: themeDataSchema.parse(row.data) };
+  },
+  ["bakery-theme-default"],
+  { tags: ["theme"] },
+);

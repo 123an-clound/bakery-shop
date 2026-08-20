@@ -1,0 +1,50 @@
+{
+  "Metadata": {
+    "title": "Tiệm Bánh Ngọt Ngào — Bánh kem & bánh ngọt tươi mỗi ngày",
+    "description": "Bánh kem sinh nhật, cupcake, cookie... đặt online, giao tận nơi tại TP.HCM."
+  },
+  "Nav": {
+    "home": "Trang chủ",
+    "products": "Thực đơn",
+    "customCake": "Đặt bánh riêng",
+    "blog": "Tin tức",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "cart": "Giỏ hàng",
+    "account": "Tài khoản",
+    "search": "Tìm bánh..."
+  },
+  "MobileNav": {
+    "home": "Trang chủ",
+    "products": "Danh mục",
+    "cart": "Giỏ hàng",
+    "account": "Tài khoản"
+  },
+  "Footer": {
+    "aboutTitle": "Về chúng tôi",
+    "policyTitle": "Chính sách",
+    "shippingPolicy": "Chính sách giao hàng",
+    "terms": "Điều khoản sử dụng",
+    "contactTitle": "Liên hệ",
+    "followTitle": "Theo dõi chúng tôi",
+    "newsletterTitle": "Đăng ký nhận tin",
+    "newsletterPlaceholder": "Email của bạn",
+    "newsletterSubmit": "Đăng ký",
+    "rights": "Bảo lưu mọi quyền."
+  },
+  "LanguageSwitcher": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "AnnouncementBar": {
+    "close": "Đóng thông báo"
+  },
+  "Home": {
+    "heroTitleFallback": "Bánh kem tươi mỗi ngày",
+    "heroCtaFallback": "Đặt bánh ngay",
+    "viewMenu": "Xem thực đơn",
+    "marqueeFresh": "🍰 Bánh tươi mỗi ngày",
+    "marqueeDelivery": "Giao nhanh 2h",
+    "marqueeCustomCake": "Đặt bánh theo yêu cầu"
+  }
+}
