@@ -229,6 +229,14 @@
   --sidebar-ring: #e87ba6;
 }
 
+/* Admin invoice print page — mục 9.4: "trang in riêng khổ A5, @media print". */
+@media print {
+  @page {
+    size: A5;
+    margin: 10mm;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

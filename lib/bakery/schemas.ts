@@ -283,6 +283,7 @@ export const orderDataSchema = z.object({
   total: moneySchema,
   items_snapshot: z.array(orderItemSnapshotSchema).min(1),
   timeline: z.array(orderTimelineEntrySchema).default([]),
+  internal_note: z.string().optional(),
 });
 export type OrderData = z.infer<typeof orderDataSchema>;
 

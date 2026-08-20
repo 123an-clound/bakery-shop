@@ -70,6 +70,57 @@ export function newOrderNotificationEmail({
   `;
 }
 
+const ORDER_STATUS_VI: Record<string, string> = {
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  baking: "Đang làm bánh",
+  delivering: "Đang giao",
+  completed: "Hoàn tất",
+  cancelled: "Đã huỷ",
+};
+
+export function orderStatusUpdateEmail({
+  brandName,
+  code,
+  status,
+  note,
+}: {
+  brandName: string;
+  code: string;
+  status: string;
+  note?: string;
+}): string {
+  return `
+    <div style="${WRAPPER_STYLE}">
+      <h1 style="${HEADING_STYLE}">${brandName}</h1>
+      <p>Đơn hàng <strong>${code}</strong> của bạn vừa được cập nhật trạng thái:</p>
+      <p style="font-size: 18px; font-weight: 600;">${ORDER_STATUS_VI[status] ?? status}</p>
+      ${note ? `<p>${note}</p>` : ""}
+      <p style="color: #6b5a4e; font-size: 13px;">Cảm ơn bạn đã tin tưởng ${brandName}.</p>
+    </div>
+  `;
+}
+
+export function customCakeQuoteEmail({
+  brandName,
+  quotedPrice,
+  adminReply,
+}: {
+  brandName: string;
+  quotedPrice: number;
+  adminReply?: string | null;
+}): string {
+  return `
+    <div style="${WRAPPER_STYLE}">
+      <h1 style="${HEADING_STYLE}">${brandName}</h1>
+      <p>Cảm ơn bạn đã gửi yêu cầu đặt bánh riêng. Chúng tôi xin báo giá:</p>
+      <p style="font-size: 20px; font-weight: 700; color: #7B4B2A;">${formatMoney(quotedPrice)}</p>
+      ${adminReply ? `<p>${adminReply}</p>` : ""}
+      <p style="color: #6b5a4e; font-size: 13px;">Vui lòng liên hệ lại để xác nhận đặt bánh.</p>
+    </div>
+  `;
+}
+
 export function customCakeRequestEmail({
   customerName,
   phone,
