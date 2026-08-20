@@ -91,7 +91,21 @@
       trong lazy `useState` — sửa bằng `useSyncExternalStore`). lucide-react
       bản đang dùng đã bỏ icon brand (Facebook/Instagram) — dùng SVG inline
       riêng (`components/icons/social.tsx`).
-- [ ] Phase 3 — Trang khách hàng phần đọc.
+- [x] Phase 3 — Trang khách hàng phần đọc: `lib/bakery/catalog.ts` (danh mục/
+      sản phẩm/banner/blog/trang tĩnh/review, cached qua `unstable_cache` +
+      tags), full-text search qua RPC `search_products` (migration 0003).
+      Trang chủ render động 11 section theo `theme.sections`. `/san-pham`
+      (filter/sort/search/phân trang qua URL), `/san-pham/[slug]` (gallery,
+      biến thể + giá realtime, tabs, review + form gửi review — Server
+      Action, sản phẩm liên quan), `/danh-muc/[slug]`, `/tin-tuc(/[slug])`,
+      `/gioi-thieu`, `/lien-he`, `/chinh-sach-giao-hang`, `/dieu-khoan`.
+      SEO: JSON-LD, metadata + hreflang, `sitemap.xml`/`robots.txt`. Giỏ
+      hàng CHƯA nối (Phase 4) — 2 nút trên trang sản phẩm + form newsletter/
+      liên hệ dùng toast thông báo trung thực "sắp có", không giả vờ thành
+      công. Next.js 16: `revalidateTag` cần thêm tham số `profile`; dùng
+      `updateTag()` trong Server Action thay thế. Đã tìm & sửa 2 bug thật
+      qua browser thật (Playwright): thiếu `priority` cho ảnh LCP hàng đầu,
+      trang chi tiết sản phẩm thiếu giá gốc gạch ngang khi có sale.
 - [ ] Phase 4 — Giỏ hàng, đặt hàng, custom cake.
 - [ ] Phase 5 — Tài khoản khách hàng.
 - [ ] Phase 6 — Trang admin.
