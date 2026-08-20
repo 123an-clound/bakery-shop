@@ -120,6 +120,21 @@
       hàng thật (FREESHIP áp dụng đúng, order xuất hiện trong Supabase với
       giá tính lại ở server, đã test cả 2 kịch bản tấn công: gửi `total`
       giả bị bỏ qua, gửi option không tồn tại bị từ chối 400).
-- [ ] Phase 5 — Tài khoản khách hàng.
+- [x] Phase 5 — Tài khoản khách hàng: đăng ký/đăng nhập/đăng xuất qua Supabase
+      Auth (email/password) bằng Server Actions (`lib/actions/auth.ts`),
+      `/tai-khoan/dang-ky`, `/tai-khoan/dang-nhap`. Header nhận biết trạng
+      thái đăng nhập (dropdown "Tài khoản của tôi"/"Sản phẩm yêu thích"/
+      "Đăng xuất" khi đã đăng nhập, link đăng nhập khi chưa). Yêu thích:
+      `toggleFavorite` Server Action + `FavoriteButton`, gắn vào mọi lưới
+      sản phẩm (trang chủ, danh mục, listing, chi tiết, sản phẩm liên quan)
+      và trang `/tai-khoan/yeu-thich`. `/tai-khoan` hiển thị lịch sử đơn
+      hàng của chính người dùng qua `getMyOrders()` — phạm vi hoàn toàn do
+      RLS (`data->>'user_id' = auth.uid()`) quyết định, không lọc thủ công
+      ở app. `POST /api/orders` gắn `user_id` khi có phiên đăng nhập; đặt
+      hàng khách (guest) không bị ảnh hưởng. **Đã kiểm thử trực tiếp trên
+      trình duyệt thật đúng tiêu chí DoD**: tạo 2 tài khoản test riêng
+      biệt, mỗi tài khoản đặt 1 đơn, xác nhận `/tai-khoan` của mỗi tài
+      khoản chỉ thấy đơn của chính mình (RLS enforce đúng theo cả 2
+      chiều) — đã xoá dữ liệu test khỏi Supabase sau khi xác minh xong.
 - [ ] Phase 6 — Trang admin.
 - [ ] Phase 7 — Kiểm thử, tối ưu, bàn giao.
