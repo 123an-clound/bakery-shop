@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getApprovedReviewsForProduct, getProductBySlug, getRelatedProducts } from "@/lib/bakery/catalog";
 import { getTheme } from "@/lib/bakery/queries";
+import { getMyFavoriteProductIds } from "@/lib/bakery/favorites";
 import { buildMetadata } from "@/lib/seo/metadata";
 import type { Locale } from "@/lib/bakery/types";
 import { t as tField } from "@/lib/i18n/text";
@@ -14,6 +15,7 @@ import { Link } from "@/i18n/navigation";
 import { AddToCartControls } from "@/components/product/add-to-cart-controls";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductCard } from "@/components/product/product-card";
+import { FavoriteButton } from "@/components/product/favorite-button";
 import { ReviewForm } from "@/components/product/review-form";
 import { BreadcrumbJsonLd, ProductJsonLd } from "@/components/seo/json-ld";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,13 +47,15 @@ export default async function ProductDetailPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [t, reviews, related, themeRow] = await Promise.all([
+  const [t, reviews, related, themeRow, favoriteIds] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "ProductDetail" }),
     getApprovedReviewsForProduct(product.id),
     product.parent_id ? getRelatedProducts(product.parent_id, product.id, 4) : Promise.resolve([]),
     getTheme(),
+    getMyFavoriteProductIds(),
   ]);
   const confettiEnabled = themeRow?.data.effects.confetti_on_add_to_cart ?? true;
+  const favoriteIdSet = new Set(favoriteIds);
   const name = tField(product.data.name, locale as Locale);
 
   return (
@@ -79,7 +83,14 @@ export default async function ProductDetailPage({
         </FadeIn>
 
         <FadeIn delay={0.1}>
-          <h1 className="font-heading text-3xl font-bold">{name}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="font-heading text-3xl font-bold">{name}</h1>
+            <FavoriteButton
+              productId={product.id}
+              initialFavorited={favoriteIdSet.has(product.id)}
+              className="static shrink-0 bg-transparent shadow-none"
+            />
+          </div>
           {product.data.rating_count > 0 ? (
             <div className="text-muted-foreground mt-2 flex items-center gap-1 text-sm">
               {Array.from({ length: 5 }, (_, i) => (
@@ -176,7 +187,14 @@ export default async function ProductDetailPage({
           <h2 className="font-heading mb-6 text-xl font-bold">{t("relatedTitle")}</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {related.map((p) => (
-              <ProductCard key={p.id} slug={p.slug} data={p.data} locale={locale as Locale} />
+              <ProductCard
+                key={p.id}
+                id={p.id}
+                slug={p.slug}
+                data={p.data}
+                locale={locale as Locale}
+                isFavorited={favoriteIdSet.has(p.id)}
+              />
             ))}
           </div>
         </section>

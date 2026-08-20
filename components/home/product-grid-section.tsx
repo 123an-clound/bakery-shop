@@ -12,12 +12,14 @@ export function ProductGridSection({
   locale,
   viewAllHref,
   viewAllLabel,
+  favoriteIds,
 }: {
   title: string;
   products: ProductListItem[];
   locale: Locale;
   viewAllHref?: string;
   viewAllLabel?: string;
+  favoriteIds: Set<number>;
 }) {
   if (!products.length) return null;
 
@@ -36,7 +38,13 @@ export function ProductGridSection({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
         {products.map((product, i) => (
           <FadeIn key={product.id} delay={(i * 60) / 1000}>
-            <ProductCard slug={product.slug} data={product.data} locale={locale} />
+            <ProductCard
+              id={product.id}
+              slug={product.slug}
+              data={product.data}
+              locale={locale}
+              isFavorited={favoriteIds.has(product.id)}
+            />
           </FadeIn>
         ))}
       </div>
@@ -47,9 +55,11 @@ export function ProductGridSection({
 export async function FeaturedProductsSection({
   products,
   locale,
+  favoriteIds,
 }: {
   products: ProductListItem[];
   locale: Locale;
+  favoriteIds: Set<number>;
 }) {
   const t = await getTranslations({ locale, namespace: "Home" });
   return (
@@ -59,6 +69,7 @@ export async function FeaturedProductsSection({
       locale={locale}
       viewAllHref="/san-pham"
       viewAllLabel={t("featuredViewAll")}
+      favoriteIds={favoriteIds}
     />
   );
 }
@@ -66,9 +77,11 @@ export async function FeaturedProductsSection({
 export async function BestSellersSection({
   products,
   locale,
+  favoriteIds,
 }: {
   products: ProductListItem[];
   locale: Locale;
+  favoriteIds: Set<number>;
 }) {
   const t = await getTranslations({ locale, namespace: "Home" });
   return (
@@ -78,6 +91,7 @@ export async function BestSellersSection({
       locale={locale}
       viewAllHref="/san-pham?sort=best_selling"
       viewAllLabel={t("featuredViewAll")}
+      favoriteIds={favoriteIds}
     />
   );
 }

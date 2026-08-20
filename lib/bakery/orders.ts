@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { orderDataSchema } from "./schemas";
 
 /**
@@ -32,4 +33,27 @@ export async function getOrderByCodeAndPhone(code: string, last4Phone: string) {
   if (!order) return null;
   if (!order.data.phone.endsWith(last4Phone)) return null;
   return order;
+}
+
+/**
+ * Signed-in user's own order history — goes through the cookie-aware
+ * (anon-key) client so RLS's "own rows" policy (`data->>'user_id' =
+ * auth.uid()`) is what enforces the boundary, not application code. This is
+ * the Phase 5 DoD: user A must never see user B's orders, verified by RLS
+ * itself rather than a manual filter that could be gotten wrong.
+ */
+export async function getMyOrders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("bakery")
+    .select("*")
+    .eq("type", "order")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((row) => ({ ...row, data: orderDataSchema.parse(row.data) }));
 }

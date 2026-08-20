@@ -240,6 +240,38 @@
     "successTitle": "Đã gửi yêu cầu thành công!",
     "successSubtitle": "Tiệm sẽ liên hệ báo giá và xác nhận trong thời gian sớm nhất."
   },
+  "Auth": {
+    "signInTitle": "Đăng nhập",
+    "signUpTitle": "Đăng ký",
+    "fullName": "Họ tên",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "signInSubmit": "Đăng nhập",
+    "signUpSubmit": "Đăng ký",
+    "noAccount": "Chưa có tài khoản?",
+    "haveAccount": "Đã có tài khoản?",
+    "signUpLink": "Đăng ký ngay",
+    "signInLink": "Đăng nhập",
+    "confirmEmail": "Vui lòng kiểm tra email để xác nhận tài khoản trước khi đăng nhập.",
+    "guestCheckoutNote": "Bạn cũng có thể đặt hàng không cần đăng nhập."
+  },
+  "Account": {
+    "pageTitle": "Tài khoản của tôi",
+    "signOut": "Đăng xuất",
+    "ordersTitle": "Lịch sử đơn hàng",
+    "noOrders": "Bạn chưa có đơn hàng nào.",
+    "favoritesLink": "Sản phẩm yêu thích",
+    "orderTotal": "Tổng cộng",
+    "viewOrder": "Xem chi tiết"
+  },
+  "Favorites": {
+    "pageTitle": "Sản phẩm yêu thích",
+    "empty": "Bạn chưa có sản phẩm yêu thích nào.",
+    "browse": "Khám phá thực đơn",
+    "add": "Thêm vào yêu thích",
+    "remove": "Bỏ khỏi yêu thích",
+    "signInRequired": "Vui lòng đăng nhập để lưu sản phẩm yêu thích."
+  },
   "Contact": {
     "pageTitle": "Liên hệ",
     "infoTitle": "Thông tin liên hệ",

@@ -240,6 +240,38 @@
     "successTitle": "Request submitted!",
     "successSubtitle": "We'll get back to you with a quote and confirmation shortly."
   },
+  "Auth": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Sign up",
+    "fullName": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "signInSubmit": "Sign in",
+    "signUpSubmit": "Sign up",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "signUpLink": "Sign up",
+    "signInLink": "Sign in",
+    "confirmEmail": "Please check your email to confirm your account before signing in.",
+    "guestCheckoutNote": "You can also check out without signing in."
+  },
+  "Account": {
+    "pageTitle": "My account",
+    "signOut": "Sign out",
+    "ordersTitle": "Order history",
+    "noOrders": "You have no orders yet.",
+    "favoritesLink": "Favorite products",
+    "orderTotal": "Total",
+    "viewOrder": "View details"
+  },
+  "Favorites": {
+    "pageTitle": "Favorite products",
+    "empty": "You have no favorite products yet.",
+    "browse": "Browse the menu",
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "signInRequired": "Please sign in to save favorite products."
+  },
   "Contact": {
     "pageTitle": "Contact",
     "infoTitle": "Contact information",

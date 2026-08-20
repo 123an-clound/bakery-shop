@@ -7,6 +7,7 @@ import type { Locale } from "@/lib/bakery/types";
 import { t } from "@/lib/i18n/text";
 import { formatMoney } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/badge";
+import { FavoriteButton } from "@/components/product/favorite-button";
 
 const BADGE_LABEL: Record<string, { vi: string; en: string }> = {
   new: { vi: "Mới", en: "New" },
@@ -14,16 +15,20 @@ const BADGE_LABEL: Record<string, { vi: string; en: string }> = {
 };
 
 export function ProductCard({
+  id,
   slug,
   data,
   locale,
   priority = false,
+  isFavorited = false,
 }: {
+  id: number;
   slug: string;
   data: ProductData;
   locale: Locale;
   /** Set on the first above-the-fold card in a grid to fix the LCP image warning. */
   priority?: boolean;
+  isFavorited?: boolean;
 }) {
   const image = data.images[0];
   const hasSale = data.sale_price != null && data.sale_price < data.price;
@@ -56,6 +61,11 @@ export function ProductCard({
             </Badge>
           ) : null}
         </div>
+        <FavoriteButton
+          productId={id}
+          initialFavorited={isFavorited}
+          className="absolute top-2 right-2"
+        />
       </div>
 
       <div className="mt-3 space-y-1">

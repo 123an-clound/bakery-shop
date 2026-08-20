@@ -7,6 +7,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import "../globals.css";
 import { routing } from "@/i18n/routing";
 import { getSiteSettings, getTheme } from "@/lib/bakery/queries";
+import { createClient } from "@/lib/supabase/server";
 import { themeToCssVars } from "@/lib/theme/css-vars";
 import { t as tField } from "@/lib/i18n/text";
 import type { Locale } from "@/lib/bakery/types";
@@ -65,9 +66,15 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   }
   setRequestLocale(locale);
 
-  const [settingsRow, themeRow] = await Promise.all([getSiteSettings(), getTheme()]);
+  const supabase = await createClient();
+  const [settingsRow, themeRow, userResult] = await Promise.all([
+    getSiteSettings(),
+    getTheme(),
+    supabase.auth.getUser(),
+  ]);
   const theme = themeRow?.data;
   const settings = settingsRow?.data;
+  const userEmail = userResult.data.user?.email ?? null;
 
   return (
     <html
@@ -84,6 +91,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
                 brandName={tField(settings.brand_name, locale as Locale)}
                 logoUrl={settings.logo_url}
                 locale={locale as Locale}
+                userEmail={userEmail}
               />
             ) : null}
             <main className="flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>

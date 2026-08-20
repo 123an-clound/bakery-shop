@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getCategories, listProducts } from "@/lib/bakery/catalog";
+import { getMyFavoriteProductIds } from "@/lib/bakery/favorites";
 import { buildMetadata } from "@/lib/seo/metadata";
 import type { Locale } from "@/lib/bakery/types";
 import type { ProductSort } from "@/lib/bakery/product-list";
@@ -35,7 +36,7 @@ export default async function ProductsPage({
   const sort = SORT_VALUES.includes(sortParam as ProductSort) ? (sortParam as ProductSort) : "newest";
   const page = Number(asString(sp.page)) || 1;
 
-  const [t, categories, result] = await Promise.all([
+  const [t, categories, result, favoriteIds] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "Products" }),
     getCategories(),
     listProducts({
@@ -46,7 +47,9 @@ export default async function ProductsPage({
       page,
       perPage: 12,
     }),
+    getMyFavoriteProductIds(),
   ]);
+  const favoriteIdSet = new Set(favoriteIds);
 
   const currentParams: Record<string, string | undefined> = { q, min, max, sort: sortParam, page: String(page) };
   const buildHref = (p: number) => {
@@ -83,10 +86,12 @@ export default async function ProductsPage({
                 {result.items.map((product, i) => (
                   <ProductCard
                     key={product.id}
+                    id={product.id}
                     slug={product.slug}
                     data={product.data}
                     locale={locale as Locale}
                     priority={i < 6}
+                    isFavorited={favoriteIdSet.has(product.id)}
                   />
                 ))}
               </div>

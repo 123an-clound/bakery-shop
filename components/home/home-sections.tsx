@@ -1,4 +1,5 @@
 import { getFeaturedProducts, getBestSellerProducts } from "@/lib/bakery/catalog";
+import { getMyFavoriteProductIds } from "@/lib/bakery/favorites";
 import type { ThemeData } from "@/lib/bakery/schemas";
 import type { Locale } from "@/lib/bakery/types";
 
@@ -19,12 +20,15 @@ export async function HomeSections({ theme, locale }: { theme: ThemeData; locale
 
   const featuredLimit = sections.find((s) => s.key === "featured")?.props?.limit;
 
-  const [featured, bestSellers] = await Promise.all([
+  const needsFavorites = enabledKeys.has("featured") || enabledKeys.has("best_sellers");
+  const [featured, bestSellers, favoriteIdList] = await Promise.all([
     enabledKeys.has("featured")
       ? getFeaturedProducts(typeof featuredLimit === "number" ? featuredLimit : 8)
       : Promise.resolve([]),
     enabledKeys.has("best_sellers") ? getBestSellerProducts(8) : Promise.resolve([]),
+    needsFavorites ? getMyFavoriteProductIds() : Promise.resolve([]),
   ]);
+  const favoriteIds = new Set(favoriteIdList);
 
   return (
     <>
@@ -35,11 +39,25 @@ export async function HomeSections({ theme, locale }: { theme: ThemeData; locale
           case "categories":
             return <CategoriesSection key="categories" locale={locale} />;
           case "featured":
-            return <FeaturedProductsSection key="featured" products={featured} locale={locale} />;
+            return (
+              <FeaturedProductsSection
+                key="featured"
+                products={featured}
+                locale={locale}
+                favoriteIds={favoriteIds}
+              />
+            );
           case "custom_cake":
             return <CustomCakeSection key="custom_cake" locale={locale} />;
           case "best_sellers":
-            return <BestSellersSection key="best_sellers" products={bestSellers} locale={locale} />;
+            return (
+              <BestSellersSection
+                key="best_sellers"
+                products={bestSellers}
+                locale={locale}
+                favoriteIds={favoriteIds}
+              />
+            );
           case "story":
             return <StorySection key="story" locale={locale} />;
           case "testimonials":

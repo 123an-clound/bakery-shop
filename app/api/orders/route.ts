@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { getActiveCouponByCode } from "@/lib/bakery/catalog";
 import { getSiteSettings } from "@/lib/bakery/queries";
 import { getPrivateNotifyEmails } from "@/lib/bakery/settings-private";
@@ -51,6 +52,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_input", details: parsed.error.flatten() }, { status: 400 });
   }
   const input = parsed.data;
+
+  // Attach the signed-in customer's user_id when a session cookie is
+  // present so `/tai-khoan` order history (RLS-scoped) picks it up; guest
+  // checkout (no session) leaves user_id undefined and still works.
+  const sessionClient = await createClient();
+  const {
+    data: { user: sessionUser },
+  } = await sessionClient.auth.getUser();
 
   const supabase = createAdminClient();
 
@@ -155,6 +164,7 @@ export async function POST(request: Request) {
 
   const orderData = orderDataSchema.parse({
     code,
+    user_id: sessionUser?.id,
     customer_name: input.customerName,
     phone: input.phone,
     email: input.email || undefined,

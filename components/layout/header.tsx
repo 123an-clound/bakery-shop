@@ -2,15 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Menu, Search, User } from "lucide-react";
+import { Heart, Menu, Search, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/bakery/types";
+import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MiniCart } from "@/components/cart/mini-cart";
 
@@ -27,12 +36,16 @@ export function Header({
   brandName,
   logoUrl,
   locale,
+  userEmail,
 }: {
   brandName: string;
   logoUrl?: string;
   locale: Locale;
+  userEmail: string | null;
 }) {
   const t = useTranslations("Nav");
+  const tAccount = useTranslations("Account");
+  const tAuth = useTranslations("Auth");
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -78,11 +91,42 @@ export function Header({
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
           <LanguageSwitcher />
-          <Button variant="ghost" size="icon" className="rounded-full" asChild>
-            <Link href="/tai-khoan" aria-label={t("account")}>
-              <User className="size-5" />
-            </Link>
-          </Button>
+          {userEmail ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full" aria-label={t("account")}>
+                  <User className="size-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel className="truncate font-normal">{userEmail}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/tai-khoan">{tAccount("pageTitle")}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/tai-khoan/yeu-thich">
+                    <Heart className="size-4" />
+                    {tAccount("favoritesLink")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild variant="destructive">
+                  <form action={signOut} className="w-full">
+                    <button type="submit" className="w-full text-left">
+                      {tAccount("signOut")}
+                    </button>
+                  </form>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="ghost" size="icon" className="rounded-full" asChild>
+              <Link href="/tai-khoan/dang-nhap" aria-label={tAuth("signInTitle")}>
+                <User className="size-5" />
+              </Link>
+            </Button>
+          )}
           <MiniCart locale={locale} />
 
           <Sheet>
