@@ -136,5 +136,39 @@
       biệt, mỗi tài khoản đặt 1 đơn, xác nhận `/tai-khoan` của mỗi tài
       khoản chỉ thấy đơn của chính mình (RLS enforce đúng theo cả 2
       chiều) — đã xoá dữ liệu test khỏi Supabase sau khi xác minh xong.
-- [ ] Phase 6 — Trang admin.
+- [x] Phase 6 — Trang admin: đăng nhập admin bằng cookie ký HMAC-SHA256
+      (Web Crypto, chạy được cả trong Edge-runtime `proxy.ts` lẫn Node route
+      handler), rate limit 5 lần/15 phút/IP, `proxy.ts` chặn `/admin/*`
+      (redirect `/admin/login`) và `/api/admin/*` (401 JSON). Layout admin
+      riêng (root `<html>` riêng, không chung `[locale]`), sidebar thu gọn
+      được, theme `.admin-theme` trung tính + accent hồng riêng biệt với
+      theme khách. Dashboard đọc `v_revenue_daily` + số liệu thật. CRUD đầy
+      đủ: sản phẩm (kéo-thả sort_order, uploader ảnh nén WebP, builder biến
+      thể, preview trực tiếp), danh mục, đơn hàng (đổi trạng thái → ghi
+      timeline + gửi email, đánh dấu đã thanh toán, ghi chú nội bộ, in hoá
+      đơn khổ A5 riêng `@media print`, xuất CSV), bánh đặt riêng (báo giá →
+      gửi email → chuyển thành đơn thật), đánh giá (duyệt/từ chối → tính lại
+      `rating_avg`/`rating_count` sản phẩm cha), mã giảm giá, banner, bài
+      viết + trang tĩnh (3 trang cố định), khách hàng (gộp từ đơn hàng, chỉ
+      đọc). **Theme Editor** (`/admin/giao-dien`): bảng màu 8 màu + 5 preset,
+      6 font Google Fonts hỗ trợ tiếng Việt (Be Vietnam Pro/Baloo 2/
+      Quicksand/Nunito/Lora/Playfair Display — tất cả load tĩnh qua
+      `next/font` để không cần rebuild khi đổi), slider bo góc, bật/tắt hiệu
+      ứng, hero, kéo-thả thứ tự section + bật/tắt, thanh thông báo, preview
+      trực tiếp qua iframe `?preview=1` + `postMessage` (màu/font/radius
+      cập nhật ngay khi CHƯA lưu), khôi phục mặc định. Cài đặt: thông tin
+      tiệm, ngân hàng (chọn từ 20 ngân hàng VietQR tĩnh, xem thử mã QR),
+      vận chuyển, email nhận thông báo + gửi thử, SEO mặc định.
+      **2 bug thật phát hiện qua kiểm thử trình duyệt trên bản production
+      thật (`pnpm build && pnpm start`)**: (1) `DndContext` lồng trong
+      `<tbody>` gây lỗi HTML không hợp lệ (div không được là con của tbody)
+      — sửa bằng cách bọc cả `<Table>` thay vì chỉ bọc các dòng; (2)
+      `X-Frame-Options: DENY` (đặt từ Phase 0) chặn luôn iframe preview của
+      chính Theme Editor — đổi thành `SAMEORIGIN` (vẫn chặn framing từ site
+      khác, chỉ cho phép tự nhúng chính mình). **Đã xác nhận đúng tiêu chí
+      DoD quan trọng nhất của dự án**: đổi màu (preset Bạc hà mát) + tắt 1
+      section trang chủ → lưu → mở tab khách mới xác nhận cả 2 thay đổi có
+      hiệu lực ngay, không rebuild; thêm 1 sản phẩm mới qua admin → xuất
+      hiện ngay trong danh sách sản phẩm khách (25 → sau khi xoá lại 24).
+      Đã xoá/khôi phục toàn bộ dữ liệu test sau khi xác minh.
 - [ ] Phase 7 — Kiểm thử, tối ưu, bàn giao.
