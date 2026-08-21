@@ -5,9 +5,12 @@ allowBuilds:
   sharp: false
   unrs-resolver: false
 
-# html-encoding-sniffer@6 depends on the ESM-only @exodus/bytes, which jsdom
-# (still CJS-based internally) `require()`s — crashes with ERR_REQUIRE_ESM
-# at runtime on Vercel (isomorphic-dompurify -> jsdom -> html-encoding-sniffer).
-# Pin to the last CJS-compatible major until upstream fixes this.
+# jsdom@30's dependency tree pulls in @exodus/bytes (ESM-only) through BOTH
+# html-encoding-sniffer@6 AND whatwg-url@17 — each is `require()`d from a
+# CJS context, crashing with ERR_REQUIRE_ESM at runtime on Vercel
+# (isomorphic-dompurify -> jsdom -> ...). jsdom@27.0.0's dependency graph
+# (html-encoding-sniffer@^4, whatwg-url@^15) predates this regression
+# entirely, on every path — pin the exact version (not a range) since a
+# later 27.x patch already re-introduced @exodus/bytes once.
 overrides:
-  html-encoding-sniffer: '4.0.0'
+  jsdom: '27.0.0'
