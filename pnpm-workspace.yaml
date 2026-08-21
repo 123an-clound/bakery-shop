@@ -4,3 +4,10 @@ allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
+
+# html-encoding-sniffer@6 depends on the ESM-only @exodus/bytes, which jsdom
+# (still CJS-based internally) `require()`s — crashes with ERR_REQUIRE_ESM
+# at runtime on Vercel (isomorphic-dompurify -> jsdom -> html-encoding-sniffer).
+# Pin to the last CJS-compatible major until upstream fixes this.
+overrides:
+  html-encoding-sniffer: '4.0.0'
