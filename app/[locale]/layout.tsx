@@ -41,6 +41,7 @@ const baloo2 = Baloo_2({
   subsets: ["vietnamese", "latin"],
   weight: ["500", "600", "700", "800"],
   display: "swap",
+  preload: false,
 });
 const beVietnamPro = Be_Vietnam_Pro({
   variable: "--font-be-vietnam-pro",
@@ -74,7 +75,6 @@ const playfairDisplay = Playfair_Display({
   subsets: ["vietnamese", "latin"],
   weight: ["500", "600", "700"],
   display: "swap",
-  preload: false,
 });
 const THEME_FONT_VARIABLES = [baloo2, beVietnamPro, quicksand, nunito, lora, playfairDisplay]
   .map((f) => f.variable)

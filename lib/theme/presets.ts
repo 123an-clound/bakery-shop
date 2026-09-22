@@ -11,6 +11,19 @@ import type { ThemeData } from "@/lib/bakery/schemas";
  */
 export const THEME_PRESETS: { name: string; colors: ThemeData["colors"] }[] = [
   {
+    name: "Bánh ngọt cao cấp",
+    colors: {
+      primary: "#C89B6B",
+      secondary: "#F3E4D0",
+      accent: "#5C3A21",
+      background: "#FFFBF5",
+      foreground: "#3A2A1D",
+      muted: "#EFE3D3",
+      success: "#8BC79A",
+      destructive: "#E76A6A",
+    },
+  },
+  {
     name: "Hồng phấn",
     colors: {
       primary: "#F7A8C4",
