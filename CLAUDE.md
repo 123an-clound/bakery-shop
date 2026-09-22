@@ -221,3 +221,73 @@
       ✅ **DoD**: `pnpm build && pnpm start` chạy sạch; toàn bộ e2e (31/31),
       unit test (49/49), typecheck, lint đều xanh trên bản production thật;
       kiến trúc + toàn bộ quyết định Phase 7 đã ghi vào `codebase-memory-mcp`.
+- [x] Sub-dự án 1 — Hero 3D trang chủ (13 task, kế hoạch
+      `docs/superpowers/plans/2026-09-22-3d-bakery-homepage-hero.md`): thêm
+      `@react-three/fiber` + `@react-three/drei` + `three`, dựng bánh kem
+      **procedural bằng hình khối (không dùng file GLB)**, một lớp scene 3D
+      **persistent** (mount 1 lần trong layout dùng chung, không unmount khi
+      chuyển route) điều khiển bằng scroll qua hàm biến đổi thuần (pure
+      function) + store zustand riêng, có capability-detection (WebGL +
+      `prefers-reduced-motion`) và error boundary rơi về ảnh tĩnh khi lỗi/
+      không hỗ trợ. Theme mặc định đổi sang preset "premium bakery" (bảng
+      màu caramel/kem/chocolate, heading Playfair Display), thứ tự section
+      trang chủ sắp lại, hero thiết kế lại thành 1 cột giữa nằm trực tiếp
+      trên lớp cảnh 3D. Playwright thêm `tests/e2e/07-scene-3d.spec.ts`
+      (3 test: canvas mount + CTA vẫn bấm được, `prefers-reduced-motion`
+      hiện fallback tĩnh, chuyển route giữ layout không vỡ/canvas trống).
+      **Xác minh cuối (Task 13)**: `pnpm build` sạch; toàn bộ suite xanh —
+      typecheck 0 lỗi, lint 0 lỗi (1 warning React Compiler có từ trước ở
+      `checkout-form.tsx`, không liên quan), Vitest **58/58** (49 cũ + 9
+      mới), Playwright **34/34** (31 cũ + 3 mới) trên `pnpm build && pnpm
+      start` thật ở cổng 3000. Console trang chủ **0 lỗi**, chỉ 1 warning
+      cấp thư viện (`THREE.Clock` deprecated, tự three.js phát ra, không
+      phải code của dự án).
+      **Lighthouse mobile** (Chrome headless, `--throttling-method=simulate`,
+      đã cố định `--lang=vi-VN` để tránh next-intl auto-redirect `/`→`/en`
+      làm sai số đo): **Performance 71** (baseline Phase 7: 80), **LCP 7.8s**
+      (baseline: 4.0s) — **không đạt** ngưỡng chấp nhận được của kế hoạch
+      (Performance ≥78, LCP ≤4.5s). Đã điều tra theo đúng yêu cầu của kế
+      hoạch trước khi chấp nhận: kiểm tra chunk `SceneCanvas` qua Network —
+      xác nhận `next/dynamic(..., { ssr: false })` (Task 9) hoạt động ĐÚNG,
+      chunk chứa three.js/@react-three (~900KB raw/231KB gzip) **không**
+      xuất hiện trong HTML ban đầu, không preload/bundle chung — code-split
+      thật sự. Nguyên nhân tụt điểm là **kiến trúc**, không phải bug: vì
+      `SceneRoot` mount vô điều kiện trong layout dùng chung (quyết định
+      Task 8 — persistent qua mọi route), chunk nặng này vẫn bắt đầu tải +
+      thực thi ngay sau hydrate trên mọi trang, cạnh tranh CPU/băng thông
+      mobile với đường LCP-critical (787ms bootup-time riêng chunk này, lớn
+      nhất trong toàn trang). Ghi nhận trung thực: đây là chi phí thật của
+      kiến trúc "persistent scene layer", không tự khỏi khi có ảnh sản phẩm
+      thật — cần tối ưu thêm (ví dụ trigger tải theo viewport/interaction
+      thay vì ngay khi mount) nếu muốn đạt lại ngưỡng Phase 7, việc này nằm
+      ngoài phạm vi Task 13 (chỉ xác minh, không refactor).
+      **Tương phản chữ hero** (carry-forward từ review Task 11 — heading giờ
+      nằm trực tiếp trên mesh bánh, không còn lớp overlay/tint như bản cũ):
+      axe scan (`06-accessibility.spec.ts`) trên `/` **0 vi phạm nghiêm
+      trọng** → không cần sửa. Xác minh thủ công thêm bằng mắt ở
+      360/768/1024/1440px: mesh bánh có cắt ngang qua vùng chữ heading theo
+      đúng thiết kế đã duyệt ở Task 11, nhưng chữ vẫn đọc được rõ (màu chữ
+      cocoa đậm tương phản đủ trên cả nền kem lẫn nền bánh); phụ đề và 2 nút
+      CTA luôn nằm ngoài vùng bánh ở cả 4 breakpoint, không bị che.
+      **Reduced-motion**: bật `prefers-reduced-motion: reduce` xác nhận
+      `<canvas>` bị gỡ hoàn toàn khỏi DOM (không chỉ ẩn bằng CSS), thay bằng
+      ảnh tĩnh fallback — không còn animation dư.
+      **Giỏ hàng/thanh toán**: thêm sản phẩm thật vào giỏ → `/gio-hang` →
+      `/thanh-toan` đều render đúng, không bị lớp `SceneRoot` toàn cục ảnh
+      hưởng. **Theme Editor** (`/admin/giao-dien?preview=1`): iframe preview
+      hiển thị đúng cảnh 3D, không vỡ layout, không lỗi console.
+      **Phát hiện ngoài phạm vi (không sửa vì không thuộc kế hoạch này)**:
+      (1) danh sách `/san-pham` còn lẫn ~9 sản phẩm rác "E2E Admin Test
+      Product..." (111.000 ₫) — dữ liệu test cũ chưa dọn trong Supabase,
+      không phải do sub-dự án này tạo ra; (2) nút "Thêm vào giỏ" gọi
+      `canvas-confetti` cố tạo Web Worker qua `blob:` URL, bị chặn bởi CSP
+      `script-src` (chưa khai báo `worker-src`, đặt từ Phase 7) — thư viện
+      tự fallback về main thread nên giỏ hàng vẫn hoạt động đúng, nhưng
+      console có 1 lỗi CSP mỗi lần bấm; lỗi này có từ Phase 4/7, không liên
+      quan 3D scene.
+      **Cố ý hoãn lại** (đã ghi trong kế hoạch
+      `docs/superpowers/plans/2026-09-22-3d-bakery-homepage-hero.md`, chưa
+      làm ở sub-dự án 1): hiệu ứng 3D trên thẻ sản phẩm (product-card),
+      micro-interaction 3D ở luồng thanh toán, và kể chuyện theo từng route
+      riêng (per-route storytelling) — cảnh 3D hiện tại chỉ có 1 phiên bản
+      dùng chung cho mọi trang.
