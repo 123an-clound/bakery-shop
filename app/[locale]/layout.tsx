@@ -19,6 +19,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { CartHydration } from "@/components/cart/cart-hydration";
 import { ThemePreviewListener } from "@/components/theme/theme-preview-listener";
 import { Toaster } from "@/components/ui/sonner";
+import { SceneRoot } from "@/components/scene/scene-root";
 
 // Every Theme Editor font choice (mục 9.6) loads statically here, each under
 // its own `--font-<slug>` variable (see lib/theme/fonts.ts) — switching the
@@ -130,6 +131,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     >
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>
+          <SceneRoot posterUrl={theme?.hero.image_url} />
           <LenisProvider enabled={theme?.effects.smooth_scroll ?? true}>
             {theme?.announcement_bar ? <AnnouncementBar config={theme.announcement_bar} /> : null}
             {settings ? (
