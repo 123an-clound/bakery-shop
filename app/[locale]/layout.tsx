@@ -32,8 +32,8 @@ import { SceneRoot } from "@/components/scene/scene-root";
 // here — regardless of whether it's the theme's actually-selected font.
 // Lighthouse mobile-throttled LCP showed the hero image competing with a
 // dozen+ preloaded font files most visits never use. Only the two fonts the
-// seeded default theme actually picks (Baloo 2 heading / Be Vietnam Pro
-// body — lib/theme/default-theme.ts) get preloaded; the other 4 still
+// seeded default theme actually picks (Playfair Display heading / Be Vietnam
+// Pro body — lib/theme/default-theme.ts) get preloaded; the other 4 still
 // declare @font-face (so an admin can switch to them with zero rebuild) but
 // load normally, on demand, once actually referenced.
 const baloo2 = Baloo_2({
