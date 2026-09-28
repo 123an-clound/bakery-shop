@@ -79,6 +79,14 @@ export function BannerForm({ initial }: { initial?: AdminBannerRow }) {
                 onChange={(e) => patch({ subtitle: { vi: data.subtitle?.vi ?? "", en: e.target.value } })}
               />
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cta-en">CTA label</Label>
+              <Input
+                id="cta-en"
+                value={data.cta_label?.en ?? ""}
+                onChange={(e) => patch({ cta_label: { vi: data.cta_label?.vi ?? "", en: e.target.value } })}
+              />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

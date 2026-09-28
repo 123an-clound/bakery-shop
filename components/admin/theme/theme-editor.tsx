@@ -139,6 +139,14 @@ export function ThemeEditor({
             />
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="tagline-en">Slogan (EN)</Label>
+            <Input
+              id="tagline-en"
+              value={brand.tagline?.en ?? ""}
+              onChange={(e) => setBrand((prev) => ({ ...prev, tagline: { vi: prev.tagline?.vi ?? "", en: e.target.value } }))}
+            />
+          </div>
+          <div className="space-y-1.5">
             <Label>Logo</Label>
             <ImageUploader
               value={brand.logoUrl ? [brand.logoUrl] : []}
@@ -318,6 +326,26 @@ export function ThemeEditor({
                   onChange={(e) => patchTheme({ hero: { ...theme.hero, title: { ...theme.hero.title, en: e.target.value } } })}
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="hero-subtitle-en">Subtitle</Label>
+                <Input
+                  id="hero-subtitle-en"
+                  value={theme.hero.subtitle?.en ?? ""}
+                  onChange={(e) => patchTheme({ hero: { ...theme.hero, subtitle: { vi: theme.hero.subtitle?.vi ?? "", en: e.target.value } } })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="hero-cta-en">CTA label</Label>
+                <Input
+                  id="hero-cta-en"
+                  value={theme.hero.cta?.label.en ?? ""}
+                  onChange={(e) =>
+                    patchTheme({
+                      hero: { ...theme.hero, cta: { label: { vi: theme.hero.cta?.label.vi ?? "", en: e.target.value }, href: theme.hero.cta?.href ?? "/san-pham" } },
+                    })
+                  }
+                />
+              </div>
             </TabsContent>
           </Tabs>
           <div className="space-y-1.5">
@@ -346,11 +374,19 @@ export function ThemeEditor({
             />
           </label>
           <div className="space-y-1.5">
-            <Label htmlFor="announcement-text">Nội dung</Label>
+            <Label htmlFor="announcement-text">Nội dung (VI)</Label>
             <Input
               id="announcement-text"
               value={theme.announcement_bar.text.vi}
               onChange={(e) => patchTheme({ announcement_bar: { ...theme.announcement_bar, text: { ...theme.announcement_bar.text, vi: e.target.value } } })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="announcement-text-en">Nội dung (EN)</Label>
+            <Input
+              id="announcement-text-en"
+              value={theme.announcement_bar.text.en ?? ""}
+              onChange={(e) => patchTheme({ announcement_bar: { ...theme.announcement_bar, text: { ...theme.announcement_bar.text, en: e.target.value } } })}
             />
           </div>
           <div className="space-y-1.5">

@@ -24,6 +24,30 @@
 # production
 /build
 
+# Keep the uncompressed source model local; production loads the Meshopt build.
+/public/models/cake/cake.glb
+/public/models/cake/cake-optimized.glb
+/public/models/cake/cake-optimized-from-glb.glb
+/public/models/cake/cake-optimized-10.glb
+/public/models/cake/cake-webp-optimized.glb
+/public/models/cake/cake-uploaded.glb
+/public/models/cake/cake-meshopt-optimized.glb
+/public/models/cake/source/
+# Unused/source models — production loads only cake-web.glb
+/public/models/cake/cake-full-detail.glb
+/public/models/cake/cake-background.glb
+/public/models/fruit-cake/
+/public/models/strawberry-chocolate-cake/
+/public/images/bakery-piping-pattern.webp
+
+# local QA artifacts
+/qa-*.png
+/scene-*.png
+/*.zip
+/debug.log
+/.tmp-*/
+/.playwright-mcp/
+
 # misc
 .DS_Store
 *.pem

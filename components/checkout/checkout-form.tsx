@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 
 import { useRouter } from "@/i18n/navigation";
@@ -11,13 +11,12 @@ import { calcOrderTotal } from "@/lib/bakery/pricing";
 import type { Locale } from "@/lib/bakery/types";
 import { useCartStore } from "@/lib/store/cart";
 import { formatMoney } from "@/lib/utils/format";
+import { toDatetimeLocalValue } from "@/lib/utils/datetime-local";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 function minDeliveryDateTime(): string {
-  const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  d.setSeconds(0, 0);
-  return d.toISOString().slice(0, 16);
+  return toDatetimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
 }
 
 export function CheckoutForm({
@@ -41,7 +40,7 @@ export function CheckoutForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -59,7 +58,7 @@ export function CheckoutForm({
     },
   });
 
-  const paymentMethod = watch("paymentMethod");
+  const paymentMethod = useWatch({ control, name: "paymentMethod" });
   const totals = calcOrderTotal({
     items,
     discount: couponDiscount,

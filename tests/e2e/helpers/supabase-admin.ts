@@ -31,3 +31,10 @@ export async function deleteTestOrdersByPhone(phone: string) {
   await supabase.from("bakery").delete().eq("type", "order_item").in("parent_id", ids);
   await supabase.from("bakery").delete().eq("type", "order").in("id", ids);
 }
+
+/** Deletes every product whose VI name starts with `prefix` — the admin form
+ * never exposes the new row id, so key off the unique test name instead. */
+export async function deleteProductsByNamePrefix(prefix: string) {
+  const supabase = createTestAdminClient();
+  await supabase.from("bakery").delete().eq("type", "product").like("data->name->>vi", `${prefix}%`);
+}

@@ -31,9 +31,12 @@ const nextConfig: NextConfig = {
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
             "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data: https://*.supabase.co https://picsum.photos https://img.vietqr.io",
+            // canvas-confetti renders in a Worker built from a blob: URL.
+            "worker-src 'self' blob:",
+            "img-src 'self' data: blob: https://*.supabase.co https://picsum.photos https://img.vietqr.io",
             "font-src 'self' data:",
-            "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+            // blob: — GLTFLoader fetches the model's embedded textures as blob URLs.
+            "connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co",
             "frame-src 'self' https://www.google.com https://maps.google.com",
             "frame-ancestors 'self'",
             "object-src 'none'",

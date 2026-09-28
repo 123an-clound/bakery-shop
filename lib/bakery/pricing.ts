@@ -1,4 +1,5 @@
 import type { CouponData } from "./schemas";
+import { vnDayEnd, vnDayStart } from "@/lib/utils/vn-date";
 
 export interface CartLine {
   unitPrice: number;
@@ -19,10 +20,10 @@ export function validateCoupon(
   subtotal: number,
   now: Date = new Date(),
 ): CouponValidationResult {
-  if (coupon.starts_at && now < new Date(coupon.starts_at)) {
+  if (coupon.starts_at && now.getTime() < vnDayStart(coupon.starts_at)) {
     return { valid: false, reason: "not_started" };
   }
-  if (coupon.ends_at && now > new Date(coupon.ends_at)) {
+  if (coupon.ends_at && now.getTime() > vnDayEnd(coupon.ends_at)) {
     return { valid: false, reason: "expired" };
   }
   if (coupon.usage_limit != null && coupon.used_count >= coupon.usage_limit) {

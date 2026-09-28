@@ -9,20 +9,10 @@ import { submitCustomCakeRequest, type CustomCakeState } from "@/lib/actions/cus
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { toDatetimeLocalValue } from "@/lib/utils/datetime-local";
 
 const TOTAL_STEPS = 5;
 const MAX_IMAGES = 3;
-
-// A <input type="datetime-local"> value/min is interpreted in the BROWSER's
-// local time, with no timezone marker — toISOString() returns UTC, which on
-// any machine not at UTC+0 silently shifts the represented instant by the
-// local offset (e.g. -7h in Vietnam, so a "+26h" UTC string reads back as
-// only ~19h away once the browser parses it as local time). Build the
-// string from local getters instead so it means what it says.
-function toDatetimeLocalValue(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 // The server re-checks "needAt is at least 24h from now" at the moment the
 // form is actually submitted, not at mount time — defaulting to exactly

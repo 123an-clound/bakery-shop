@@ -11,6 +11,7 @@ import { orderDataSchema, productDataSchema } from "@/lib/bakery/schemas";
 import { calcOrderTotal, validateCoupon } from "@/lib/bakery/pricing";
 import { sendEmail } from "@/lib/email/client";
 import { newOrderNotificationEmail, orderConfirmationEmail } from "@/lib/email/templates";
+import { consumeRateLimit, requestClientKey } from "@/lib/security/rate-limit";
 
 const orderInputSchema = z.object({
   items: z
@@ -32,7 +33,15 @@ const orderInputSchema = z.object({
     district: z.string().trim().optional(),
     city: z.string().trim().min(1),
   }),
-  deliveryAt: z.string().min(1),
+  // Must be a real timestamp that isn't already in the past (1h slack for
+  // clock skew / a form left open a while).
+  deliveryAt: z
+    .string()
+    .min(1)
+    .refine((v) => {
+      const ms = new Date(v).getTime();
+      return !Number.isNaN(ms) && ms > Date.now() - 60 * 60 * 1000;
+    }, "invalid_delivery_at"),
   note: z.string().max(500).optional(),
   paymentMethod: z.enum(["cod", "bank_transfer"]),
   couponCode: z.string().trim().optional(),
@@ -46,6 +55,8 @@ const orderInputSchema = z.object({
  * "total gia" bi bo qua — khong co gi de bo qua.
  */
 export async function POST(request: Request) {
+  const rate = consumeRateLimit(`orders:${requestClientKey(request)}`, 10, 15 * 60 * 1000);
+  if (!rate.allowed) return NextResponse.json({ error: "too_many_requests" }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } });
   const json = await request.json().catch(() => null);
   const parsed = orderInputSchema.safeParse(json);
   if (!parsed.success) {

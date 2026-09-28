@@ -40,6 +40,7 @@
     "close": "Dismiss announcement"
   },
   "Home": {
+    "promoTitle": "Current offers",
     "heroTitleFallback": "Fresh cakes every day",
     "heroCtaFallback": "Order now",
     "viewMenu": "View menu",

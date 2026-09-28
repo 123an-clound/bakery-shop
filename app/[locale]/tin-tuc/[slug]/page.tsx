@@ -19,9 +19,12 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
+  const seo = post.data.seo;
   return buildMetadata({
-    title: tField(post.data.title, locale as Locale),
-    description: post.data.excerpt ? tField(post.data.excerpt, locale as Locale) : undefined,
+    title: (seo?.title && tField(seo.title, locale as Locale)) || tField(post.data.title, locale as Locale),
+    description:
+      (seo?.description && tField(seo.description, locale as Locale)) ||
+      (post.data.excerpt ? tField(post.data.excerpt, locale as Locale) : undefined),
     ogImage: post.data.cover_url,
     path: `/tin-tuc/${slug}`,
     locale: locale as Locale,

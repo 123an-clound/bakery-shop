@@ -1,10 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
-import { deleteBakeryRowsByType } from "./helpers/supabase-admin";
+import { deleteProductsByNamePrefix } from "./helpers/supabase-admin";
 
-const createdProductIds: number[] = [];
+const TEST_PRODUCT_PREFIX = "E2E Admin Test Product";
 
 test.afterAll(async () => {
-  await deleteBakeryRowsByType("product", createdProductIds);
+  await deleteProductsByNamePrefix(TEST_PRODUCT_PREFIX);
 });
 
 async function loginAsAdmin(page: Page) {
@@ -23,7 +23,7 @@ test.describe("Admin CRUD → customer site (mục 13 scenarios 10-12)", () => {
 
   // scenario 10: a product added in admin appears on the customer product listing.
   test("adding a product in admin makes it appear on the customer site", async ({ page, request }) => {
-    const productName = `E2E Admin Test Product ${Date.now()}`;
+    const productName = `${TEST_PRODUCT_PREFIX} ${Date.now()}`;
     await page.goto("/admin/san-pham/new");
     await page.getByLabel("Tên sản phẩm *").fill(productName);
     await page.getByLabel("Giá gốc (₫) *").fill("111000");

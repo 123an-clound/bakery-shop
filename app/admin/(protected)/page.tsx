@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Tổng quan</h1>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader>
             <CardDescription>Doanh thu hôm nay</CardDescription>
@@ -47,6 +47,12 @@ export default async function AdminDashboardPage() {
           <CardHeader>
             <CardDescription>Đơn chờ xử lý</CardDescription>
             <CardTitle className="text-2xl">{stats.pendingOrders}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Tổng sản phẩm</CardDescription>
+            <CardTitle className="text-2xl">{stats.totalProducts}</CardTitle>
           </CardHeader>
         </Card>
         <Card>

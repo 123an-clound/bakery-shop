@@ -27,15 +27,15 @@ export default async function AdminCustomersPage() {
           </TableHeader>
           <TableBody>
             {customers.map((c) => (
-              <TableRow key={c.phone}>
+              <TableRow key={c.key}>
                 <TableCell className="font-medium">{c.name}</TableCell>
-                <TableCell>{c.phone}</TableCell>
+                <TableCell>{c.phone ?? "—"}</TableCell>
                 <TableCell>
                   <Badge variant={c.hasAccount ? "default" : "secondary"}>{c.hasAccount ? "Đã đăng ký" : "Khách vãng lai"}</Badge>
                 </TableCell>
                 <TableCell>{c.orderCount}</TableCell>
                 <TableCell>{formatMoney(c.totalSpent)}</TableCell>
-                <TableCell>{formatDate(c.lastOrderAt)}</TableCell>
+                <TableCell>{c.lastOrderAt ? formatDate(c.lastOrderAt) : "—"}</TableCell>
               </TableRow>
             ))}
             {customers.length === 0 ? (

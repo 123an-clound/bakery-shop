@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
 import { toast } from "sonner";
 
 import type { SettingSiteData } from "@/lib/bakery/schemas";
@@ -15,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageUploader } from "@/components/admin/media/image-uploader";
 
 type ShopFields = Omit<SettingSiteData, "brand_name" | "tagline" | "logo_url" | "favicon_url">;
 
@@ -86,12 +86,20 @@ export function SettingsClient({ initial, initialNotifyEmails }: { initial: Shop
           <Input id="email" type="email" value={data.email ?? ""} onChange={(e) => patch({ email: e.target.value })} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="address">Địa chỉ</Label>
+          <Label htmlFor="address">Địa chỉ (VI)</Label>
           <Input id="address" value={data.address?.vi ?? ""} onChange={(e) => patch({ address: { ...data.address, vi: e.target.value } })} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="opening-hours">Giờ mở cửa</Label>
+          <Label htmlFor="address-en">Địa chỉ (EN)</Label>
+          <Input id="address-en" value={data.address?.en ?? ""} onChange={(e) => patch({ address: { vi: data.address?.vi ?? "", en: e.target.value } })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="opening-hours">Giờ mở cửa (VI)</Label>
           <Input id="opening-hours" value={data.opening_hours?.vi ?? ""} onChange={(e) => patch({ opening_hours: { ...data.opening_hours, vi: e.target.value } })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="opening-hours-en">Giờ mở cửa (EN)</Label>
+          <Input id="opening-hours-en" value={data.opening_hours?.en ?? ""} onChange={(e) => patch({ opening_hours: { vi: data.opening_hours?.vi ?? "", en: e.target.value } })} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="map-embed">Nhúng bản đồ (iframe URL hoặc mã nhúng)</Label>
@@ -208,12 +216,21 @@ export function SettingsClient({ initial, initialNotifyEmails }: { initial: Shop
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="shipping-note">Ghi chú vận chuyển</Label>
+          <Label htmlFor="shipping-note">Ghi chú vận chuyển (VI)</Label>
           <Textarea
             id="shipping-note"
             rows={2}
             value={data.shipping?.note?.vi ?? ""}
             onChange={(e) => patch({ shipping: { fee: data.shipping?.fee ?? 0, free_from: data.shipping?.free_from ?? 0, note: { ...data.shipping?.note, vi: e.target.value } } })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="shipping-note-en">Ghi chú vận chuyển (EN)</Label>
+          <Textarea
+            id="shipping-note-en"
+            rows={2}
+            value={data.shipping?.note?.en ?? ""}
+            onChange={(e) => patch({ shipping: { fee: data.shipping?.fee ?? 0, free_from: data.shipping?.free_from ?? 0, note: { vi: data.shipping?.note?.vi ?? "", en: e.target.value } } })}
           />
         </div>
         <Button disabled={isPending} onClick={saveShopInfo}>
@@ -247,25 +264,28 @@ export function SettingsClient({ initial, initialNotifyEmails }: { initial: Shop
 
       <TabsContent value="seo" className="max-w-xl space-y-4 pt-4">
         <div className="space-y-1.5">
-          <Label htmlFor="seo-title">Tiêu đề mặc định</Label>
+          <Label htmlFor="seo-title">Tiêu đề mặc định (VI)</Label>
           <Input id="seo-title" value={data.seo?.title?.vi ?? ""} onChange={(e) => patch({ seo: { ...data.seo, title: { ...data.seo?.title, vi: e.target.value } } })} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="seo-desc">Mô tả mặc định</Label>
+          <Label htmlFor="seo-desc">Mô tả mặc định (VI)</Label>
           <Textarea id="seo-desc" rows={3} value={data.seo?.description?.vi ?? ""} onChange={(e) => patch({ seo: { ...data.seo, description: { ...data.seo?.description, vi: e.target.value } } })} />
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="seo-title-en">Tiêu đề mặc định (EN)</Label>
+          <Input id="seo-title-en" value={data.seo?.title?.en ?? ""} onChange={(e) => patch({ seo: { ...data.seo, title: { vi: data.seo?.title?.vi ?? "", en: e.target.value } } })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="seo-desc-en">Mô tả mặc định (EN)</Label>
+          <Textarea id="seo-desc-en" rows={3} value={data.seo?.description?.en ?? ""} onChange={(e) => patch({ seo: { ...data.seo, description: { vi: data.seo?.description?.vi ?? "", en: e.target.value } } })} />
+        </div>
         <div className="space-y-3">
-          <Label htmlFor="seo-og-image">Ảnh Open Graph</Label>
-          {data.seo?.og_image ? (
-            <div className="relative h-32 w-56 overflow-hidden rounded-lg border">
-              <Image src={data.seo.og_image} alt="" fill sizes="224px" className="object-cover" />
-            </div>
-          ) : null}
-          <Input
-            id="seo-og-image"
-            value={data.seo?.og_image ?? ""}
-            onChange={(e) => patch({ seo: { ...data.seo, og_image: e.target.value } })}
-            placeholder="https://..."
+          <Label>Ảnh Open Graph (khuyên dùng 1200×630)</Label>
+          <ImageUploader
+            value={data.seo?.og_image ? [data.seo.og_image] : []}
+            onChange={(urls) => patch({ seo: { ...data.seo, og_image: urls[0] ?? "" } })}
+            folder="theme"
+            max={1}
           />
         </div>
         <Button disabled={isPending} onClick={saveShopInfo}>

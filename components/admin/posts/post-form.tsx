@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUploader } from "@/components/admin/media/image-uploader";
+import { isoToDatetimeLocalValue } from "@/lib/utils/datetime-local";
 
 const EMPTY: PostData = { title: { vi: "" }, excerpt: { vi: "" }, content: { vi: "" }, cover_url: "", author: "Admin", tags: [] };
 
@@ -76,6 +77,14 @@ export function PostForm({ initial }: { initial?: AdminPostRow }) {
               <Input id="title-en" value={data.title.en ?? ""} onChange={(e) => patch({ title: { ...data.title, en: e.target.value } })} />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="excerpt-en">Excerpt</Label>
+              <Input
+                id="excerpt-en"
+                value={data.excerpt?.en ?? ""}
+                onChange={(e) => patch({ excerpt: { vi: data.excerpt?.vi ?? "", en: e.target.value } })}
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="content-en">Content (HTML)</Label>
               <Textarea
                 id="content-en"
@@ -107,13 +116,54 @@ export function PostForm({ initial }: { initial?: AdminPostRow }) {
           <Input
             id="published-at"
             type="datetime-local"
-            value={data.published_at?.slice(0, 16) ?? ""}
+            value={isoToDatetimeLocalValue(data.published_at)}
             onChange={(e) => patch({ published_at: e.target.value ? new Date(e.target.value).toISOString() : undefined })}
           />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="slug">Đường dẫn (slug)</Label>
           <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="tự sinh nếu để trống" />
+        </div>
+      </div>
+
+      <div className="space-y-4 rounded-lg border p-4">
+        <div>
+          <h2 className="font-semibold">SEO</h2>
+          <p className="text-muted-foreground text-xs">Để trống sẽ dùng tiêu đề và tóm tắt bài viết.</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="seo-title">Tiêu đề SEO (VI)</Label>
+          <Input
+            id="seo-title"
+            value={data.seo?.title?.vi ?? ""}
+            onChange={(e) => patch({ seo: { ...data.seo, title: { ...data.seo?.title, vi: e.target.value } } })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="seo-desc">Mô tả SEO (VI)</Label>
+          <Textarea
+            id="seo-desc"
+            rows={2}
+            value={data.seo?.description?.vi ?? ""}
+            onChange={(e) => patch({ seo: { ...data.seo, description: { ...data.seo?.description, vi: e.target.value } } })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="seo-title-en">SEO title (EN)</Label>
+          <Input
+            id="seo-title-en"
+            value={data.seo?.title?.en ?? ""}
+            onChange={(e) => patch({ seo: { ...data.seo, title: { vi: data.seo?.title?.vi ?? "", en: e.target.value } } })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="seo-desc-en">SEO description (EN)</Label>
+          <Textarea
+            id="seo-desc-en"
+            rows={2}
+            value={data.seo?.description?.en ?? ""}
+            onChange={(e) => patch({ seo: { ...data.seo, description: { vi: data.seo?.description?.vi ?? "", en: e.target.value } } })}
+          />
         </div>
       </div>
 

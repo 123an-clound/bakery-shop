@@ -8,6 +8,7 @@ import type { AdminOrderRow } from "@/lib/bakery/admin/orders";
 import { ORDER_STATUS_BADGE_VARIANT, ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@/lib/bakery/admin/labels";
 import { ORDER_STATUSES } from "@/lib/bakery/types";
 import { formatDateTime, formatMoney } from "@/lib/utils/format";
+import { vnDayEnd, vnDayStart } from "@/lib/utils/vn-date";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,15 +22,20 @@ const DELIVERY_WARNING_MS = 24 * 60 * 60 * 1000;
 // "delivery is within 24h" visual cue that doesn't need to tick live.
 const PAGE_LOADED_AT = Date.now();
 
+
 export function OrdersClient({ orders }: { orders: AdminOrderRow[] }) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [paymentMethod, setPaymentMethod] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
       if (status !== "all" && o.status !== status) return false;
       if (paymentMethod !== "all" && o.data.payment_method !== paymentMethod) return false;
+      if (dateFrom && new Date(o.createdAt).getTime() < vnDayStart(dateFrom)) return false;
+      if (dateTo && new Date(o.createdAt).getTime() > vnDayEnd(dateTo)) return false;
       if (search) {
         const q = search.toLowerCase();
         if (!o.data.code.toLowerCase().includes(q) && !o.data.phone.includes(q) && !o.data.customer_name.toLowerCase().includes(q)) {
@@ -38,12 +44,14 @@ export function OrdersClient({ orders }: { orders: AdminOrderRow[] }) {
       }
       return true;
     });
-  }, [orders, search, status, paymentMethod]);
+  }, [orders, search, status, paymentMethod, dateFrom, dateTo]);
 
   const exportUrl = `/api/admin/orders/export?${new URLSearchParams({
     ...(status !== "all" ? { status } : {}),
     ...(paymentMethod !== "all" ? { paymentMethod } : {}),
     ...(search ? { search } : {}),
+    ...(dateFrom ? { dateFrom } : {}),
+    ...(dateTo ? { dateTo } : {}),
   }).toString()}`;
 
   return (
@@ -80,6 +88,23 @@ export function OrdersClient({ orders }: { orders: AdminOrderRow[] }) {
               <SelectItem value="bank_transfer">Chuyển khoản</SelectItem>
             </SelectContent>
           </Select>
+          <Input
+            type="date"
+            aria-label="Từ ngày"
+            value={dateFrom}
+            max={dateTo || undefined}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="h-9 w-40"
+          />
+          <span className="text-muted-foreground text-sm">→</span>
+          <Input
+            type="date"
+            aria-label="Đến ngày"
+            value={dateTo}
+            min={dateFrom || undefined}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="h-9 w-40"
+          />
         </div>
         <Button variant="outline" asChild>
           <a href={exportUrl}>Xuất CSV</a>

@@ -45,6 +45,16 @@ describe("validateCoupon", () => {
     expect(result).toEqual({ valid: false, reason: "usage_limit_reached" });
   });
 
+  it("keeps a date-only coupon valid until the end of that day in Vietnam", () => {
+    const coupon = makeCoupon({ starts_at: "2026-09-01", ends_at: "2026-09-30" });
+    // 30/09 22:00 in Vietnam — previously rejected since 07:00 that morning.
+    expect(validateCoupon(coupon, 500000, new Date("2026-09-30T22:00:00+07:00")).valid).toBe(true);
+    expect(validateCoupon(coupon, 500000, new Date("2026-10-01T00:00:01+07:00"))).toEqual({ valid: false, reason: "expired" });
+    // 01/09 00:30 in Vietnam is still 31/08 in UTC — must already be valid.
+    expect(validateCoupon(coupon, 500000, new Date("2026-09-01T00:30:00+07:00")).valid).toBe(true);
+    expect(validateCoupon(coupon, 500000, new Date("2026-08-31T23:59:00+07:00"))).toEqual({ valid: false, reason: "not_started" });
+  });
+
   it("rejects an expired coupon", () => {
     const coupon = makeCoupon({ ends_at: "2020-01-01T00:00:00Z" });
     const result = validateCoupon(coupon, 500000, new Date("2026-01-01T00:00:00Z"));

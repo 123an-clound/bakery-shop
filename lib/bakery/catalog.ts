@@ -3,6 +3,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 
 import { createPublicClient } from "@/lib/supabase/public";
+import { vnDayEnd, vnDayStart } from "@/lib/utils/vn-date";
 
 import {
   bannerDataSchema,
@@ -198,21 +199,25 @@ export const getRelatedProducts = unstable_cache(
 // Banners
 // ---------------------------------------------------------------------------
 
-export const getActiveBanners = unstable_cache(
+const getPublishedBanners = unstable_cache(
   async () => {
     const rows = await listActivePublic("banner");
-    const now = Date.now();
-    return rows
-      .map((r) => ({ ...r, data: bannerDataSchema.parse(r.data) }))
-      .filter((b) => {
-        const startsOk = !b.data.starts_at || new Date(b.data.starts_at).getTime() <= now;
-        const endsOk = !b.data.ends_at || new Date(b.data.ends_at).getTime() >= now;
-        return startsOk && endsOk;
-      });
+    return rows.map((r) => ({ ...r, data: bannerDataSchema.parse(r.data) }));
   },
   ["bakery-banners"],
   { tags: ["banners"] },
 );
+
+/** The schedule window is checked outside the cache — otherwise a banner
+ * scheduled for tomorrow would stay hidden until the next admin edit. */
+export async function getActiveBanners() {
+  const now = Date.now();
+  return (await getPublishedBanners()).filter((b) => {
+    const startsOk = !b.data.starts_at || vnDayStart(b.data.starts_at) <= now;
+    const endsOk = !b.data.ends_at || vnDayEnd(b.data.ends_at) >= now;
+    return startsOk && endsOk;
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Blog posts

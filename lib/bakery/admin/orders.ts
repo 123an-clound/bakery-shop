@@ -2,6 +2,8 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { orderDataSchema, type OrderData } from "@/lib/bakery/schemas";
+import { escapeCsvCell } from "@/lib/utils/csv";
+import { ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/bakery/admin/labels";
 
 export interface AdminOrderRow {
   id: number;
@@ -78,23 +80,25 @@ export async function getAdminOrder(id: number): Promise<AdminOrderRow | null> {
 }
 
 export async function ordersToCsv(rows: AdminOrderRow[]): Promise<string> {
-  const header = ["Mã đơn", "Khách hàng", "SĐT", "Trạng thái", "Thanh toán", "Tổng tiền", "Ngày tạo"];
-  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
-  const lines = [header.map(escape).join(",")];
+  const header = ["Mã đơn", "Khách hàng", "SĐT", "Trạng thái", "Thanh toán", "TT thanh toán", "Tổng tiền", "Giao lúc", "Ngày tạo"];
+  const lines = [header.map(escapeCsvCell).join(",")];
   for (const row of rows) {
     lines.push(
       [
         row.data.code,
         row.data.customer_name,
         row.data.phone,
-        row.status,
-        row.data.payment_method,
+        ORDER_STATUS_LABELS[row.status] ?? row.status,
+        PAYMENT_METHOD_LABELS[row.data.payment_method] ?? row.data.payment_method,
+        PAYMENT_STATUS_LABELS[row.data.payment_status] ?? row.data.payment_status,
         String(row.data.total),
-        new Date(row.createdAt).toLocaleString("vi-VN"),
+        new Date(row.data.delivery_at).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
+        new Date(row.createdAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
       ]
-        .map(escape)
+        .map(escapeCsvCell)
         .join(","),
     );
   }
-  return lines.join("\n");
+  // BOM so Excel opens the UTF-8 file with Vietnamese diacritics intact.
+  return "﻿" + lines.join("\r\n");
 }

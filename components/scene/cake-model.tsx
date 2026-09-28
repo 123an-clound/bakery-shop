@@ -1,64 +1,59 @@
 "use client";
 
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, type RefObject } from "react";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-import { useSceneStore } from "@/lib/store/scene";
+import { CAKE_BOUNDING_RADIUS } from "@/lib/scene/transform";
 
-const STRAWBERRY_COUNT = 5;
+// Web build of cake-full-detail.glb (gltf-transform: simplify ratio 0.05 /
+// error 0.0005 + meshopt): 18.7 MB / 13M rendered vertices → 3.2 MB / 1.3M.
+// The full-detail source froze the main thread on software-GL devices.
+const MODEL_URL = "/models/cake/cake-web.glb";
 
-export function CakeModel() {
-  const group = useRef<THREE.Group>(null);
+/** Optimized high-detail cake supplied by the bakery project. */
+export function CakeModel({ groupRef }: { groupRef: RefObject<THREE.Group | null> }) {
+  const { scene: model } = useGLTF(MODEL_URL);
+  const normalized = useMemo(() => {
+    const bounds = new THREE.Box3().setFromObject(model);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const scale = CAKE_BOUNDING_RADIUS / bounds.getBoundingSphere(new THREE.Sphere()).radius;
+    return { scale, offset: center.multiplyScalar(-scale) };
+  }, [model]);
 
-  useFrame(() => {
-    if (!group.current) return;
-    const { objectRotation, objectPosition } = useSceneStore.getState();
-    group.current.rotation.set(
-      THREE.MathUtils.lerp(group.current.rotation.x, objectRotation[0], 0.06),
-      THREE.MathUtils.lerp(group.current.rotation.y, objectRotation[1], 0.06),
-      THREE.MathUtils.lerp(group.current.rotation.z, objectRotation[2], 0.06),
-    );
-    group.current.position.set(
-      THREE.MathUtils.lerp(group.current.position.x, objectPosition[0], 0.06),
-      THREE.MathUtils.lerp(group.current.position.y, objectPosition[1], 0.06),
-      THREE.MathUtils.lerp(group.current.position.z, objectPosition[2], 0.06),
-    );
-  });
+  useEffect(() => {
+    model.traverse((object) => {
+      if (!(object instanceof THREE.Mesh)) return;
+      object.castShadow = true;
+      object.receiveShadow = true;
+
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) {
+        if (material instanceof THREE.MeshStandardMaterial) {
+          material.envMapIntensity = 0.95;
+          material.roughness = Math.min(material.roughness || 0.6, 0.72);
+          material.needsUpdate = true;
+        } else if (material instanceof THREE.MeshPhongMaterial) {
+          const color = material.color;
+          color.r = Math.min(1, Math.pow(color.r, 0.9) * 1.03);
+          color.g = Math.min(1, Math.pow(color.g, 0.9) * 1.03);
+          color.b = Math.min(1, Math.pow(color.b, 0.9) * 1.03);
+          material.shininess = Math.max(material.shininess, 56);
+          material.flatShading = false;
+          material.needsUpdate = true;
+        }
+      }
+    });
+  }, [model]);
 
   return (
-    <group ref={group}>
-      {/* Base tier */}
-      <mesh position={[0, -0.6, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.4, 1.4, 0.7, 48]} />
-        <meshStandardMaterial color="#F3E4D0" roughness={0.6} />
-      </mesh>
-      {/* Top tier */}
-      <mesh position={[0, 0.05, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.0, 1.0, 0.6, 48]} />
-        <meshStandardMaterial color="#FFF8EF" roughness={0.55} />
-      </mesh>
-      {/* Icing swirl */}
-      <mesh position={[0, 0.45, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <torusGeometry args={[0.55, 0.16, 24, 48]} />
-        <meshStandardMaterial color="#C89B6B" roughness={0.4} />
-      </mesh>
-      {/* Strawberries around the swirl */}
-      {Array.from({ length: STRAWBERRY_COUNT }, (_, i) => {
-        const angle = (i / STRAWBERRY_COUNT) * Math.PI * 2;
-        return (
-          <mesh key={i} position={[Math.cos(angle) * 0.9, 0.4, Math.sin(angle) * 0.9]} castShadow>
-            <sphereGeometry args={[0.14, 16, 16]} />
-            <meshStandardMaterial color="#D1495B" roughness={0.5} />
-          </mesh>
-        );
-      })}
-      {/* Candle */}
-      <mesh position={[0, 0.85, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.5, 12]} />
-        <meshStandardMaterial color="#F6C85F" />
-      </mesh>
-      <pointLight position={[0, 1.15, 0]} intensity={0.6} color="#FFD98E" distance={2} />
+    <group ref={groupRef} name="cake-presentation">
+      <group scale={normalized.scale} position={normalized.offset}>
+        {/* useGLTF owns this shared cached geometry; only the wrapper is animated. */}
+        <primitive object={model} dispose={null} />
+      </group>
     </group>
   );
 }
+
+useGLTF.preload(MODEL_URL);

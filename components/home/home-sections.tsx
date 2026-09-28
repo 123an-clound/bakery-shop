@@ -1,9 +1,12 @@
+import { Fragment } from "react";
+
 import { getFeaturedProducts, getBestSellerProducts } from "@/lib/bakery/catalog";
 import { getMyFavoriteProductIds } from "@/lib/bakery/favorites";
 import type { ThemeData } from "@/lib/bakery/schemas";
 import type { Locale } from "@/lib/bakery/types";
 
 import { HeroSection } from "./hero-section";
+import { PromoBannersSection } from "./promo-banners-section";
 import { CategoriesSection } from "./categories-section";
 import { FeaturedProductsSection, BestSellersSection } from "./product-grid-section";
 import { CustomCakeSection } from "./custom-cake-section";
@@ -35,7 +38,12 @@ export async function HomeSections({ theme, locale }: { theme: ThemeData; locale
       {sections.map((section) => {
         switch (section.key) {
           case "hero":
-            return <HeroSection key="hero" hero={theme.hero} locale={locale} />;
+            return (
+              <Fragment key="hero">
+                <HeroSection hero={theme.hero} locale={locale} />
+                <PromoBannersSection locale={locale} />
+              </Fragment>
+            );
           case "categories":
             return <CategoriesSection key="categories" locale={locale} />;
           case "featured":
