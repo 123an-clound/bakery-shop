@@ -291,3 +291,16 @@
       micro-interaction 3D ở luồng thanh toán, và kể chuyện theo từng route
       riêng (per-route storytelling) — cảnh 3D hiện tại chỉ có 1 phiên bản
       dùng chung cho mọi trang.
+- [x] Rà soát admin theo mục 9 (2026-09-28): bổ sung lọc đơn theo khoảng ngày
+      (+CSV theo bộ lọc, nhãn tiếng Việt, BOM cho Excel), thẻ "Tổng sản phẩm",
+      khách đã đăng ký chưa có đơn, banner hiển thị thật trên trang chủ (trước
+      đó admin quản lý nhưng không render ở đâu), SEO riêng từng bài viết, các
+      trường EN còn thiếu, uploader ảnh OG. Bug thật đã sửa: coupon/banner
+      ngày-thuần hết hạn lúc 07:00 VN (`lib/utils/vn-date.ts`); lịch banner bị
+      đánh giá trong `unstable_cache`; `datetime-local` nhận chuỗi UTC
+      (`lib/utils/datetime-local.ts`); rate-limit login admin đếm cả lần đúng;
+      CSP thiếu `blob:`; cleanup e2e sản phẩm không bao giờ chạy. Model 3D
+      chuyển sang `cake-web.glb` (18.7 MB/13M vertex → 3.2 MB/1.3M) — bản full
+      làm treo main thread, gây fail e2e checkout/bánh riêng. Unit 84/84,
+      e2e 34/34 + 4 test admin mới (`04b-admin-extras.spec.ts`, phải chạy
+      TRƯỚC `05` vì `05` cố tình khoá login). Lighthouse chưa đo lại.
