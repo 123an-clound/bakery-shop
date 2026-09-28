@@ -18,8 +18,10 @@ import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { CartHydration } from "@/components/cart/cart-hydration";
 import { ThemePreviewListener } from "@/components/theme/theme-preview-listener";
+import { ColorModeProvider } from "@/components/theme/color-mode-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { SceneRoot } from "@/components/scene/scene-root";
+import { getSiteUrl } from "@/lib/seo/site-url";
 
 // Every Theme Editor font choice (mục 9.6) loads statically here, each under
 // its own `--font-<slug>` variable (see lib/theme/fonts.ts) — switching the
@@ -96,7 +98,7 @@ export async function generateMetadata(
   const brandName = settingsRow ? tField(settingsRow.data.brand_name, locale as Locale) : undefined;
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    metadataBase: new URL(getSiteUrl()),
     title: {
       default: (seo?.title && tField(seo.title, locale as Locale)) || t("title"),
       template: brandName ? `%s | ${brandName}` : "%s",
@@ -128,25 +130,30 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       lang={locale}
       className={`${THEME_FONT_VARIABLES} h-full antialiased`}
       style={theme ? themeToCssVars(theme.colors, theme.radius, theme.fonts) : undefined}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider>
+      <body className="storefront-background isolate flex min-h-full flex-col">
+        <ColorModeProvider>
+          <NextIntlClientProvider>
           <SceneRoot posterUrl={theme?.hero.image_url} />
-          <LenisProvider enabled={theme?.effects.smooth_scroll ?? true}>
-            {theme?.announcement_bar ? <AnnouncementBar config={theme.announcement_bar} /> : null}
-            {settings ? (
-              <Header
-                brandName={tField(settings.brand_name, locale as Locale)}
-                logoUrl={settings.logo_url}
-                locale={locale as Locale}
-                userEmail={userEmail}
-              />
-            ) : null}
-            <main className="flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
-            {settings ? <Footer settings={settings} locale={locale as Locale} /> : null}
-            <MobileNav />
-          </LenisProvider>
-        </NextIntlClientProvider>
+          <div className="relative z-10 flex flex-1 flex-col">
+            <LenisProvider enabled={theme?.effects.smooth_scroll ?? true}>
+              {theme?.announcement_bar ? <AnnouncementBar config={theme.announcement_bar} /> : null}
+              {settings ? (
+                <Header
+                  brandName={tField(settings.brand_name, locale as Locale)}
+                  logoUrl={settings.logo_url}
+                  locale={locale as Locale}
+                  userEmail={userEmail}
+                />
+              ) : null}
+              <main className="flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
+              {settings ? <Footer settings={settings} locale={locale as Locale} /> : null}
+              <MobileNav />
+            </LenisProvider>
+          </div>
+          </NextIntlClientProvider>
+        </ColorModeProvider>
         <Toaster richColors position="top-center" />
         <CartHydration />
         <ThemePreviewListener />

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Heart, Menu, Search, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/bakery/types";
 import { signOut } from "@/lib/actions/auth";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MiniCart } from "@/components/cart/mini-cart";
+import { ColorModeToggle } from "@/components/theme/color-mode-toggle";
 
 const NAV_ITEMS = [
   { key: "home", href: "/" },
@@ -46,7 +47,12 @@ export function Header({
   const t = useTranslations("Nav");
   const tAccount = useTranslations("Account");
   const tAuth = useTranslations("Auth");
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+
+  function isActive(href: string) {
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  }
 
   useEffect(() => {
     function onScroll() {
@@ -76,15 +82,29 @@ export function Header({
         </Link>
 
         <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className="hover:text-brand-accent text-sm font-medium transition-colors"
-            >
-              {t(item.key)}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "group relative rounded-full px-1 py-2 text-sm font-medium outline-none transition-[color,transform] duration-200 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4",
+                  active ? "text-brand-accent" : "text-foreground/75 hover:text-brand-accent",
+                )}
+              >
+                {t(item.key)}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "bg-brand-accent absolute inset-x-1 -bottom-0.5 h-0.5 origin-center rounded-full transition-transform duration-200",
+                    active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                  )}
+                />
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="relative hidden flex-1 max-w-xs items-center md:flex lg:max-w-56">
@@ -94,6 +114,7 @@ export function Header({
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
           <LanguageSwitcher />
+          <ColorModeToggle />
           {userEmail ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -143,16 +164,31 @@ export function Header({
                 <SheetTitle>{brandName}</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-4">
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className="hover:bg-muted rounded-xl px-3 py-2.5 text-sm font-medium"
-                  >
-                    {t(item.key)}
-                  </Link>
-                ))}
+                {NAV_ITEMS.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "rounded-xl px-3 py-3 text-sm font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        active
+                          ? "bg-brand-accent/12 text-brand-accent"
+                          : "text-foreground/75 hover:bg-muted hover:text-foreground",
+                      )}
+                    >
+                      {t(item.key)}
+                    </Link>
+                  );
+                })}
               </nav>
+              <div className="mt-4 border-t border-border px-4 pt-4">
+                <div className="flex items-center justify-between text-sm font-medium">
+                  <span>Giao diện</span>
+                  <ColorModeToggle />
+                </div>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

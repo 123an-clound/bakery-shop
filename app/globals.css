@@ -117,27 +117,27 @@
      by the inline style themeToCssVars() sets on <html> (muc 9.6). */
   --font-heading: var(--font-baloo-2, system-ui);
   --font-body: var(--font-be-vietnam-pro, system-ui);
-  --background: #fffbf7;
-  --foreground: #3a2a22;
-  --card: #ffffff;
-  --card-foreground: #3a2a22;
-  --popover: #ffffff;
-  --popover-foreground: #3a2a22;
-  --primary: #f7a8c4;
-  --primary-foreground: #3a2a22;
-  --secondary: #ffe7c7;
-  --secondary-foreground: #3a2a22;
-  --muted: #f3e9e1;
-  --muted-foreground: #6b5a4e;
-  --accent: #f3e9e1;
-  --accent-foreground: #3a2a22;
+  --background: var(--bakery-background, #fffbf7);
+  --foreground: var(--bakery-foreground, #3a2a22);
+  --card: var(--bakery-card, #ffffff);
+  --card-foreground: var(--bakery-foreground, #3a2a22);
+  --popover: var(--bakery-popover, #ffffff);
+  --popover-foreground: var(--bakery-foreground, #3a2a22);
+  --primary: var(--bakery-primary, #f7a8c4);
+  --primary-foreground: var(--bakery-foreground, #3a2a22);
+  --secondary: var(--bakery-secondary, #ffe7c7);
+  --secondary-foreground: var(--bakery-foreground, #3a2a22);
+  --muted: var(--bakery-muted, #f3e9e1);
+  --muted-foreground: var(--bakery-foreground, #6b5a4e);
+  --accent: var(--bakery-muted, #f3e9e1);
+  --accent-foreground: var(--bakery-foreground, #3a2a22);
   /* Phase 7 muc 7.4 WCAG re-pass: --destructive is rendered as TEXT
      (text-destructive) everywhere on the customer site - form errors,
      out-of-stock labels, delete icons - never as a solid background here.
      The original #e76a6a only hit 3.15:1 against the cream/white body
      background (fails 4.5:1). Deepened to #b84545, measured at 5.13-5.28:1
      against cream/white, keeping the same coral-red hue. */
-  --destructive: #b84545;
+  --destructive: var(--bakery-destructive, #b84545);
   /* Kept for the (currently unused on the customer site) bg-destructive
      solid-background pairing — measured contrast on #E76A6A was only
      3.06:1 (fails WCAG AA 4.5:1); this deepened cocoa passes at 5.19:1. */
@@ -145,9 +145,9 @@
   --border: #f0e2d6;
   --input: #f0e2d6;
   --ring: #f7a8c4;
-  --brand-accent: #7b4b2a;
+  --brand-accent: var(--bakery-accent, #7b4b2a);
   --brand-accent-foreground: #fffbf7;
-  --success: #8bc79a;
+  --success: var(--bakery-success, #8bc79a);
   --success-foreground: #1f3d27;
   --radius: 1.5rem;
   --radius-blob-base: 2.5rem;
@@ -167,6 +167,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -266,6 +267,91 @@
   h3,
   h4 {
     @apply font-heading;
+  }
+}
+
+/* Storefront stack: cake (z-0), light bloom (z-4), paper pattern (z-5), UI (z-10). */
+.storefront-background {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse at 83% 12%, color-mix(in srgb, var(--primary) 32%, transparent) 0%, transparent 34%),
+    radial-gradient(ellipse at 11% 42%, color-mix(in srgb, var(--secondary) 62%, transparent) 0%, transparent 36%),
+    radial-gradient(ellipse at 83% 78%, color-mix(in srgb, var(--color-mint) 22%, transparent) 0%, transparent 33%);
+  background-attachment: fixed;
+}
+
+.storefront-background::before {
+  position: fixed;
+  z-index: 5;
+  pointer-events: none;
+  content: "";
+  inset: 0;
+  background-image: url("/images/bakery-piping-pattern-v2.webp");
+  background-repeat: repeat;
+  background-size: 820px 820px;
+  opacity: 0.21;
+  mix-blend-mode: multiply;
+}
+
+.storefront-background::after {
+  --glow-low: 0.46;
+  --glow-high: 0.82;
+  position: fixed;
+  z-index: 4;
+  pointer-events: none;
+  content: "";
+  inset: -6%;
+  background-image:
+    radial-gradient(ellipse 24rem 21rem at 67% 46%, rgb(255 205 112 / 0.56) 0%, rgb(255 225 158 / 0.3) 38%, transparent 74%),
+    radial-gradient(ellipse 31rem 27rem at 69% 47%, rgb(235 117 154 / 0.28) 0%, transparent 77%),
+    radial-gradient(ellipse 20rem 17rem at 20% 78%, rgb(247 174 119 / 0.24) 0%, transparent 74%),
+    radial-gradient(circle at 79% 28%, rgb(255 252 231 / 0.92) 0 1px, rgb(255 233 187 / 0.5) 2px, transparent 9px),
+    radial-gradient(circle at 85% 48%, rgb(255 252 231 / 0.86) 0 1px, rgb(255 233 187 / 0.44) 2px, transparent 8px),
+    radial-gradient(circle at 57% 66%, rgb(255 252 231 / 0.82) 0 1px, rgb(255 233 187 / 0.4) 2px, transparent 8px);
+  opacity: 0.64;
+  mix-blend-mode: screen;
+}
+
+.dark .storefront-background::after {
+  --glow-low: 0.2;
+  --glow-high: 0.36;
+  background-image:
+    radial-gradient(ellipse 24rem 21rem at 67% 46%, rgb(255 186 92 / 0.28) 0%, transparent 74%),
+    radial-gradient(ellipse 31rem 27rem at 69% 47%, rgb(235 117 154 / 0.24) 0%, transparent 77%),
+    radial-gradient(ellipse 20rem 17rem at 20% 78%, rgb(247 174 119 / 0.16) 0%, transparent 74%),
+    radial-gradient(circle at 79% 28%, rgb(255 252 231 / 0.56) 0 1px, transparent 9px),
+    radial-gradient(circle at 85% 48%, rgb(255 252 231 / 0.5) 0 1px, transparent 8px),
+    radial-gradient(circle at 57% 66%, rgb(255 252 231 / 0.46) 0 1px, transparent 8px);
+}
+
+@keyframes bakery-glow-breathe {
+  from {
+    opacity: var(--glow-low);
+  }
+  to {
+    opacity: var(--glow-high);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .storefront-background::after {
+    animation: bakery-glow-breathe 9s ease-in-out infinite alternate;
+  }
+}
+
+.dark .storefront-background::before {
+  opacity: 0.045;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 640px) {
+  .storefront-background::before {
+    background-size: 680px 680px;
+    opacity: 0.18;
+  }
+
+  .storefront-background::after {
+    inset: -2%;
   }
 }
 

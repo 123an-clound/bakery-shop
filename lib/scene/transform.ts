@@ -1,87 +1,68 @@
 export type SceneStage = "hero" | "ambient";
+type Vec3 = [number, number, number];
 
 export interface SceneTransform {
-  cameraTarget: [number, number, number];
-  objectRotation: [number, number, number];
-  objectPosition: [number, number, number];
+  cameraTarget: Vec3;
+  cameraLookAt: Vec3;
+  objectRotation: Vec3;
+  objectPosition: Vec3;
+  objectScale: number;
   lightIntensity: number;
+  lightColor: Vec3;
+  fillIntensity: number;
 }
 
-/** Static resting pose shown on every non-homepage route. */
-const AMBIENT_TRANSFORM: SceneTransform = {
-  cameraTarget: [0, 1, 6],
-  objectRotation: [0, 0.4, 0],
-  objectPosition: [0, -0.2, 0],
-  lightIntensity: 0.7,
-};
+// The imported cake is centered and scaled to fit this sphere before animation.
+export const CAKE_BOUNDING_RADIUS = 1.9;
+export const SCENE_FOV = 40;
+export const SCENE_TRAVEL_HALF_WIDTH = 4.8;
 
-/**
- * Homepage scroll storytelling beats. `at` is scrollYProgress (0-1).
- * computeSceneTransform interpolates linearly between the two keyframes
- * bracketing the current progress.
- */
-const HERO_KEYFRAMES: { at: number; transform: SceneTransform }[] = [
-  {
-    at: 0,
-    transform: { cameraTarget: [0, 1.2, 5], objectRotation: [0, 0, 0], objectPosition: [0, 0, 0], lightIntensity: 1 },
-  },
-  {
-    at: 0.5,
-    transform: {
-      cameraTarget: [1.5, 1.6, 3.5],
-      objectRotation: [0, Math.PI, 0],
-      objectPosition: [0, 0.3, 0],
-      lightIntensity: 1.4,
-    },
-  },
-  {
-    at: 1,
-    transform: {
-      cameraTarget: [-1.2, 2, 4],
-      objectRotation: [0, Math.PI * 2, 0],
-      objectPosition: [0, 0, 0],
-      lightIntensity: 0.8,
-    },
-  },
+// Elevation is measured above the cake's horizontal plane, not above the origin
+// of the original FBX. Keep the cake upright so pitch cannot cancel this angle.
+const VIEWS = [
+  { at: 0, elevation: 45, height: 0, objectHeight: -0.2, x: -2.8, z: 0.12, scale: 0.9 },
+  { at: 0.22, elevation: 72, height: 0.22, objectHeight: 0.1, x: -1.6, z: -0.1, scale: 0.96 },
+  { at: 0.48, elevation: 48, height: 0.08, objectHeight: 0.12, x: 0.08, z: -0.22, scale: 1.06 },
+  { at: 0.74, elevation: 30, height: -0.14, objectHeight: -0.05, x: 1.6, z: 0.1, scale: 1.16 },
+  { at: 1, elevation: 58, height: 0, objectHeight: 0.08, x: 2.8, z: 0.03, scale: 1.24 },
 ];
 
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
+export function computeSceneTransform(progress: number, stage: SceneStage): SceneTransform {
+  const p = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0;
+  const next = VIEWS.findIndex((view) => view.at >= p);
+  const a = VIEWS[Math.max(0, next - 1)]!;
+  const b = VIEWS[Math.max(0, next)]!;
+  const t = a === b ? 0 : (p - a.at) / (b.at - a.at);
+  const eased = t * t * (3 - 2 * t);
+  const elevation = (a.elevation + (b.elevation - a.elevation) * eased) * Math.PI / 180;
+  const height = a.height + (b.height - a.height) * eased;
+  const objectHeight = a.objectHeight + (b.objectHeight - a.objectHeight) * eased;
+  const x = a.x + (b.x - a.x) * eased;
+  const z = a.z + (b.z - a.z) * eased;
+  const scale = a.scale + (b.scale - a.scale) * eased;
+  const distance = stage === "hero" ? 6.8 : 7.4;
 
-function lerpTransform(a: SceneTransform, b: SceneTransform, t: number): SceneTransform {
   return {
-    cameraTarget: [
-      lerp(a.cameraTarget[0], b.cameraTarget[0], t),
-      lerp(a.cameraTarget[1], b.cameraTarget[1], t),
-      lerp(a.cameraTarget[2], b.cameraTarget[2], t),
-    ],
-    objectRotation: [
-      lerp(a.objectRotation[0], b.objectRotation[0], t),
-      lerp(a.objectRotation[1], b.objectRotation[1], t),
-      lerp(a.objectRotation[2], b.objectRotation[2], t),
-    ],
-    objectPosition: [
-      lerp(a.objectPosition[0], b.objectPosition[0], t),
-      lerp(a.objectPosition[1], b.objectPosition[1], t),
-      lerp(a.objectPosition[2], b.objectPosition[2], t),
-    ],
-    lightIntensity: lerp(a.lightIntensity, b.lightIntensity, t),
+    cameraTarget: [0, height + Math.sin(elevation) * distance, Math.cos(elevation) * distance],
+    cameraLookAt: [0, height, 0],
+    objectRotation: [0, -0.28 + p * Math.PI * 2, 0],
+    // A gentle S-curve gives the product physical presence. The camera stays
+    // above the cake while it glides nearer, then eases back into frame.
+    objectPosition: [x, objectHeight, z],
+    objectScale: scale,
+    lightIntensity: 1 + Math.sin(p * Math.PI) * 0.25,
+    lightColor: [1, 0.9 - p * 0.15, 0.76 - p * 0.18],
+    fillIntensity: 0.8 + Math.sin(p * Math.PI) * 0.25,
   };
 }
 
-export function computeSceneTransform(progress: number, stage: SceneStage): SceneTransform {
-  if (stage === "ambient") return AMBIENT_TRANSFORM;
-
-  const clamped = Math.min(1, Math.max(0, progress));
-  const nextIndex = HERO_KEYFRAMES.findIndex((k) => k.at >= clamped);
-  if (nextIndex <= 0) return HERO_KEYFRAMES[0]!.transform;
-
-  // If we're exactly at a keyframe position, return it directly (avoids floating-point interpolation errors)
-  if (HERO_KEYFRAMES[nextIndex]!.at === clamped) return HERO_KEYFRAMES[nextIndex]!.transform;
-
-  const prev = HERO_KEYFRAMES[nextIndex - 1]!;
-  const next = HERO_KEYFRAMES[nextIndex]!;
-  const t = (clamped - prev.at) / (next.at - prev.at);
-  return lerpTransform(prev.transform, next.transform, t);
+/** Leave space for the full cake (including its screen offset) at every aspect ratio. */
+export function sceneFramingDistance(aspect: number, horizontalOffset: number, modelScale = 1): number {
+  const halfVerticalFov = SCENE_FOV * Math.PI / 360;
+  const halfHorizontalFov = Math.atan(Math.tan(halfVerticalFov) * Math.max(0.25, aspect));
+  const radius = CAKE_BOUNDING_RADIUS * modelScale;
+  return Math.max(
+    radius / Math.sin(halfVerticalFov),
+    (radius + Math.abs(horizontalOffset)) / Math.sin(halfHorizontalFov),
+  ) * 1.08;
 }

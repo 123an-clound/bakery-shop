@@ -1,5 +1,22 @@
 import { formatMoney } from "@/lib/utils/format";
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => {
+    switch (character) {
+      case "&":
+        return "&amp;";
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case '"':
+        return "&quot;";
+      default:
+        return "&#39;";
+    }
+  });
+}
+
 const WRAPPER_STYLE =
   "font-family: 'Be Vietnam Pro', Arial, sans-serif; color: #3A2A22; max-width: 560px; margin: 0 auto;";
 const HEADING_STYLE = "color: #F7A8C4; font-size: 20px; margin: 0 0 16px;";
@@ -30,14 +47,14 @@ export function orderConfirmationEmail({
   const rows = items
     .map(
       (item) =>
-        `<tr><td style="${CELL_STYLE}">${item.name} x${item.qty}</td><td style="${CELL_STYLE} text-align:right">${formatMoney(item.lineTotal)}</td></tr>`,
+        `<tr><td style="${CELL_STYLE}">${escapeHtml(item.name)} x${item.qty}</td><td style="${CELL_STYLE} text-align:right">${formatMoney(item.lineTotal)}</td></tr>`,
     )
     .join("");
 
   return `
     <div style="${WRAPPER_STYLE}">
-      <h1 style="${HEADING_STYLE}">${brandName}</h1>
-      <p>Cảm ơn bạn đã đặt hàng! Mã đơn của bạn là <strong>${code}</strong>.</p>
+      <h1 style="${HEADING_STYLE}">${escapeHtml(brandName)}</h1>
+      <p>Cảm ơn bạn đã đặt hàng! Mã đơn của bạn là <strong>${escapeHtml(code)}</strong>.</p>
       <table style="${TABLE_STYLE}">${rows}</table>
       <p style="font-size: 16px; font-weight: 600;">Tổng cộng: ${formatMoney(total)}</p>
       <p>Phương thức thanh toán: ${paymentMethod === "cod" ? "Thanh toán khi nhận hàng (COD)" : "Chuyển khoản ngân hàng"}</p>
@@ -62,8 +79,8 @@ export function newOrderNotificationEmail({
 }): string {
   return `
     <div style="${WRAPPER_STYLE}">
-      <h1 style="${HEADING_STYLE}">Đơn hàng mới: ${code}</h1>
-      <p>Khách hàng: ${customerName} — ${phone}</p>
+      <h1 style="${HEADING_STYLE}">Đơn hàng mới: ${escapeHtml(code)}</h1>
+      <p>Khách hàng: ${escapeHtml(customerName)} — ${escapeHtml(phone)}</p>
       <p>Tổng: ${formatMoney(total)} (${paymentMethod === "cod" ? "COD" : "Chuyển khoản"})</p>
       <p>Xem chi tiết trong trang quản trị.</p>
     </div>
@@ -92,11 +109,11 @@ export function orderStatusUpdateEmail({
 }): string {
   return `
     <div style="${WRAPPER_STYLE}">
-      <h1 style="${HEADING_STYLE}">${brandName}</h1>
-      <p>Đơn hàng <strong>${code}</strong> của bạn vừa được cập nhật trạng thái:</p>
-      <p style="font-size: 18px; font-weight: 600;">${ORDER_STATUS_VI[status] ?? status}</p>
-      ${note ? `<p>${note}</p>` : ""}
-      <p style="color: #6b5a4e; font-size: 13px;">Cảm ơn bạn đã tin tưởng ${brandName}.</p>
+      <h1 style="${HEADING_STYLE}">${escapeHtml(brandName)}</h1>
+      <p>Đơn hàng <strong>${escapeHtml(code)}</strong> của bạn vừa được cập nhật trạng thái:</p>
+      <p style="font-size: 18px; font-weight: 600;">${escapeHtml(ORDER_STATUS_VI[status] ?? status)}</p>
+      ${note ? `<p>${escapeHtml(note)}</p>` : ""}
+      <p style="color: #6b5a4e; font-size: 13px;">Cảm ơn bạn đã tin tưởng ${escapeHtml(brandName)}.</p>
     </div>
   `;
 }
@@ -112,10 +129,10 @@ export function customCakeQuoteEmail({
 }): string {
   return `
     <div style="${WRAPPER_STYLE}">
-      <h1 style="${HEADING_STYLE}">${brandName}</h1>
+      <h1 style="${HEADING_STYLE}">${escapeHtml(brandName)}</h1>
       <p>Cảm ơn bạn đã gửi yêu cầu đặt bánh riêng. Chúng tôi xin báo giá:</p>
       <p style="font-size: 20px; font-weight: 700; color: #7B4B2A;">${formatMoney(quotedPrice)}</p>
-      ${adminReply ? `<p>${adminReply}</p>` : ""}
+      ${adminReply ? `<p>${escapeHtml(adminReply)}</p>` : ""}
       <p style="color: #6b5a4e; font-size: 13px;">Vui lòng liên hệ lại để xác nhận đặt bánh.</p>
     </div>
   `;
@@ -135,8 +152,8 @@ export function customCakeRequestEmail({
   return `
     <div style="${WRAPPER_STYLE}">
       <h1 style="${HEADING_STYLE}">Yêu cầu đặt bánh riêng mới</h1>
-      <p>Khách hàng: ${customerName} — ${phone}</p>
-      <p>Kích thước: ${size}</p>
+      <p>Khách hàng: ${escapeHtml(customerName)} — ${escapeHtml(phone)}</p>
+      <p>Kích thước: ${escapeHtml(size)}</p>
       <p>Ngày cần: ${new Date(needAt).toLocaleString("vi-VN")}</p>
       <p>Xem chi tiết và báo giá trong trang quản trị.</p>
     </div>

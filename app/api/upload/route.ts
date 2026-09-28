@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminAuthenticated } from "@/lib/auth/require-admin";
 import { validateImageUpload } from "@/lib/utils/file-validation";
+import { consumeRateLimit, requestClientKey } from "@/lib/security/rate-limit";
 
 const BUCKET = "bakery";
 
@@ -18,6 +19,8 @@ const ADMIN_FOLDERS = new Set(["products", "categories", "banners", "posts", "th
  * 0001). Ten file luon doi thanh uuid — muc 6.3 checklist.
  */
 export async function POST(request: Request) {
+  const rate = consumeRateLimit(`upload:${requestClientKey(request)}`, 20, 15 * 60 * 1000);
+  if (!rate.allowed) return NextResponse.json({ error: "too_many_requests" }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } });
   const formData = await request.formData().catch(() => null);
   const file = formData?.get("file");
   if (!(file instanceof File)) {

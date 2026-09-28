@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 
 import { usePathname } from "@/i18n/navigation";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useWeakMobile } from "@/hooks/use-weak-mobile";
 import { useWebglSupport } from "@/hooks/use-webgl-support";
 import { SceneController } from "./scene-controller";
 import { SceneErrorBoundary } from "./scene-error-boundary";
@@ -15,7 +16,8 @@ export function SceneRoot({ posterUrl }: { posterUrl?: string }) {
   const pathname = usePathname();
   const reducedMotion = useReducedMotion();
   const webglSupported = useWebglSupport();
-  const canRender3D = webglSupported && !reducedMotion;
+  const weakMobile = useWeakMobile();
+  const canRender3D = webglSupported && !reducedMotion && !weakMobile;
   const isHome = pathname === "/";
 
   return (
@@ -27,7 +29,7 @@ export function SceneRoot({ posterUrl }: { posterUrl?: string }) {
       ) : (
         <SceneFallback posterUrl={posterUrl} />
       )}
-      {isHome && canRender3D ? <SceneController /> : null}
+      {canRender3D ? <SceneController key={pathname} stage={isHome ? "hero" : "ambient"} /> : null}
     </>
   );
 }

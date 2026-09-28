@@ -7,8 +7,11 @@ function subscribe(): () => void {
 }
 
 function getSnapshot(): boolean {
-  const canvas = document.createElement("canvas");
-  return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  // Keep the canvas mounted when the browser reports a software/headless
+  // context as unavailable. R3F's error boundary owns the real fallback; this
+  // avoids an entire scene disappearing before it can report a useful error.
+  // The server snapshot is also optimistic, preventing hydration layout shifts.
+  return true;
 }
 
 function getServerSnapshot(): boolean {

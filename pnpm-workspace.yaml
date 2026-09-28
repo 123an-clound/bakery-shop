@@ -4,3 +4,9 @@ allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - qs@6.15.4
+  - qs@6.16.0
+  - fast-uri@3.1.6
+  - js-yaml@4.3.2
+  - hono@4.13.5

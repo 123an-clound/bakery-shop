@@ -19,19 +19,14 @@ import { fontCssVarName } from "./fonts";
  */
 export function themeToCssVars(colors: ThemeData["colors"], radius: string, fonts?: ThemeData["fonts"]): CSSProperties {
   return {
-    "--background": colors.background,
-    "--foreground": colors.foreground,
-    "--primary": colors.primary,
-    "--primary-foreground": colors.foreground,
-    "--secondary": colors.secondary,
-    "--secondary-foreground": colors.foreground,
-    "--muted": colors.muted,
-    "--muted-foreground": colors.foreground,
-    "--accent": colors.muted,
-    "--accent-foreground": colors.foreground,
-    "--brand-accent": colors.accent,
-    "--destructive": colors.destructive,
-    "--success": colors.success,
+    "--bakery-background": colors.background,
+    "--bakery-foreground": colors.foreground,
+    "--bakery-primary": colors.primary,
+    "--bakery-secondary": colors.secondary,
+    "--bakery-muted": colors.muted,
+    "--bakery-accent": colors.accent,
+    "--bakery-destructive": colors.destructive,
+    "--bakery-success": colors.success,
     "--radius": radius,
     "--ring": colors.primary,
     ...(fonts

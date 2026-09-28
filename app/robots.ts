@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/seo/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = getSiteUrl();
 
 /** Chan /admin, /api, va cac trang giao dich khong co gia tri SEO — muc 11. */
 export default function robots(): MetadataRoute.Robots {

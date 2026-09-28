@@ -30,12 +30,15 @@ export function MobileNav() {
           <Link
             key={key}
             href={href}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "relative flex min-w-14 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium",
-              active ? "text-brand-accent" : "text-muted-foreground",
+              "relative flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              active
+                ? "bg-brand-accent/12 text-brand-accent"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
-            <Icon className="size-5" />
+            <Icon className={cn("size-5 transition-transform duration-200", active && "-translate-y-0.5 scale-110")} />
             {key === "cart" && cartCount > 0 ? (
               <Badge className="absolute -top-0.5 right-1 h-4 min-w-4 justify-center rounded-full px-1 text-[9px]">
                 {cartCount}

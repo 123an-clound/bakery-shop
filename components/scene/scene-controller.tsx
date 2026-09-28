@@ -3,23 +3,29 @@
 import { useEffect } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 
-import { computeSceneTransform } from "@/lib/scene/transform";
+import { computeSceneTransform, type SceneStage } from "@/lib/scene/transform";
 import { useSceneStore } from "@/lib/store/scene";
 
-/** Mounted only on the homepage (see scene-root.tsx) — drives the scene
- *  transform from whole-page scroll progress for the duration it's mounted. */
-export function SceneController() {
+/** Read the current document scroll after navigation/restoration.
+ * Only this controller remounts per route; the canvas and model stay alive. */
+export function SceneController({ stage }: { stage: SceneStage }) {
   const { scrollYProgress } = useScroll();
   const setTransform = useSceneStore((s) => s.setTransform);
   const setStage = useSceneStore((s) => s.setStage);
 
   useEffect(() => {
-    setStage("hero");
-    return () => setStage("ambient");
-  }, [setStage]);
+    setStage(stage);
+    function syncPosition() {
+      const range = document.documentElement.scrollHeight - window.innerHeight;
+      setTransform(computeSceneTransform(range > 0 ? window.scrollY / range : 0, stage));
+    }
+    syncPosition();
+    const frame = requestAnimationFrame(syncPosition);
+    return () => cancelAnimationFrame(frame);
+  }, [setStage, setTransform, stage]);
 
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
-    setTransform(computeSceneTransform(progress, "hero"));
+    setTransform(computeSceneTransform(progress, stage));
   });
 
   return null;

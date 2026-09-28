@@ -1,8 +1,9 @@
 import type { ProductData, SettingSiteData } from "@/lib/bakery/schemas";
 import type { Locale } from "@/lib/bakery/types";
 import { t } from "@/lib/i18n/text";
+import { getSiteUrl } from "@/lib/seo/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = getSiteUrl();
 
 function JsonLdScript({ data }: { data: Record<string, unknown> }) {
   // Escape `<` so a field containing "</script>" (product name, post title,

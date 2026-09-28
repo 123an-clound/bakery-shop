@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 
 import { getAllPosts, getCategories, listProducts } from "@/lib/bakery/catalog";
+import { getSiteUrl } from "@/lib/seo/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = getSiteUrl();
 
 function localizedUrls(path: string): { url: string; lang: Record<string, string> } {
   return {

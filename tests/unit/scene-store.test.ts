@@ -19,7 +19,7 @@ describe("useSceneStore", () => {
 
   it("setTransform merges the transform fields", () => {
     useSceneStore.getState().setTransform(computeSceneTransform(1, "hero"));
-    expect(useSceneStore.getState().cameraTarget).toEqual([-1.2, 2, 4]);
+    expect(useSceneStore.getState()).toMatchObject(computeSceneTransform(1, "hero"));
   });
 
   it("setReady updates sceneReady", () => {

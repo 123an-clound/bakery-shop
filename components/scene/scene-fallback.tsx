@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function SceneFallback({ posterUrl }: { posterUrl?: string }) {
   return (
-    <div data-testid="scene-fallback" aria-hidden="true" className="fixed inset-0 -z-10 overflow-hidden">
+    <div data-testid="scene-fallback" aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {posterUrl ? (
         <Image src={posterUrl} alt="" fill sizes="100vw" className="object-cover opacity-25" />
       ) : (
