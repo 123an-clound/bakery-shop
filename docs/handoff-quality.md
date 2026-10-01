@@ -6,6 +6,10 @@ Ngày kiểm tra source/lab: 30-09-2026. Xác nhận production và GET-only smo
 
 **Chưa đủ điều kiện bàn giao production.** P0 còn mở: Supabase production không có các RPC mà source trong workspace hiện phụ thuộc vào. Nếu deploy source này trước migration, checkout và một số cập nhật đơn sẽ lỗi. Tôi chưa thử luồng ghi trên bản đang chạy production; trạng thái checkout live vì vậy chưa được xác minh. Các migration đã được viết và thử trên PGlite cô lập, nhưng chưa áp dụng production. Chưa có sandbox riêng để xác minh tương thích; cũng cần xác nhận domain chính thức, chính sách ảnh tham khảo riêng tư và giới hạn vận hành.
 
+## Cập nhật sau kiểm tra Vercel Preview
+
+Commit `dd44735` làm Vercel Preview build thất bại khi thu thập cấu hình `/robots.txt`: Preview có `NODE_ENV=production` nhưng không khai báo `NEXT_PUBLIC_SITE_URL`. Nguyên nhân là helper SEO áp cùng yêu cầu canonical URL cho Preview và Production. Source đã được sửa để chỉ dùng hostname do Vercel cấp (`VERCEL_URL`) trong môi trường Preview; production vẫn bắt buộc `NEXT_PUBLIC_SITE_URL`, và Preview tiếp tục noindex. Regression tests, lint, typecheck và build theo cấu hình Preview được chạy lại trước khi kết luận trạng thái commit mới. Bản sửa source chưa được đồng nghĩa với bản Preview trên Vercel đã deploy hoặc pass; cần kiểm tra status deployment sau khi push.
+
 ## Phát hiện và xử lý
 
 | Mức | Bằng chứng / nguyên nhân | Xử lý và vị trí | Xác minh / trạng thái |
