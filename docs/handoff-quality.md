@@ -8,7 +8,7 @@ Ngày kiểm tra source/lab: 30-09-2026. Xác nhận production và GET-only smo
 
 ## Cập nhật sau kiểm tra Vercel Preview
 
-Commit `dd44735` làm Vercel Preview build thất bại khi thu thập cấu hình `/robots.txt`: Preview có `NODE_ENV=production` nhưng không khai báo `NEXT_PUBLIC_SITE_URL`. Nguyên nhân là helper SEO áp cùng yêu cầu canonical URL cho Preview và Production. Source đã được sửa để chỉ dùng hostname do Vercel cấp (`VERCEL_URL`) trong môi trường Preview; production vẫn bắt buộc `NEXT_PUBLIC_SITE_URL`, và Preview tiếp tục noindex. Regression tests, lint, typecheck và build theo cấu hình Preview được chạy lại trước khi kết luận trạng thái commit mới. Bản sửa source chưa được đồng nghĩa với bản Preview trên Vercel đã deploy hoặc pass; cần kiểm tra status deployment sau khi push.
+Commit `dd44735` làm Vercel Preview build thất bại khi thu thập cấu hình `/robots.txt`: Preview có `NODE_ENV=production` nhưng không khai báo `NEXT_PUBLIC_SITE_URL`. Nguyên nhân là helper SEO áp cùng yêu cầu canonical URL cho Preview và Production. Source đã được sửa để chỉ dùng hostname do Vercel cấp (`VERCEL_URL`) trong môi trường Preview; production vẫn bắt buộc `NEXT_PUBLIC_SITE_URL`, và Preview tiếp tục noindex. Regression tests, lint, typecheck và build theo cấu hình Preview đều đạt; Vercel đã build commit `e1f3569` thành trạng thái Ready. Tuy nhiên, GET-only smoke trên Preview mới trả HTTP 500 ở storefront vì Preview chưa được cấp `NEXT_PUBLIC_SUPABASE_URL` và `NEXT_PUBLIC_SUPABASE_ANON_KEY`; đây là blocker cấu hình môi trường, chưa phải xác minh runtime pass. Cần điền credentials của sandbox riêng vào Preview rồi chạy lại smoke; không sao chép production secrets sang Preview.
 
 ## Phát hiện và xử lý
 
