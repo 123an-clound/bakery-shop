@@ -59,6 +59,7 @@ export function AddToCartControls({
         name: tField(data.name, locale),
         image: data.images[0],
         unitPrice,
+        prepTimeHours: data.prep_time_hours,
         options: selectedOptions,
       },
       qty,
@@ -82,6 +83,7 @@ export function AddToCartControls({
               <button
                 key={choice.value}
                 type="button"
+                aria-pressed={selectedOptions[option.key] === choice.value}
                 onClick={() => setSelectedOptions((prev) => ({ ...prev, [option.key]: choice.value }))}
                 className={cn(
                   "rounded-full border px-4 py-1.5 text-sm transition-colors",
@@ -125,7 +127,8 @@ export function AddToCartControls({
               <span className="w-10 text-center text-sm font-medium">{qty}</span>
               <button
                 type="button"
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => setQty((q) => Math.min(50, data.stock ?? 50, q + 1))}
+                disabled={qty >= Math.min(50, data.stock ?? 50)}
                 className="hover:bg-muted rounded-r-full p-2.5"
                 aria-label="+"
               >

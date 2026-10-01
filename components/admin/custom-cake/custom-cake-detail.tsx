@@ -15,7 +15,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +48,14 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
     startTransition(async () => {
       const result = await quoteCustomCake(cake.id, quotedPrice, adminReply);
       if (result.ok) {
-        toast.success("Đã gửi báo giá cho khách.");
+        if (result.error === "email_not_sent")
+          toast.warning("Đã lưu báo giá, nhưng chưa gửi được email. Vui lòng liên hệ khách.");
+        else
+          toast.success(
+            cake.data.email
+              ? "Đã gửi báo giá cho khách."
+              : "Đã lưu báo giá. Khách chưa cung cấp email.",
+          );
         router.refresh();
       } else {
         toast.error("Không gửi được báo giá.");
@@ -53,7 +66,12 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
   function handleConvert() {
     startTransition(async () => {
       const result = await convertCustomCakeToOrder(cake.id, {
-        address: { line: addressLine, ward: ward || undefined, district: district || undefined, city },
+        address: {
+          line: addressLine,
+          ward: ward || undefined,
+          district: district || undefined,
+          city,
+        },
         paymentMethod,
       });
       if (result.ok) {
@@ -61,7 +79,11 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
         setDialogOpen(false);
         router.push(`/admin/don-hang/${result.id}`);
       } else {
-        toast.error(result.error === "not_quoted" ? "Cần báo giá trước khi chuyển thành đơn." : "Không tạo được đơn hàng.");
+        toast.error(
+          result.error === "not_quoted"
+            ? "Cần báo giá trước khi chuyển thành đơn."
+            : "Không tạo được đơn hàng.",
+        );
       }
     });
   }
@@ -151,9 +173,17 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="admin-reply">Lời nhắn cho khách</Label>
-              <Textarea id="admin-reply" rows={3} value={adminReply} onChange={(e) => setAdminReply(e.target.value)} />
+              <Textarea
+                id="admin-reply"
+                rows={3}
+                value={adminReply}
+                onChange={(e) => setAdminReply(e.target.value)}
+              />
             </div>
-            <Button disabled={isPending} onClick={handleQuote}>
+            <Button
+              disabled={isPending || !["new", "quoted"].includes(cake.status)}
+              onClick={handleQuote}
+            >
               Gửi báo giá
             </Button>
           </CardContent>
@@ -171,14 +201,21 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
           <CardContent className="space-y-2 text-sm">
             <div>{cake.data.phone}</div>
             {cake.data.email ? <div>{cake.data.email}</div> : null}
-            <div className="text-muted-foreground text-xs">Cần lúc: {formatDateTime(cake.data.need_at)}</div>
-            <div className="text-muted-foreground text-xs">Gửi lúc: {formatDateTime(cake.createdAt)}</div>
+            <div className="text-muted-foreground text-xs">
+              Cần lúc: {formatDateTime(cake.data.need_at)}
+            </div>
+            <div className="text-muted-foreground text-xs">
+              Gửi lúc: {formatDateTime(cake.createdAt)}
+            </div>
           </CardContent>
         </Card>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full" disabled={!cake.data.quoted_price}>
+            <Button
+              className="w-full"
+              disabled={cake.status !== "quoted" || cake.data.quoted_price == null}
+            >
               Chuyển thành đơn hàng
             </Button>
           </DialogTrigger>
@@ -189,7 +226,11 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label htmlFor="addr-line">Số nhà, tên đường *</Label>
-                <Input id="addr-line" value={addressLine} onChange={(e) => setAddressLine(e.target.value)} />
+                <Input
+                  id="addr-line"
+                  value={addressLine}
+                  onChange={(e) => setAddressLine(e.target.value)}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
@@ -198,7 +239,11 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="addr-district">Quận/Huyện</Label>
-                  <Input id="addr-district" value={district} onChange={(e) => setDistrict(e.target.value)} />
+                  <Input
+                    id="addr-district"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -207,7 +252,10 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="payment">Phương thức thanh toán</Label>
-                <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as "cod" | "bank_transfer")}>
+                <Select
+                  value={paymentMethod}
+                  onValueChange={(v) => setPaymentMethod(v as "cod" | "bank_transfer")}
+                >
                   <SelectTrigger id="payment" className="w-full">
                     <SelectValue />
                   </SelectTrigger>

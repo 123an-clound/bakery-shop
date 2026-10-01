@@ -1,12 +1,19 @@
 type Entry = { count: number; resetAt: number };
 
 const buckets = new Map<string, Entry>();
+let nextCleanup = 0;
 
 export function consumeRateLimit(key: string, limit: number, windowMs: number): {
   allowed: boolean;
   retryAfterSeconds: number;
 } {
   const now = Date.now();
+  if (now >= nextCleanup) {
+    for (const [bucketKey, entry] of buckets) if (entry.resetAt <= now) buckets.delete(bucketKey);
+    nextCleanup = now + 60_000;
+  }
+  // Bound memory without evicting active limits (which would permit bypass).
+  if (buckets.size >= 10_000 && !buckets.has(key)) return { allowed: false, retryAfterSeconds: 60 };
   const current = buckets.get(key);
   if (!current || current.resetAt <= now) {
     buckets.set(key, { count: 1, resetAt: now + windowMs });

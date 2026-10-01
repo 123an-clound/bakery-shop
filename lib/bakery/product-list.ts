@@ -23,7 +23,7 @@ export interface ProductListFilters {
 }
 
 function effectivePrice(item: ProductListItem): number {
-  return item.data.sale_price ?? item.data.price;
+  return item.data.sale_price != null && item.data.sale_price < item.data.price ? item.data.sale_price : item.data.price;
 }
 
 /**
@@ -67,8 +67,8 @@ export function filterAndSortProducts(
     }
   });
 
-  const page = filters.page && filters.page > 0 ? filters.page : 1;
-  const perPage = filters.perPage && filters.perPage > 0 ? filters.perPage : 12;
+  const page = Number.isSafeInteger(filters.page) && filters.page! > 0 ? filters.page! : 1;
+  const perPage = Number.isSafeInteger(filters.perPage) && filters.perPage! > 0 ? filters.perPage! : 12;
   const total = result.length;
   const pageCount = Math.max(1, Math.ceil(total / perPage));
   const start = (page - 1) * perPage;

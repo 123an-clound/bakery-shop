@@ -9,7 +9,7 @@ import { submitCustomCakeRequest, type CustomCakeState } from "@/lib/actions/cus
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { toDatetimeLocalValue } from "@/lib/utils/datetime-local";
+import { toShopDatetimeValue } from "@/lib/utils/datetime-local";
 
 const TOTAL_STEPS = 5;
 const MAX_IMAGES = 3;
@@ -20,11 +20,11 @@ const MAX_IMAGES = 3;
 // 5-step form would have this valid-looking default silently rejected.
 // +26h gives two hours of headroom for that gap.
 function defaultNeedAt(): string {
-  return toDatetimeLocalValue(new Date(Date.now() + 26 * 60 * 60 * 1000));
+  return toShopDatetimeValue(new Date(Date.now() + 26 * 60 * 60 * 1000));
 }
 
 function minNeedAt(): string {
-  return toDatetimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  return toShopDatetimeValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
 }
 
 const initialState: CustomCakeState = { status: "idle" };

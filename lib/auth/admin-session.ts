@@ -22,8 +22,12 @@ interface AdminTokenPayload {
 
 function getSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET;
-  if (!secret) throw new Error("ADMIN_SESSION_SECRET is not set");
-  return secret;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!secret || secret.length < 32 || !password)
+    throw new Error("Admin credentials are not configured");
+  // Rotating either credential revokes previously issued admin sessions.
+  // Keep the password in the key material, never in the readable cookie payload.
+  return JSON.stringify(["bakery-admin-v2", secret, password]);
 }
 
 async function getHmacKey(): Promise<CryptoKey> {
@@ -44,7 +48,10 @@ function toBase64Url(bytes: ArrayBuffer): string {
 }
 
 function fromBase64Url(input: string): Uint8Array<ArrayBuffer> {
-  const padded = input.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(input.length / 4) * 4, "=");
+  const padded = input
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(Math.ceil(input.length / 4) * 4, "=");
   const binary = atob(padded);
   const bytes = new Uint8Array(new ArrayBuffer(binary.length));
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -53,14 +60,16 @@ function fromBase64Url(input: string): Uint8Array<ArrayBuffer> {
 
 export async function signAdminToken(): Promise<string> {
   const payload: AdminTokenPayload = { exp: Date.now() + SESSION_DURATION_MS };
-  const payloadB64 = toBase64Url(new TextEncoder().encode(JSON.stringify(payload)).buffer as ArrayBuffer);
+  const payloadB64 = toBase64Url(
+    new TextEncoder().encode(JSON.stringify(payload)).buffer as ArrayBuffer,
+  );
   const key = await getHmacKey();
   const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payloadB64));
   return `${payloadB64}.${toBase64Url(signature)}`;
 }
 
 export async function verifyAdminToken(token: string | undefined | null): Promise<boolean> {
-  if (!token) return false;
+  if (!token || token.length > 1024 || token.split(".").length !== 2) return false;
   const [payloadB64, sigB64] = token.split(".");
   if (!payloadB64 || !sigB64) return false;
 
@@ -74,7 +83,9 @@ export async function verifyAdminToken(token: string | undefined | null): Promis
     );
     if (!valid) return false;
 
-    const payload = JSON.parse(new TextDecoder().decode(fromBase64Url(payloadB64))) as AdminTokenPayload;
+    const payload = JSON.parse(
+      new TextDecoder().decode(fromBase64Url(payloadB64)),
+    ) as AdminTokenPayload;
     return typeof payload.exp === "number" && payload.exp > Date.now();
   } catch {
     return false;

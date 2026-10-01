@@ -46,7 +46,8 @@ export function ProductJsonLd({
   slug: string;
   locale: Locale;
 }) {
-  const price = product.sale_price ?? product.price;
+  const price = (product.sale_price != null && product.sale_price < product.price ? product.sale_price : product.price)
+    + product.options.reduce((sum, option) => sum + (option.choices[0]?.price_delta ?? 0), 0);
   return (
     <JsonLdScript
       data={{
@@ -58,7 +59,7 @@ export function ProductJsonLd({
         sku: product.sku,
         offers: {
           "@type": "Offer",
-          url: `${SITE_URL}/san-pham/${slug}`,
+          url: `${SITE_URL}${locale === "en" ? "/en" : ""}/san-pham/${slug}`,
           priceCurrency: "VND",
           price,
           availability:

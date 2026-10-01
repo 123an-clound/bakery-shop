@@ -14,3 +14,15 @@ export function isoToDatetimeLocalValue(iso: string | undefined | null): string 
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? "" : toDatetimeLocalValue(d);
 }
+
+/** Customer delivery inputs always use the shop's clock, regardless of device timezone. */
+export function toShopDatetimeValue(date: Date): string {
+  return new Date(date.getTime() + 7 * 3600000).toISOString().slice(0, 16);
+}
+
+export function shopDatetimeToIso(value: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) throw new Error("invalid_delivery_at");
+  const date = new Date(`${value}:00+07:00`);
+  if (!Number.isFinite(date.getTime()) || toShopDatetimeValue(date) !== value) throw new Error("invalid_delivery_at");
+  return date.toISOString();
+}

@@ -154,7 +154,7 @@
     "ward": "Ward",
     "district": "District",
     "city": "City/Province",
-    "deliveryAt": "Delivery time",
+    "deliveryAt": "Delivery time (Vietnam, UTC+7)",
     "note": "Note",
     "paymentTitle": "Payment method",
     "paymentCod": "Cash on delivery (COD)",
@@ -166,6 +166,17 @@
     "total": "Total",
     "placeOrder": "Place order",
     "submitError": "Couldn't place the order, please try again.",
+    "errors": {
+      "price_changed": "Prices or delivery fees changed. Review the updated total below before placing your order again.",
+      "coupon_invalid": "This coupon is no longer valid. Return to your cart to change or remove it.",
+      "out_of_stock": "There are not enough cakes available. Please adjust your cart.",
+      "invalid_option": "Cake options changed. Please select your cake options again.",
+      "product_not_found": "A cake in your cart is no longer available. Please review your cart.",
+      "delivery_too_soon": "Please choose a later delivery time to allow the preparation time shown on the product.",
+      "payment_unavailable": "Bank transfer is not configured. Please choose cash on delivery.",
+      "cart_changed": "Product information just changed. Please review your cart and try again.",
+      "too_many_requests": "Too many requests. Please wait a few minutes before trying again."
+    },
     "emptyCart": "Your cart is empty — add products before checking out."
   },
   "OrderSuccess": {
@@ -227,7 +238,7 @@
     "referenceImages": "Reference photos (up to 3)",
     "uploadError": "Upload failed, please try again.",
     "step4Title": "Timing & budget",
-    "needAt": "Date & time needed",
+    "needAt": "Date & time needed (Vietnam, UTC+7)",
     "budget": "Estimated budget",
     "budgetPlaceholder": "e.g. 600000",
     "step5Title": "Contact information",

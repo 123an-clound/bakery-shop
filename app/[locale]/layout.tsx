@@ -147,7 +147,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
                   userEmail={userEmail}
                 />
               ) : null}
-              <main className="flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
+              <main className="storefront-content flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
               {settings ? <Footer settings={settings} locale={locale as Locale} /> : null}
               <MobileNav />
             </LenisProvider>

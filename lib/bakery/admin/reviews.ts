@@ -33,7 +33,7 @@ export async function recomputeProductRating(productId: number): Promise<void> {
   const supabase = createAdminClient();
   const [{ data: reviews, error: reviewsError }, { data: product, error: productError }] = await Promise.all([
     supabase.from("bakery").select("data").eq("type", "review").eq("parent_id", productId).eq("status", "approved"),
-    supabase.from("bakery").select("data").eq("type", "product").eq("id", productId).maybeSingle(),
+    supabase.from("bakery").select("data,updated_at").eq("type", "product").eq("id", productId).maybeSingle(),
   ]);
   if (reviewsError) throw reviewsError;
   if (productError) throw productError;
@@ -47,9 +47,11 @@ export async function recomputeProductRating(productId: number): Promise<void> {
   const ratingAvg = ratingCount > 0 ? ratings.reduce((sum, r) => sum + r, 0) / ratingCount : 0;
 
   const productData = product.data as Record<string, unknown>;
-  await supabase
+  const { error } = await supabase
     .from("bakery")
     .update({ data: { ...productData, rating_avg: Math.round(ratingAvg * 10) / 10, rating_count: ratingCount } })
     .eq("type", "product")
-    .eq("id", productId);
+    .eq("id", productId)
+    .eq("updated_at", product.updated_at);
+  if (error) throw error;
 }

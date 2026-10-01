@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getCategories, listProducts } from "@/lib/bakery/catalog";
@@ -14,10 +15,10 @@ import { Link } from "@/i18n/navigation";
 
 const SORT_VALUES: ProductSort[] = ["newest", "price_asc", "price_desc", "best_selling", "rating"];
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/san-pham">): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps<"/[locale]/san-pham">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale: locale as Locale, namespace: "Products" });
-  return buildMetadata({ title: t("pageTitle"), path: "/san-pham", locale: locale as Locale });
+  return buildMetadata({ title: t("pageTitle"), path: "/san-pham", locale: locale as Locale, searchParams: await searchParams });
 }
 
 export default async function ProductsPage({
@@ -35,6 +36,7 @@ export default async function ProductsPage({
   const sortParam = asString(sp.sort);
   const sort = SORT_VALUES.includes(sortParam as ProductSort) ? (sortParam as ProductSort) : "newest";
   const page = Number(asString(sp.page)) || 1;
+  if (sp.page !== undefined && (!Number.isSafeInteger(Number(asString(sp.page))) || Number(asString(sp.page)) < 1)) notFound();
 
   const [t, categories, result, favoriteIds] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "Products" }),
@@ -50,6 +52,7 @@ export default async function ProductsPage({
     getMyFavoriteProductIds(),
   ]);
   const favoriteIdSet = new Set(favoriteIds);
+  if (page > result.pageCount) notFound();
 
   const currentParams: Record<string, string | undefined> = { q, min, max, sort: sortParam, page: String(page) };
   const buildHref = (p: number) => {
@@ -103,4 +106,3 @@ export default async function ProductsPage({
     </div>
   );
 }
-

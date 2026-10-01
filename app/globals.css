@@ -270,14 +270,118 @@
   }
 }
 
-/* Storefront stack: cake (z-0), light bloom (z-4), paper pattern (z-5), UI (z-10). */
+/* Storefront stack: light bloom (z-4), paper pattern (z-5), cake (z-6), UI (z-10). */
 .storefront-background {
+  --foreground: #111827;
+  --muted-foreground: #202d40;
+  --card-foreground: #111827;
+  --popover-foreground: #111827;
+  --primary-foreground: #111827;
+  --secondary-foreground: #111827;
+  --accent-foreground: #111827;
+  --sidebar-foreground: #111827;
+  --sidebar-primary-foreground: #111827;
+  --sidebar-accent-foreground: #111827;
+  --brand-accent: #3d2314;
+  --destructive: #590f22;
+  --destructive-foreground: #ffffff;
+  --frost-tint: 255 245 229;
+  --frost-opacity: 0.62;
+  --frost-blur: 6px;
+  --frost-highlight: rgb(255 253 245 / 0.12);
+  --frost-edge: rgb(255 250 237 / 0.6);
+  --frost-shadow: rgb(107 65 32 / 0.14);
+  --reading-surface: rgb(var(--frost-tint));
+  --reading-backdrop: none;
   background-color: var(--background);
   background-image:
     radial-gradient(ellipse at 83% 12%, color-mix(in srgb, var(--primary) 32%, transparent) 0%, transparent 34%),
     radial-gradient(ellipse at 11% 42%, color-mix(in srgb, var(--secondary) 62%, transparent) 0%, transparent 36%),
     radial-gradient(ellipse at 83% 78%, color-mix(in srgb, var(--color-mint) 22%, transparent) 0%, transparent 33%);
   background-attachment: fixed;
+}
+
+.dark .storefront-background {
+  --foreground: #f8fafc;
+  --muted-foreground: #e2e8f0;
+  --card-foreground: #f8fafc;
+  --popover-foreground: #f8fafc;
+  --secondary-foreground: #f8fafc;
+  --accent-foreground: #f8fafc;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-accent-foreground: #f8fafc;
+  --destructive: #ffe1e6;
+  --destructive-foreground: #111827;
+  --brand-accent: #ffe6cd;
+  --brand-accent-foreground: #241810;
+  --success: #275b38;
+  --success-foreground: #d3f9dc;
+  --frost-tint: 36 24 16;
+  --frost-opacity: 0.7;
+  --frost-highlight: rgb(255 220 170 / 0.025);
+  --frost-edge: rgb(234 193 145 / 0.22);
+  --frost-shadow: rgb(0 0 0 / 0.24);
+}
+
+/* A vanilla/cocoa tint preserves contrast while the moving cake is diffused
+   behind each reading surface. Unsupported browsers retain the solid fill. */
+.storefront-content > :not(.storefront-home, script, style, template),
+.storefront-home > section:not(.storefront-hero) {
+  width: calc(100% - 2rem);
+  margin-block: 1rem;
+  margin-inline: auto;
+  border-radius: var(--radius);
+}
+
+.storefront-hero-copy {
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border-radius: var(--radius);
+}
+
+.storefront-content > :not(.storefront-home, script, style, template),
+.storefront-home > section:not(.storefront-hero),
+.storefront-hero-copy {
+  background-color: var(--reading-surface);
+  background-image: linear-gradient(145deg, var(--frost-highlight), transparent 55%);
+  box-shadow:
+    inset 0 0 0 1px var(--frost-edge),
+    0 16px 40px -24px var(--frost-shadow);
+  -webkit-backdrop-filter: var(--reading-backdrop);
+  backdrop-filter: var(--reading-backdrop);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .storefront-background {
+    --reading-surface: rgb(var(--frost-tint) / var(--frost-opacity));
+    --reading-backdrop: blur(var(--frost-blur)) saturate(0.85);
+  }
+}
+
+@media (max-width: 640px) {
+  .storefront-background {
+    --frost-blur: 4px;
+    --frost-opacity: 0.66;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .storefront-background {
+    --reading-surface: rgb(var(--frost-tint));
+    --reading-backdrop: none;
+    --frost-highlight: transparent;
+  }
+}
+
+.storefront-background [data-slot="tabs-trigger"] {
+  color: var(--foreground);
+}
+
+/* Rich notification colors also need contrast against their tinted surfaces. */
+.storefront-background [data-sonner-toaster][data-sonner-theme="light"] {
+  --success-text: #166534;
+  --info-text: #1e40af;
+  --warning-text: #854d0e;
+  --error-text: #a53041;
 }
 
 .storefront-background::before {

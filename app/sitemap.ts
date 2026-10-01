@@ -1,68 +1,31 @@
 import type { MetadataRoute } from "next";
-
-import { getAllPosts, getCategories, listProducts } from "@/lib/bakery/catalog";
+import { createPublicClient } from "@/lib/supabase/public";
 import { getSiteUrl } from "@/lib/seo/site-url";
 
-const SITE_URL = getSiteUrl();
-
-function localizedUrls(path: string): { url: string; lang: Record<string, string> } {
-  return {
-    url: `${SITE_URL}${path}`,
-    lang: {
-      vi: `${SITE_URL}${path}`,
-      en: `${SITE_URL}/en${path}`,
-    },
-  };
-}
-
-const STATIC_PATHS = [
-  "/",
-  "/san-pham",
-  "/dat-banh-theo-yeu-cau",
-  "/tin-tuc",
-  "/gioi-thieu",
-  "/lien-he",
-  "/tra-cuu-don-hang",
-  "/chinh-sach-giao-hang",
-  "/dieu-khoan",
-];
-
-/** Sinh dong tu Supabase (san pham, danh muc, bai viet), ca 2 locale — muc 11. */
+/** Only active canonical public routes, both locales, real modification dates. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, categories, posts] = await Promise.all([
-    listProducts({ perPage: 1000 }),
-    getCategories(),
-    getAllPosts(),
-  ]);
-
+  if (process.env.VERCEL_ENV === "preview" || process.env.SITE_NOINDEX === "true") return [];
+  const origin = getSiteUrl();
   const entries: MetadataRoute.Sitemap = [];
-
-  for (const path of STATIC_PATHS) {
-    const { url, lang } = localizedUrls(path);
-    entries.push({
-      url,
-      alternates: { languages: lang },
-      changeFrequency: "weekly",
-      priority: path === "/" ? 1 : 0.7,
-    });
+  function add(path: string, modified?: string) {
+    const vi = origin + path;
+    const en = origin + (path === "/" ? "/en" : "/en" + path);
+    for (const url of [vi, en]) entries.push({ url, alternates: { languages: { vi, en } }, ...(modified ? { lastModified: modified } : {}) });
   }
-
-  for (const category of categories) {
-    const { url, lang } = localizedUrls(`/danh-muc/${category.slug}`);
-    entries.push({ url, alternates: { languages: lang }, changeFrequency: "weekly", priority: 0.6 });
+  for (const path of ["/", "/san-pham", "/dat-banh-theo-yeu-cau", "/tin-tuc", "/lien-he"]) add(path);
+  const client = createPublicClient();
+  for (let offset = 0; ; offset += 500) {
+    const { data, error } = await client.from("bakery").select("id,type,slug,updated_at")
+      .in("type", ["product", "category", "post", "page"]).eq("status", "active").not("slug", "is", null)
+      .order("id").range(offset, offset + 499);
+    if (error) throw error;
+    for (const row of data ?? []) {
+      const prefix = { product: "/san-pham/", category: "/danh-muc/", post: "/tin-tuc/" }[row.type];
+      if (prefix) add(prefix + row.slug, row.updated_at);
+      else if (["gioi-thieu", "chinh-sach-giao-hang", "dieu-khoan"].includes(row.slug ?? "")) add("/" + row.slug, row.updated_at);
+    }
+    if (!data || data.length < 500) break;
   }
-
-  for (const product of products.items) {
-    const { url, lang } = localizedUrls(`/san-pham/${product.slug}`);
-    entries.push({ url, alternates: { languages: lang }, changeFrequency: "weekly", priority: 0.8 });
-  }
-
-  for (const post of posts) {
-    const { url, lang } = localizedUrls(`/tin-tuc/${post.slug}`);
-    entries.push({ url, alternates: { languages: lang }, changeFrequency: "monthly", priority: 0.5 });
-  }
-
   return entries;
 }
-
 export const revalidate = 3600;

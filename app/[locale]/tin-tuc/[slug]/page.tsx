@@ -90,7 +90,7 @@ export default async function BlogPostPage({ params }: PageProps<"/[locale]/tin-
           <ul className="space-y-2">
             {related.map((p) => (
               <li key={p.id}>
-                <Link href={`/tin-tuc/${p.slug}`} className="text-primary hover:underline">
+                <Link href={`/tin-tuc/${p.slug}`} className="text-brand-accent hover:underline">
                   {tField(p.data.title, locale as Locale)}
                 </Link>
               </li>

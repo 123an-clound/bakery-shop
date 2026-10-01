@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminAuthenticated } from "@/lib/auth/require-admin";
 import { validateImageUpload } from "@/lib/utils/file-validation";
 import { consumeRateLimit, requestClientKey } from "@/lib/security/rate-limit";
+import { readLimitedBody } from "@/lib/security/request-body";
 
 const BUCKET = "bakery";
 
@@ -21,13 +22,20 @@ const ADMIN_FOLDERS = new Set(["products", "categories", "banners", "posts", "th
 export async function POST(request: Request) {
   const rate = consumeRateLimit(`upload:${requestClientKey(request)}`, 20, 15 * 60 * 1000);
   if (!rate.allowed) return NextResponse.json({ error: "too_many_requests" }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } });
-  const formData = await request.formData().catch(() => null);
+  let formData: FormData | null;
+  try {
+    const body = await readLimitedBody(request, 5 * 1024 * 1024 + 64 * 1024);
+    formData = await new Response(body, { headers: { "Content-Type": request.headers.get("content-type") ?? "" } }).formData();
+  } catch { return NextResponse.json({ error: "invalid_upload" }, { status: 413 }); }
   const file = formData?.get("file");
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "missing_file" }, { status: 400 });
   }
 
   const folderInput = formData?.get("folder");
+  if (typeof folderInput === "string" && !PUBLIC_FOLDERS.has(folderInput) && !ADMIN_FOLDERS.has(folderInput)) {
+    return NextResponse.json({ error: "invalid_folder" }, { status: 400 });
+  }
   const folder = typeof folderInput === "string" && PUBLIC_FOLDERS.has(folderInput) ? folderInput : "custom-cake";
   const adminFolder = typeof folderInput === "string" && ADMIN_FOLDERS.has(folderInput) ? folderInput : null;
 
@@ -47,7 +55,7 @@ export async function POST(request: Request) {
     upsert: false,
   });
   if (error) {
-    console.error("[upload] loi upload storage:", error);
+    console.error("[upload] storage_failed");
     return NextResponse.json({ error: "upload_failed" }, { status: 500 });
   }
 

@@ -3,6 +3,7 @@ import createMiddleware from "next-intl/middleware";
 
 import { routing } from "./i18n/routing";
 import { ADMIN_SESSION_COOKIE, verifyAdminToken } from "./lib/auth/admin-session";
+import { refreshCustomerSession } from "./lib/supabase/refresh-session";
 
 // Next.js 16 renamed the `middleware.ts` convention to `proxy.ts` — see
 // node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md
@@ -39,7 +40,8 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  return intlMiddleware(request);
+  const applySessionCookies = await refreshCustomerSession(request);
+  return applySessionCookies(intlMiddleware(request));
 }
 
 export const config = {

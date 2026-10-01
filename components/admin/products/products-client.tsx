@@ -159,7 +159,7 @@ export function ProductsClient({
           checked={row.data.is_featured}
           onCheckedChange={(checked) => {
             startTransition(async () => {
-              const result = await toggleProductFeatured(row.id, row.data, checked);
+              const result = await toggleProductFeatured(row.id, row.data, checked, row.updatedAt);
               if (result.ok) router.refresh();
             });
           }}

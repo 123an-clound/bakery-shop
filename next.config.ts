@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
     {
       source: "/(.*)",
       headers: [
+        ...(process.env.VERCEL_ENV === "preview" || process.env.SITE_NOINDEX === "true"
+          ? [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] : []),
         // SAMEORIGIN, not DENY: the Theme Editor (Phase 6, mục 9.6) embeds
         // the customer site in its own live-preview iframe
         // (/?preview=1) — still blocks any *other* origin from framing us
@@ -29,7 +31,8 @@ const nextConfig: NextConfig = {
           key: "Content-Security-Policy",
           value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            // Meshopt decodes the existing model with WebAssembly, not JS eval.
+            process.env.NODE_ENV === "development" ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" : "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
             "style-src 'self' 'unsafe-inline'",
             // canvas-confetti renders in a Worker built from a blob: URL.
             "worker-src 'self' blob:",
@@ -44,6 +47,10 @@ const nextConfig: NextConfig = {
           ].join("; "),
         },
       ],
+    },
+    {
+      source: "/:locale(en)?/:private(gio-hang|thanh-toan|tai-khoan|dat-hang-thanh-cong|tra-cuu-don-hang|admin|dev)/:path*",
+      headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }, { key: "Cache-Control", value: "private, no-store" }],
     },
   ],
 };

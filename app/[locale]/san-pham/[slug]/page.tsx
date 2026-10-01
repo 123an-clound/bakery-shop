@@ -70,7 +70,7 @@ export default async function ProductDetailPage({
       />
 
       <nav className="text-muted-foreground mb-6 flex gap-1.5 text-sm">
-        <Link href="/san-pham" className="hover:text-primary">
+        <Link href="/san-pham" className="hover:text-brand-accent">
           Thực đơn
         </Link>
         <span>/</span>

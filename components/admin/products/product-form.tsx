@@ -69,7 +69,7 @@ export function ProductForm({
     startTransition(async () => {
       const input = { data: parsed.data, categoryId, status, slug: slug || undefined };
       const result = initial
-        ? await updateProduct(initial.id, input)
+        ? await updateProduct(initial.id, { ...input, expectedUpdatedAt: initial.updatedAt })
         : await createProduct(input);
       if (result.ok) {
         toast.success(status === "active" ? "Đã xuất bản sản phẩm." : "Đã lưu nháp.");

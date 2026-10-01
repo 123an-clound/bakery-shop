@@ -66,7 +66,7 @@ export function Header({
   return (
     <header
       className={cn(
-        "bg-background/85 sticky top-0 z-40 backdrop-blur transition-[padding,box-shadow] duration-300",
+        "bg-background sticky top-0 z-40 transition-[padding,box-shadow] duration-300",
         scrolled ? "shadow-soft py-2" : "py-4",
       )}
     >

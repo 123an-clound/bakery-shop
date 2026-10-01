@@ -23,6 +23,14 @@ function makeProduct(overrides: Partial<ProductData> & { id: number; createdAt?:
 }
 
 describe("filterAndSortProducts", () => {
+  it("uses the charged price when an old sale price exceeds the regular price", () => {
+    const result = filterAndSortProducts([makeProduct({id:1,price:100000,sale_price:200000})], {maxPrice:150000});
+    expect(result.items).toHaveLength(1);
+  });
+  it("normalizes non-integer and infinite pagination input", () => {
+    const items = [makeProduct({id:1})];
+    for (const page of [Infinity, NaN, 1.5, -1]) expect(filterAndSortProducts(items,{page}).page).toBe(1);
+  });
   it("filters by price range using sale_price when present", () => {
     const items = [
       makeProduct({ id: 1, price: 100000 }),

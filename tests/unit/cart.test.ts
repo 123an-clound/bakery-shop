@@ -16,6 +16,11 @@ function makeItem(overrides: Partial<CartItem>): CartItem {
 }
 
 describe("makeLineId", () => {
+  it("cannot merge different variants containing separators", () => {
+    expect(makeLineId(1, { size: "small&flavor=chocolate" }))
+      .not.toBe(makeLineId(1, { size: "small", flavor: "chocolate" }));
+    expect(makeLineId(1, { "a=b": "c" })).not.toBe(makeLineId(1, { a: "b=c" }));
+  });
   it("is stable regardless of option key order", () => {
     const a = makeLineId(1, { size: "20cm", flavor: "dau" });
     const b = makeLineId(1, { flavor: "dau", size: "20cm" });

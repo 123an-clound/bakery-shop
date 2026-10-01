@@ -6,6 +6,9 @@ import { createBakeryRow } from "@/lib/bakery/mutations";
 import { getPrivateNotifyEmails } from "@/lib/bakery/settings-private";
 import { sendEmail } from "@/lib/email/client";
 import { customCakeRequestEmail } from "@/lib/email/templates";
+import { allowPublicAction } from "@/lib/security/action-rate-limit";
+import { after } from "next/server";
+import { shopDatetimeToIso } from "@/lib/utils/datetime-local";
 
 const MIN_LEAD_HOURS = 24;
 
@@ -22,7 +25,10 @@ const inputSchema = z
     messageOnCake: z.string().max(120).optional(),
     colorTheme: z.string().max(80).optional(),
     budget: z.coerce.number().nonnegative().optional(),
-    needAt: z.string().min(1),
+    needAt: z.string().transform((value, context) => {
+      try { return shopDatetimeToIso(value); }
+      catch { context.addIssue({ code: "custom", message: "invalid_delivery_at" }); return z.NEVER; }
+    }),
     referenceImages: z.array(z.url()).max(3).default([]),
     note: z.string().max(500).optional(),
   })
@@ -40,6 +46,7 @@ export async function submitCustomCakeRequest(
   _prevState: CustomCakeState,
   formData: FormData,
 ): Promise<CustomCakeState> {
+  if (!(await allowPublicAction("custom-cake", 5))) return { status: "error", message: "invalid_input" };
   const raw = {
     customerName: formData.get("customerName"),
     phone: formData.get("phone"),
@@ -84,8 +91,10 @@ export async function submitCustomCakeRequest(
     },
   });
 
-  const notifyEmails = await getPrivateNotifyEmails();
-  if (notifyEmails.length > 0) {
+  after(async () => {
+    try {
+      const notifyEmails = await getPrivateNotifyEmails();
+      if (notifyEmails.length > 0) {
     await sendEmail({
       to: notifyEmails,
       subject: "Yêu cầu đặt bánh riêng mới",
@@ -96,7 +105,9 @@ export async function submitCustomCakeRequest(
         needAt: input.needAt,
       }),
     });
-  }
+      }
+    } catch { console.error("[custom-cake] notification_failed"); }
+  });
 
   return { status: "success" };
 }

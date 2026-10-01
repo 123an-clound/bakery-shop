@@ -19,6 +19,7 @@ const SORT_VALUES: ProductSort[] = ["newest", "price_asc", "price_desc", "best_s
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps<"/[locale]/danh-muc/[slug]">): Promise<Metadata> {
   const { locale, slug } = await params;
   const category = await getCategoryBySlug(slug);
@@ -29,6 +30,7 @@ export async function generateMetadata({
     ogImage: category.data.image_url,
     path: `/danh-muc/${slug}`,
     locale: locale as Locale,
+    searchParams: await searchParams,
   });
 }
 
@@ -49,6 +51,7 @@ export default async function CategoryPage({
   const sortParam = asString(sp.sort);
   const sort = SORT_VALUES.includes(sortParam as ProductSort) ? (sortParam as ProductSort) : "newest";
   const page = Number(asString(sp.page)) || 1;
+  if (sp.page !== undefined && (!Number.isSafeInteger(Number(asString(sp.page))) || Number(asString(sp.page)) < 1)) notFound();
 
   const [t, tCategory, categories, result, favoriteIds] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "Products" }),
@@ -65,6 +68,7 @@ export default async function CategoryPage({
     getMyFavoriteProductIds(),
   ]);
   const favoriteIdSet = new Set(favoriteIds);
+  if (page > result.pageCount) notFound();
 
   const name = tField(category.data.name, locale as Locale);
   const currentParams: Record<string, string | undefined> = { min, max, sort: sortParam, page: String(page) };
@@ -88,7 +92,7 @@ export default async function CategoryPage({
         ]}
       />
 
-      <Button variant="link" className="text-primary mb-2 px-0" asChild>
+      <Button variant="link" className="mb-2 px-0" asChild>
         <Link href="/san-pham">← {tCategory("backToAll")}</Link>
       </Button>
       <h1 className="font-heading text-3xl font-bold">{name}</h1>

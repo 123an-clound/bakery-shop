@@ -43,6 +43,7 @@ export async function createBakeryRow(input: CreateBakeryRowInput): Promise<Bake
 }
 
 export interface UpdateBakeryRowInput {
+  expectedUpdatedAt?: string;
   data?: unknown;
   slug?: string | null;
   parentId?: number | null;
@@ -66,11 +67,13 @@ export async function updateBakeryRow(
   if (patch.status !== undefined) update.status = patch.status;
   if (patch.sortOrder !== undefined) update.sort_order = patch.sortOrder;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("bakery")
     .update(update)
     .eq("id", id)
-    .eq("type", type)
+    .eq("type", type);
+  if (patch.expectedUpdatedAt) query = query.eq("updated_at", patch.expectedUpdatedAt);
+  const { data, error } = await query
     .select()
     .single();
 

@@ -43,7 +43,7 @@ export async function PromoBannersSection({ locale }: { locale: Locale }) {
                 />
               ) : null}
               {title || subtitle || cta ? (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-5 text-white">
+                <div className="absolute inset-x-0 bottom-0 bg-black/85 p-5 text-white">
                   {title ? <p className="font-heading text-lg font-bold">{title}</p> : null}
                   {subtitle ? <p className="mt-1 text-sm opacity-90">{subtitle}</p> : null}
                   {cta && href ? <span className="mt-3 inline-block text-sm font-semibold underline">{cta}</span> : null}

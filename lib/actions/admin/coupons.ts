@@ -24,7 +24,7 @@ export async function createCoupon(input: { data: CouponData; status: "active" |
 
 export async function updateCoupon(
   id: number,
-  input: { data: CouponData; status: "active" | "expired" | "disabled" },
+  input: { data: CouponData; status: "active" | "expired" | "disabled"; expectedUpdatedAt: string },
 ): Promise<AdminActionResult> {
   await requireAdmin();
   const data = couponDataSchema.parse(input.data);
@@ -34,7 +34,9 @@ export async function updateCoupon(
     return { ok: false, error: "code_taken" };
   }
 
-  await updateBakeryRow(id, "coupon", { data: { ...data, code }, slug: code, status: input.status });
+  if (!input.expectedUpdatedAt) return { ok: false, error: "conflict" };
+  try { await updateBakeryRow(id, "coupon", { data: { ...data, code }, slug: code, status: input.status, expectedUpdatedAt: input.expectedUpdatedAt }); }
+  catch { return { ok: false, error: "Mã đã thay đổi. Vui lòng tải lại để giữ đúng số lượt sử dụng." }; }
   return { ok: true, id };
 }
 

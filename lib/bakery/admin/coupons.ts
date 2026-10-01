@@ -8,6 +8,7 @@ export interface AdminCouponRow {
   slug: string | null;
   status: string;
   createdAt: string;
+  updatedAt: string;
   data: CouponData;
 }
 
@@ -15,7 +16,7 @@ export async function listAdminCoupons(): Promise<AdminCouponRow[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bakery")
-    .select("id, slug, status, created_at, data")
+    .select("id, slug, status, created_at, updated_at, data")
     .eq("type", "coupon")
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -24,6 +25,7 @@ export async function listAdminCoupons(): Promise<AdminCouponRow[]> {
     slug: row.slug,
     status: row.status ?? "active",
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
     data: couponDataSchema.parse(row.data),
   }));
 }

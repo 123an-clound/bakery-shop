@@ -51,7 +51,7 @@ export default async function BlogListPage({ params }: PageProps<"/[locale]/tin-
                 <p className="text-muted-foreground mt-3 text-xs">
                   {formatDate(post.data.published_at ?? post.created_at, locale as Locale)}
                 </p>
-                <h2 className="group-hover:text-primary mt-1 text-lg font-semibold transition-colors">
+                <h2 className="group-hover:text-brand-accent mt-1 text-lg font-semibold transition-colors">
                   {tField(post.data.title, locale as Locale)}
                 </h2>
                 {post.data.excerpt ? (

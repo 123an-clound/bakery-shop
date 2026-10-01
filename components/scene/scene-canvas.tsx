@@ -132,7 +132,7 @@ export function SceneCanvas() {
   }, []);
 
   return (
-    <div data-testid="scene-canvas" data-ready={ready} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
+    <div data-testid="scene-canvas" data-ready={ready} aria-hidden="true" className="pointer-events-none fixed inset-0 z-[6]">
       <Canvas
         camera={{ position: [0, 5.5, 5], fov: SCENE_FOV }}
         dpr={[1, 1.5]}

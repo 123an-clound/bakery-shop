@@ -316,6 +316,13 @@ export type Database = {
       };
     };
     Functions: {
+      bakery_quote_custom_cake: { Args: { p_id: number; p_price: number; p_reply: string }; Returns: Json };
+      bakery_convert_custom_cake: { Args: { p_id: number; p_expected: Json; p_order: Json; p_setting: Json }; Returns: Json };
+      bakery_commit_order: {
+        Args: { p_request_id: string; p_request_hash: string; p_order: Json; p_products: Json; p_coupon: Json; p_setting: Json };
+        Returns: Json;
+      };
+      bakery_update_order: { Args: { p_id: number; p_patch: Json }; Returns: Json };
       bakery_next_order_code: { Args: Record<string, never>; Returns: string };
       bakery_unaccent: { Args: { txt: string }; Returns: string };
       search_products: {

@@ -46,6 +46,7 @@
 /*.zip
 /debug.log
 /.tmp-*/
+/supabase/.temp/
 /.playwright-mcp/
 
 # misc

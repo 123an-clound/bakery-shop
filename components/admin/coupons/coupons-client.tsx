@@ -71,7 +71,7 @@ function CouponDialog({
     }
     startTransition(async () => {
       const result = coupon
-        ? await updateCoupon(coupon.id, { data: parsed.data, status })
+        ? await updateCoupon(coupon.id, { data: parsed.data, status, expectedUpdatedAt: coupon.updatedAt })
         : await createCoupon({ data: parsed.data, status });
       if (result.ok) {
         toast.success("Đã lưu mã giảm giá.");

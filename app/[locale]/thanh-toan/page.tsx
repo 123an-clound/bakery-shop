@@ -18,8 +18,9 @@ export default async function CheckoutPage({ params }: PageProps<"/[locale]/than
 
   const settingsRow = await getSiteSettings();
   const shipping = settingsRow?.data.shipping ?? { fee: 25000, free_from: 500000 };
+  const bank = settingsRow?.data.bank;
 
   return (
-    <CheckoutPageClient locale={locale as Locale} shippingFee={shipping.fee} freeFrom={shipping.free_from} />
+    <CheckoutPageClient locale={locale as Locale} shippingFee={shipping.fee} freeFrom={shipping.free_from} bankTransferEnabled={Boolean(bank?.bank_code && bank.account_number && bank.account_name)} />
   );
 }

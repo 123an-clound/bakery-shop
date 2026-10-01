@@ -12,7 +12,7 @@ export function Footer({ settings, locale }: { settings: SettingSiteData; locale
   const tn = useTranslations("Nav");
 
   return (
-    <footer className="bg-secondary/40 border-border mt-16 border-t">
+    <footer className="bg-secondary border-border mt-16 border-t">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4 lg:px-8">
         <div className="space-y-3 md:col-span-2">
           <span className="font-heading text-brand-accent text-lg font-bold">

@@ -11,10 +11,11 @@ export interface AdminProductRow {
   sortOrder: number;
   categoryId: number | null;
   createdAt: string;
+  updatedAt: string;
   data: ProductData;
 }
 
-function toAdminProduct(row: Pick<BakeryRow, "id" | "slug" | "status" | "sort_order" | "parent_id" | "created_at" | "data">): AdminProductRow {
+function toAdminProduct(row: Pick<BakeryRow, "id" | "slug" | "status" | "sort_order" | "parent_id" | "created_at" | "updated_at" | "data">): AdminProductRow {
   return {
     id: row.id,
     slug: row.slug,
@@ -22,6 +23,7 @@ function toAdminProduct(row: Pick<BakeryRow, "id" | "slug" | "status" | "sort_or
     sortOrder: row.sort_order,
     categoryId: row.parent_id,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
     data: productDataSchema.parse(row.data),
   };
 }
@@ -30,7 +32,7 @@ export async function listAdminProducts(): Promise<AdminProductRow[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bakery")
-    .select("id, slug, status, sort_order, parent_id, created_at, data")
+    .select("id, slug, status, sort_order, parent_id, created_at, updated_at, data")
     .eq("type", "product")
     .order("sort_order", { ascending: true })
     .order("id", { ascending: false });
@@ -42,7 +44,7 @@ export async function getAdminProduct(id: number): Promise<AdminProductRow | nul
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bakery")
-    .select("id, slug, status, sort_order, parent_id, created_at, data")
+    .select("id, slug, status, sort_order, parent_id, created_at, updated_at, data")
     .eq("type", "product")
     .eq("id", id)
     .maybeSingle();

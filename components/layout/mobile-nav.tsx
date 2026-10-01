@@ -23,7 +23,7 @@ export function MobileNav() {
   const cartCount = getCartCount(items);
 
   return (
-    <nav className="bg-background/95 border-border fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t px-2 py-1.5 backdrop-blur lg:hidden">
+    <nav className="bg-background border-border fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t px-2 py-1.5 lg:hidden">
       {ITEMS.map(({ key, href, icon: Icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return (

@@ -154,7 +154,7 @@
     "ward": "Phường/Xã",
     "district": "Quận/Huyện",
     "city": "Tỉnh/Thành phố",
-    "deliveryAt": "Thời gian nhận",
+    "deliveryAt": "Thời gian nhận (giờ Việt Nam, UTC+7)",
     "note": "Ghi chú",
     "paymentTitle": "Phương thức thanh toán",
     "paymentCod": "Thanh toán khi nhận hàng (COD)",
@@ -166,6 +166,17 @@
     "total": "Tổng cộng",
     "placeOrder": "Đặt hàng",
     "submitError": "Đặt hàng không thành công, vui lòng thử lại.",
+    "errors": {
+      "price_changed": "Giá hoặc phí giao hàng đã thay đổi. Tổng tiền đã cập nhật bên dưới; vui lòng kiểm tra trước khi đặt lại.",
+      "coupon_invalid": "Mã giảm giá không còn áp dụng được. Vui lòng quay lại giỏ hàng để đổi hoặc xóa mã.",
+      "out_of_stock": "Số lượng bánh còn lại không đủ. Vui lòng điều chỉnh giỏ hàng.",
+      "invalid_option": "Tùy chọn bánh đã thay đổi. Vui lòng chọn lại bánh trong giỏ hàng.",
+      "product_not_found": "Một bánh trong giỏ đã ngừng bán. Vui lòng kiểm tra giỏ hàng.",
+      "delivery_too_soon": "Thời gian nhận chưa đủ để chuẩn bị bánh. Vui lòng chọn thời gian muộn hơn theo thông tin sản phẩm.",
+      "payment_unavailable": "Tiệm chưa cấu hình chuyển khoản. Vui lòng chọn thanh toán khi nhận hàng.",
+      "cart_changed": "Thông tin bánh vừa thay đổi. Vui lòng kiểm tra giỏ hàng và thử lại.",
+      "too_many_requests": "Bạn đã gửi nhiều yêu cầu liên tiếp. Vui lòng đợi vài phút trước khi thử lại."
+    },
     "emptyCart": "Giỏ hàng trống — vui lòng thêm sản phẩm trước khi thanh toán."
   },
   "OrderSuccess": {
@@ -227,7 +238,7 @@
     "referenceImages": "Ảnh mẫu tham khảo (tối đa 3 ảnh)",
     "uploadError": "Tải ảnh lên thất bại, vui lòng thử lại.",
     "step4Title": "Thời gian & ngân sách",
-    "needAt": "Ngày giờ cần nhận",
+    "needAt": "Ngày giờ cần nhận (giờ Việt Nam, UTC+7)",
     "budget": "Ngân sách dự kiến",
     "budgetPlaceholder": "VD: 600000",
     "step5Title": "Thông tin liên hệ",

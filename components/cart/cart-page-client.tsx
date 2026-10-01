@@ -13,6 +13,7 @@ import { useCartStore } from "@/lib/store/cart";
 import { formatMoney } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useCartHydrated } from "@/hooks/use-cart-hydrated";
 
 export function CartPageClient({
   locale,
@@ -34,13 +35,14 @@ export function CartPageClient({
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const hydrated = useCartHydrated();
 
   const { subtotal, discount, shippingFee: computedShipping, total } = calcOrderTotal({
     items,
     discount: couponDiscount,
     shipping: { fee: shippingFee, freeFrom },
   });
-  const remainingForFreeShip = Math.max(0, freeFrom - subtotal);
+  const remainingForFreeShip = Math.max(0, freeFrom - (subtotal - discount));
 
   function handleApplyCoupon() {
     setCouponError(null);
@@ -54,6 +56,8 @@ export function CartPageClient({
       }
     });
   }
+
+  if (!hydrated) return <div aria-busy="true" aria-label={t("title")} className="mx-auto min-h-[700px] w-full max-w-5xl px-4 py-10" />;
 
   if (items.length === 0) {
     return (

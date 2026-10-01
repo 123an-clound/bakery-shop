@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getOrderByCode } from "@/lib/bakery/orders";
+import { getOrderForReceipt } from "@/lib/bakery/orders";
 import { getSiteSettings } from "@/lib/bakery/queries";
 import type { Locale } from "@/lib/bakery/types";
 import { formatDateTime, formatMoney } from "@/lib/utils/format";
@@ -32,7 +32,7 @@ export default async function OrderSuccessPage({
 
   const [t, order, settingsRow] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "OrderSuccess" }),
-    getOrderByCode(code),
+    getOrderForReceipt(code),
     getSiteSettings(),
   ]);
   if (!order) notFound();
@@ -60,7 +60,7 @@ export default async function OrderSuccessPage({
         <h1 className="font-heading text-3xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground mt-2">{t("subtitle")}</p>
         <div className="mt-3 flex items-center justify-center gap-2">
-          <span className="font-heading text-primary text-2xl font-bold">{order.data.code}</span>
+          <span className="font-heading text-brand-accent text-2xl font-bold">{order.data.code}</span>
           <CopyOrderCodeButton code={order.data.code} />
         </div>
       </div>
@@ -94,7 +94,7 @@ export default async function OrderSuccessPage({
           </div>
           <div className="flex justify-between text-base font-semibold">
             <span>{t("total")}</span>
-            <span className="text-primary">{formatMoney(order.data.total, locale as Locale)}</span>
+            <span className="text-brand-accent">{formatMoney(order.data.total, locale as Locale)}</span>
           </div>
         </div>
         <p className="text-muted-foreground mt-3 text-xs">

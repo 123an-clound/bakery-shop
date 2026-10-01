@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 import { usePathname } from "@/i18n/navigation";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
@@ -17,7 +18,29 @@ export function SceneRoot({ posterUrl }: { posterUrl?: string }) {
   const reducedMotion = useReducedMotion();
   const webglSupported = useWebglSupport();
   const weakMobile = useWeakMobile();
-  const canRender3D = webglSupported && !reducedMotion && !weakMobile;
+  const [pageLoaded, setPageLoaded] = useState(false);
+  useEffect(() => {
+    // Let product images and critical fonts load before downloading/compiling WebGL.
+    let idle: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idle = window.requestIdleCallback(() => setPageLoaded(true), { timeout: 2000 });
+      } else {
+        timer = setTimeout(() => setPageLoaded(true), 200);
+      }
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+    return () => {
+      window.removeEventListener("load", schedule);
+      if (idle !== undefined) window.cancelIdleCallback(idle);
+      if (timer !== undefined) clearTimeout(timer);
+    };
+  }, []);
+  // Keep the marketing scene on catalog routes; transactional forms need no GPU work.
+  const transactional = /^\/(gio-hang|thanh-toan|tai-khoan|dat-hang-thanh-cong|tra-cuu-don-hang|dat-banh-theo-yeu-cau)(\/|$)/.test(pathname);
+  const canRender3D = pageLoaded && webglSupported && !reducedMotion && !weakMobile && !transactional;
   const isHome = pathname === "/";
 
   return (

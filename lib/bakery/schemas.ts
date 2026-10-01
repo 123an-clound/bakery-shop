@@ -14,7 +14,7 @@ const i18nOptionalTextSchema = z.object({
   en: z.string().optional(),
 });
 
-const moneySchema = z.number().nonnegative();
+const moneySchema = z.number().int().nonnegative().safe();
 const vnPhoneSchema = z.string().regex(/^0\d{9}$/, "So dien thoai khong hop le");
 const isoDateTimeSchema = z.string().datetime({ offset: true }).or(z.string().min(1));
 
@@ -161,7 +161,7 @@ export type CategoryData = z.infer<typeof categoryDataSchema>;
 export const productOptionChoiceSchema = z.object({
   value: z.string(),
   label: i18nOptionalTextSchema,
-  price_delta: z.number(),
+  price_delta: z.number().int().safe(),
 });
 
 export const productOptionSchema = z.object({
@@ -179,7 +179,7 @@ export const productDataSchema = z.object({
   sale_price: moneySchema.nullable().optional(),
   unit: i18nOptionalTextSchema.optional(),
   images: z.array(z.string()).default([]),
-  stock: z.number().int().nullable().optional(),
+  stock: z.number().int().nonnegative().nullable().optional(),
   is_featured: z.boolean().default(false),
   is_best_seller: z.boolean().default(false),
   badges: z.array(z.string()).default([]),
@@ -267,6 +267,8 @@ export const orderTimelineEntrySchema = z.object({
 
 export const orderDataSchema = z.object({
   code: z.string(),
+  request_hash: z.string().optional(),
+  reserved_product_ids: z.array(z.number().int()).optional(),
   user_id: z.string().nullable().optional(),
   customer_name: z.string().min(1),
   phone: vnPhoneSchema,
@@ -302,6 +304,7 @@ export type OrderItemData = z.infer<typeof orderItemDataSchema>;
 // ---------------------------------------------------------------------------
 
 export const customCakeDataSchema = z.object({
+  order_id: z.number().int().positive().optional(),
   customer_name: z.string().min(1),
   phone: vnPhoneSchema,
   email: z.email().optional(),

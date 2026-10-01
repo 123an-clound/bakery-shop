@@ -45,7 +45,7 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/tai-k
         </form>
       </div>
 
-      <Button variant="link" className="text-primary mt-4 px-0" asChild>
+      <Button variant="link" className="mt-4 px-0" asChild>
         <Link href="/tai-khoan/yeu-thich">{t("favoritesLink")} →</Link>
       </Button>
 
@@ -63,7 +63,7 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/tai-k
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-primary font-semibold">{formatMoney(order.data.total, locale as Locale)}</p>
+                <p className="text-brand-accent font-semibold">{formatMoney(order.data.total, locale as Locale)}</p>
                 <Link
                   href={`/tra-cuu-don-hang`}
                   className="text-muted-foreground text-xs hover:underline"

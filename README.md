@@ -3,6 +3,19 @@
 Website bán bánh kem & bánh ngọt — Next.js 16 (App Router) + Supabase. Đặc tả đầy đủ ở
 [`KE-HOACH-DU-AN.md`](./KE-HOACH-DU-AN.md).
 
+**Trạng thái bàn giao 01/10/2026: chưa đủ điều kiện production.** Xem
+[báo cáo chất lượng](docs/handoff-quality.md). Database đang cấu hình chưa có các RPC
+transaction mà code đặt hàng cần. Build thành công không thay thế kiểm thử checkout
+với database sandbox đã chạy migration.
+
+Các bước mở blocker staging/production: [production-unblock-checklist.md](docs/production-unblock-checklist.md).
+
+Chủ dự án xác nhận Supabase đang cấu hình là **production**. Không chạy migration, seed,
+hay ghi dữ liệu kiểm thử lên môi trường này. Chỉ thử các migration trên một project sandbox
+riêng đã xác nhận; source workspace hiện phụ thuộc vào RPC chưa có trong production database.
+Nếu deploy source này trước migration, checkout và một số cập nhật đơn sẽ lỗi. Luồng ghi trên
+bản website đang chạy chưa được kiểm thử trong phiên này.
+
 Có hai phần trong file này:
 
 - **[Hướng dẫn cho chủ tiệm](#hướng-dẫn-cho-chủ-tiệm-không-cần-biết-code)** — dành cho người
@@ -38,6 +51,9 @@ theo nghĩa thông thường).
 3. Lưu file, sau đó khởi động lại website (tắt rồi chạy lại `pnpm start`, hoặc nhờ người kỹ
    thuật nếu đang chạy trên máy chủ thật/Vercel).
 4. Đăng nhập lại `/admin` bằng mật khẩu mới.
+
+Sau bản sửa 30/09/2026, đổi `ADMIN_PASSWORD` hoặc `ADMIN_SESSION_SECRET` và khởi động
+lại ứng dụng sẽ vô hiệu hóa các cookie admin đã cấp. Khóa ký phải dài ít nhất 32 ký tự.
 
 > Chọn mật khẩu đủ dài và khó đoán — đây là "chìa khoá" duy nhất bảo vệ toàn bộ trang quản trị.
 
@@ -160,5 +176,141 @@ tiết mô hình dữ liệu, và `lib/bakery/schemas.ts` cho Zod schema của t
 
 ## Deploy
 
-Dự án hiện **chỉ chạy local**, chưa deploy theo yêu cầu ban đầu, nhưng code được viết sẵn sàng
-để deploy lên Vercel khi cần (Server Components, Route Handlers, env vars chuẩn Next.js).
+Phiên kiểm tra bàn giao chỉ chạy local, không deploy. Có domain Vercel trong cấu hình,
+nhưng chủ dự án cần xác nhận domain chính thức và môi trường dữ liệu trước phát hành.
+
+### Runbook kỹ thuật trước bàn giao
+
+1. Dùng Node.js và pnpm tương thích `package.json` (phiên kiểm chứng: Node 24.15.0,
+   pnpm khai báo 11.5.1). Cài `pnpm install --frozen-lockfile` trên checkout sạch.
+   Không dùng `pnpm seed` với database có dữ liệu thật.
+2. Tạo `.env.local` từ `.env.local.example`; điền thông tin của **sandbox riêng**.
+   Khi chia sẻ cấu hình, chỉ chia sẻ tên biến, không chia sẻ giá trị.
+3. Chuẩn bị schema rồi chạy `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`.
+   Chạy `pnpm exec next start -p 3100` để kiểm thử bản production local.
+4. Chạy `pnpm exec playwright test --config playwright.qa.config.ts` cho bộ kiểm tra
+   chỉ đọc/checkout giả lập. Bộ `pnpm e2e` đầy đủ có test ghi đơn, upload, CRUD và
+   gửi email; **chỉ chạy khi đã cấu hình sandbox và dịch vụ email kiểm thử**.
+   `node scripts/check-configured-site-readonly.mjs` chỉ gửi GET tới
+   `NEXT_PUBLIC_SITE_URL`; không đăng nhập, submit form hay ghi dữ liệu. Dùng nó để
+   kiểm tra HTTP/SEO/header của origin đã cấu hình.
+5. Sau khi sandbox đạt và có quyết định phát hành, đưa cùng phiên bản code và env
+   lên preview. Đặt `SITE_NOINDEX=true` ở staging ngoài Vercel; Vercel preview tự
+   có noindex. Chạy lại mua hàng, bảo mật và SEO trên preview trước promote.
+   Phiên này không thực hiện bước deploy/promote.
+
+### Biến môi trường và mục đích
+
+| Biến | Mục đích |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL project dữ liệu/Auth/storage; public |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Khóa public dùng với RLS, không phải service role |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server đọc/ghi đặc quyền; tuyệt đối không đưa vào browser |
+| `ADMIN_PASSWORD` | Mật khẩu quản trị; đổi sẽ thu hồi các phiên admin cũ sau restart |
+| `ADMIN_SESSION_SECRET` | Khóa ký cookie admin và quyền xem biên nhận; tối thiểu 32 ký tự |
+| `RESEND_API_KEY` | Gửi thông báo; sandbox phải dùng tài khoản/địa chỉ kiểm thử |
+| `EMAIL_FROM` | Người gửi thuộc domain đã xác minh với Resend |
+| `NEXT_PUBLIC_SITE_URL` | Origin HTTPS chính thức cho canonical, OG, sitemap; cần xác nhận |
+| `SITE_NOINDEX` | `true` để chặn index staging; chỉ tắt khi nội dung đã được duyệt |
+| `VERCEL_ENV` | Vercel cung cấp; `preview` luôn noindex |
+| `QA_BASE_URL` | Tùy chọn cho script kiểm tra; chỉ chấp nhận localhost/127.0.0.1 |
+
+### Migration và dữ liệu
+
+- Chỉ thay đổi `public.bakery` và các object có tiền tố `bakery_`; không đụng bảng
+  của dự án khác trong cùng Supabase project.
+- `0001` giả định bảng `bakery` đã có `id bigint identity primary key` và
+  `created_at timestamptz default now()`. Với sandbox trống hoàn toàn, tạo bảng nền
+  đó trước, rồi chạy `0001` → `0002` → `0003` → `0004`. Supabase cần schema Auth,
+  Storage và extension `unaccent`; PGlite test không thay thế toàn bộ môi trường này.
+- Ba migration cần duyệt/thử trước phát hành:
+  `20260929233310_order_integrity.sql` (có từ đầu phiên),
+  `20260930074344_custom_cake_integrity.sql`,
+  `20260930074614_order_private_fields.sql`.
+- Migration order integrity tạo RPC commit nguyên tử và sửa trạng thái đơn; migration
+  custom cake tạo RPC báo giá/chuyển đơn chống lặp. Migration privacy chặn đọc trực tiếp
+  JSONB đơn hàng bằng anon/authenticated; lịch sử/biên nhận đi qua DAL server kiểm tra
+  `getUser()` + ownership và bỏ trường nội bộ. Đây là thay đổi bảo mật của Data API;
+  cần kiểm tra các consumer bên ngoài nếu có. Chưa phát hiện consumer đó trong repo.
+- Triển khai code DAL trước, sau đó migration privacy. Với RPC mới, chạy migration
+  trước khi mở checkout/admin cho người dùng. Không bật checkout giữa hai bước.
+- Không dùng `supabase db push` mù trên project dùng chung. Đối chiếu migration history
+  và backup trước; chạy SQL đã duyệt trong transaction, dừng ngay khi lỗi.
+  Không có migration nào của phiên này được chạy lên Supabase từ xa.
+
+Test SQL cô lập hiện dùng PGlite trong thư mục công cụ bị Git ignore:
+
+```powershell
+npm install --prefix .tmp-quality-tools --no-save --package-lock=false @electric-sql/pglite@0.5.8
+node scripts/test-order-database.mjs
+```
+
+Test này không kết nối Supabase, không gửi email. Nó kiểm tra transaction, rollback,
+idempotency, quyền RPC và policy bảo vệ dữ liệu. Cần kiểm tra bổ sung hai kết nối
+PostgreSQL đồng thời trong sandbox; PGlite chỉ có một kết nối.
+
+### Vận hành đơn hàng và thông báo
+
+- COD và chuyển khoản VietQR đều tạo đơn `unpaid`. VietQR là chỉ dẫn chuyển khoản,
+  không phải cổng thanh toán tự xác nhận. Admin chỉ đánh dấu đã thanh toán sau đối soát.
+- Trạng thái đi tiến theo `pending → confirmed → baking → delivering → completed`
+  (code hiện cho phép bỏ qua bước trung gian); đơn hoàn tất/hủy không mở lại. Hủy chỉ
+  hoàn đúng phần tồn kho đã giữ, đúng một lần. Chưa có luồng hoàn tiền tự động.
+- Yêu cầu bánh riêng phải được báo giá trước khi chuyển. Transaction giữ liên kết
+  `order_id`; retry không tạo đơn thứ hai. Các yêu cầu `accepted` cũ chưa có liên kết
+  phải đối chiếu thủ công, không tự chuyển lại.
+- Báo giá được lưu nhưng email lỗi sẽ hiện cảnh báo riêng. Đơn checkout đã commit
+  vẫn tồn tại khi email lỗi; tra trong admin trước khi thử tạo đơn mới.
+- Giá/coupon/tồn kho được server kiểm tra lại. Khi checkout báo giá thay đổi, khách
+  phải xem tổng mới rồi tự xác nhận lại. Không tự gửi lại thay khách.
+- Chưa có hàng đợi email bền vững hay retry tự động. Theo dõi mã log
+  `checkout_failed`, `notification_failed`, `provider_rejected`, `delivery_failed`,
+  `upload_failed`; không thêm PII hoặc request body vào log.
+
+### Backup, restore và rollback
+
+1. Trước migration/release, lưu snapshot/backup database theo tính năng Supabase
+   của gói đang dùng, xuất riêng schema/dữ liệu bakery nếu dùng project chung, và
+   sao lưu file bucket `bakery`. Backup database không đồng nghĩa backup ảnh Storage.
+2. Lưu commit/artifact build và tên biến cấu hình tương ứng trong nơi kiểm soát truy cập.
+   Không lưu secrets trong Git hay tài liệu bàn giao.
+3. Thử restore vào project sandbox riêng; đối chiếu số sản phẩm/đơn, tổng tiền mẫu,
+   quyền đọc, ảnh và đăng nhập. Khả năng restore chưa được thực thi trong phiên này.
+4. Rollback ứng dụng về bản đã kiểm chứng tương thích RPC/privacy. Không rollback DAL
+   về bản đọc trực tiếp bằng anon sau khi đã áp policy privacy; không mở lại lỗ hổng
+   để chữa nhanh. Các RPC bổ sung có thể giữ nguyên, không cần drop dữ liệu.
+5. Nếu dữ liệu hỏng, tạm dừng nhận đơn và phục hồi từ backup đã kiểm chứng; đối chiếu
+   các đơn nhận sau thời điểm backup trước khi mở lại. Không restore toàn project
+   dùng chung nếu chưa có kế hoạch bảo toàn các ứng dụng khác.
+
+### Kiểm tra sau deploy và chẩn đoán
+
+| Hiện tượng | Kiểm tra trước |
+|---|---|
+| Checkout báo lỗi dịch vụ | RPC `bakery_commit_order`, env service role, quyền execute, migration |
+| Không cập nhật trạng thái đơn | RPC `bakery_update_order`, trạng thái nguồn/đích hợp lệ |
+| Không chuyển được bánh riêng | RPC mới, yêu cầu ở `quoted`, báo giá/settings chưa đổi giữa lúc xử lý |
+| Mất phiên khách sau khi hết hạn | Proxy refresh, cookie HTTPS/domain, Auth redirect config |
+| Admin bị khóa tạm | Đợi cửa sổ 15 phút; không reset rate-limit để thử mật khẩu hàng loạt |
+| Không có QR | Kiểm tra đủ bank code, account number, account name trong admin |
+| Không nhận email | Domain Resend/người gửi, kết quả provider; kiểm tra đơn trước retry |
+| Không thấy đơn qua REST public | Hành vi chủ ý sau privacy migration; dùng UI đã xác thực |
+| Preview xuất hiện trên tìm kiếm | Kiểm tra response `X-Robots-Tag`, `SITE_NOINDEX`, sitemap rỗng |
+
+Sau deploy kiểm tra trang chủ/danh mục/sản phẩm cả VI/EN, 404, giỏ reload, checkout
+bằng đơn sandbox được phép, quyền xem biên nhận, logout, ảnh, lỗi console/network,
+canonical/sitemap/robots và giao diện mobile. Chạy `/seo page` và `/seo technical`
+trên URL preview khi có; không tự chạy full audit tốn quota.
+
+### Chủ tiệm cần xác nhận trước production
+
+- Domain, thị trường/ngôn ngữ, thông tin thương hiệu/liên hệ, ảnh bánh thật, đánh giá
+  thật; loại bỏ nội dung seed khỏi schema và giao diện trước index.
+- Phí/vùng giao hàng, giờ chốt, thời gian chuẩn bị từng bánh, quy tắc hủy/hoàn tiền,
+  thông tin dị ứng và bảo quản. Không suy ra các quy tắc này từ nội dung mẫu.
+- Tài khoản ngân hàng nhận tiền, Resend sender và Supabase Auth email confirmation/
+  redirect URL; bộ tài khoản test để kiểm chứng quyền A/B trên sandbox.
+- Hosting và cơ chế rate-limit dùng chung giữa các instance. Rate-limit trong code
+  hiện là bộ nhớ tiến trình; cần lớp proxy/WAF hoặc store bền vững trước public launch.
+- Ảnh tham khảo khách tải lên hiện ở bucket public: cần chốt chính sách riêng tư/lưu
+  giữ và thiết kế signed URL nếu ảnh cần bảo mật; chưa đổi dữ liệu/storage từ xa.

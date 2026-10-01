@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -11,22 +11,24 @@ import { calcOrderTotal } from "@/lib/bakery/pricing";
 import type { Locale } from "@/lib/bakery/types";
 import { useCartStore } from "@/lib/store/cart";
 import { formatMoney } from "@/lib/utils/format";
-import { toDatetimeLocalValue } from "@/lib/utils/datetime-local";
+import { toShopDatetimeValue, shopDatetimeToIso } from "@/lib/utils/datetime-local";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-function minDeliveryDateTime(): string {
-  return toDatetimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+function minDeliveryDateTime(prepHours: number): string {
+  return toShopDatetimeValue(new Date(Date.now() + prepHours * 60 * 60 * 1000 + 5 * 60 * 1000));
 }
 
 export function CheckoutForm({
   locale,
   shippingFee,
   freeFrom,
+  bankTransferEnabled,
 }: {
   locale: Locale;
   shippingFee: number;
   freeFrom: number;
+  bankTransferEnabled: boolean;
 }) {
   const t = useTranslations("Checkout");
   const router = useRouter();
@@ -36,6 +38,9 @@ export function CheckoutForm({
   const clearCart = useCartStore((s) => s.clear);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const submission = useRef<{ fingerprint: string; requestId: string } | null>(null);
+  const submitting = useRef(false);
+  const [shipping, setShipping] = useState({ fee: shippingFee, freeFrom });
 
   const {
     register,
@@ -52,7 +57,7 @@ export function CheckoutForm({
       ward: "",
       district: "",
       city: "",
-      deliveryAt: minDeliveryDateTime(),
+      deliveryAt: minDeliveryDateTime(Math.max(0, ...items.map(item => item.prepTimeHours ?? 24))),
       note: "",
       paymentMethod: "cod",
     },
@@ -62,43 +67,63 @@ export function CheckoutForm({
   const totals = calcOrderTotal({
     items,
     discount: couponDiscount,
-    shipping: { fee: shippingFee, freeFrom },
+    shipping,
   });
 
   async function onSubmit(values: CheckoutFormValues) {
+    if (submitting.current) return;
+    submitting.current = true;
     setSubmitError(null);
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const payload = {
           items: items.map((i) => ({ productId: i.productId, qty: i.qty, options: i.options })),
           customerName: values.customerName,
           phone: values.phone,
           email: values.email,
           address: { line: values.addressLine, ward: values.ward, district: values.district, city: values.city },
-          deliveryAt: new Date(values.deliveryAt).toISOString(),
+          deliveryAt: shopDatetimeToIso(values.deliveryAt),
           note: values.note,
           paymentMethod: values.paymentMethod,
           couponCode: couponCode ?? undefined,
-        }),
+          expectedTotal: totals.total,
+      };
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(payload)));
+      const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+      // Store only a digest and random retry key, never customer form values.
+      try { submission.current ??= JSON.parse(sessionStorage.getItem("bakery-checkout-retry") ?? "null"); } catch { /* storage may be disabled */ }
+      if (submission.current?.fingerprint !== fingerprint) submission.current = { fingerprint, requestId: crypto.randomUUID() };
+      try { sessionStorage.setItem("bakery-checkout-retry", JSON.stringify(submission.current)); } catch { /* in-memory retry still works */ }
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, requestId: submission.current.requestId }),
       });
 
       if (!res.ok) {
-        setSubmitError(t("submitError"));
+        const failure = await res.json().catch(() => ({}));
+        if (failure.error === "price_changed" && Array.isArray(failure.prices)) {
+          useCartStore.getState().updatePrices(failure.prices);
+          useCartStore.getState().setCoupon(couponCode, failure.discount);
+          setShipping({ fee: failure.shippingFee, freeFrom: failure.freeFrom });
+        }
+        const known = ["price_changed", "coupon_invalid", "out_of_stock", "invalid_option", "product_not_found", "delivery_too_soon", "payment_unavailable", "cart_changed", "too_many_requests"];
+        setSubmitError(known.includes(failure.error) ? t(`errors.${failure.error}`) : t("submitError"));
         return;
       }
 
       const data = (await res.json()) as { code: string };
+      try { sessionStorage.removeItem("bakery-checkout-retry"); } catch { /* optional storage */ }
       clearCart();
       router.push(`/dat-hang-thanh-cong/${data.code}`);
     } catch {
       setSubmitError(t("submitError"));
+    } finally {
+      submitting.current = false;
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={(event) => void handleSubmit(onSubmit)(event)} className="space-y-8">
       <div>
         <h2 className="font-heading mb-4 text-xl font-semibold">{t("customerInfoTitle")}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -108,6 +133,7 @@ export function CheckoutForm({
             </label>
             <Input
               id="checkout-name"
+              autoComplete="name"
               {...register("customerName")}
               className="rounded-full"
               aria-invalid={!!errors.customerName}
@@ -125,6 +151,9 @@ export function CheckoutForm({
             </label>
             <Input
               id="checkout-phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               {...register("phone")}
               className="rounded-full"
               aria-invalid={!!errors.phone}
@@ -142,6 +171,7 @@ export function CheckoutForm({
             </label>
             <Input
               id="checkout-email"
+              autoComplete="email"
               type="email"
               {...register("email")}
               className="rounded-full"
@@ -166,6 +196,7 @@ export function CheckoutForm({
             </label>
             <Input
               id="checkout-address-line"
+              autoComplete="street-address"
               {...register("addressLine")}
               className="rounded-full"
               aria-invalid={!!errors.addressLine}
@@ -195,6 +226,7 @@ export function CheckoutForm({
             </label>
             <Input
               id="checkout-city"
+              autoComplete="address-level1"
               {...register("city")}
               className="rounded-full"
               aria-invalid={!!errors.city}
@@ -246,10 +278,11 @@ export function CheckoutForm({
             <span>{t("paymentCod")}</span>
           </label>
           <label className="border-input has-checked:border-primary has-checked:bg-primary/10 flex items-center gap-3 rounded-2xl border p-4">
-            <input type="radio" value="bank_transfer" {...register("paymentMethod")} />
+            <input type="radio" value="bank_transfer" disabled={!bankTransferEnabled} {...register("paymentMethod")} />
             <span>{t("paymentBankTransfer")}</span>
           </label>
         </div>
+        {!bankTransferEnabled ? <p className="text-muted-foreground mt-2 text-xs">{t("errors.payment_unavailable")}</p> : null}
         {paymentMethod === "bank_transfer" ? (
           <p className="text-muted-foreground mt-2 text-xs">{t("bankTransferNote")}</p>
         ) : null}
@@ -276,7 +309,7 @@ export function CheckoutForm({
         </div>
       </div>
 
-      {submitError ? <p className="text-destructive text-sm">{submitError}</p> : null}
+      {submitError ? <p role="alert" className="text-destructive text-sm">{submitError}</p> : null}
 
       <Button type="submit" size="lg" className="w-full rounded-full" disabled={isSubmitting || items.length === 0}>
         {isSubmitting ? "..." : t("placeOrder")}

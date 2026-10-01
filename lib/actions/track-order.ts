@@ -4,9 +4,10 @@ import { z } from "zod";
 
 import { getOrderByCodeAndPhone } from "@/lib/bakery/orders";
 import type { OrderData } from "@/lib/bakery/schemas";
+import { allowPublicAction } from "@/lib/security/action-rate-limit";
 
 const inputSchema = z.object({
-  code: z.string().trim().min(1),
+  code: z.string().trim().regex(/^BK\d{6}-\d{4}$/),
   last4Phone: z.string().regex(/^\d{4}$/),
 });
 
@@ -29,6 +30,7 @@ export async function trackOrder(
   _prevState: TrackOrderState,
   formData: FormData,
 ): Promise<TrackOrderState> {
+  if (!(await allowPublicAction("track-order", 10))) return { status: "error", message: "not_found" };
   const parsed = inputSchema.safeParse({
     code: formData.get("code"),
     last4Phone: formData.get("last4Phone"),

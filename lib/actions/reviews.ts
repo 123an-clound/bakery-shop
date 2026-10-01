@@ -4,6 +4,8 @@ import { updateTag } from "next/cache";
 import { z } from "zod";
 
 import { createBakeryRow } from "@/lib/bakery/mutations";
+import { allowPublicAction } from "@/lib/security/action-rate-limit";
+import { getById } from "@/lib/bakery/queries";
 
 const submitReviewInputSchema = z.object({
   productId: z.number().int().positive(),
@@ -28,6 +30,7 @@ export async function submitReview(
   _prevState: SubmitReviewState,
   formData: FormData,
 ): Promise<SubmitReviewState> {
+  if (!(await allowPublicAction("review", 5))) return { status: "error", message: "Vui lòng thử lại sau." };
   const parsed = submitReviewInputSchema.safeParse({
     productId: Number(formData.get("productId")),
     author: formData.get("author"),
@@ -40,6 +43,8 @@ export async function submitReview(
   }
 
   try {
+    const product = await getById(parsed.data.productId);
+    if (!product || product.type !== "product" || product.status !== "active") return { status: "error", message: "Sản phẩm không tồn tại." };
     await createBakeryRow({
       type: "review",
       status: "pending",

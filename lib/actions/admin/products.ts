@@ -37,7 +37,7 @@ export async function createProduct(input: {
 
 export async function updateProduct(
   id: number,
-  input: { data: ProductData; categoryId: number | null; status: "active" | "draft"; slug?: string },
+  input: { data: ProductData; categoryId: number | null; status: "active" | "draft"; slug?: string; expectedUpdatedAt: string },
 ): Promise<AdminActionResult> {
   await requireAdmin();
   const data = productDataSchema.parse(input.data);
@@ -47,12 +47,14 @@ export async function updateProduct(
     slug = `${slug}-${Date.now().toString(36)}`;
   }
 
-  await updateBakeryRow(id, "product", {
+  if (!input.expectedUpdatedAt) return { ok: false, error: "Vui lòng tải lại sản phẩm trước khi lưu." };
+  try { await updateBakeryRow(id, "product", {
     data,
     parentId: input.categoryId,
     status: input.status,
     slug,
-  });
+    expectedUpdatedAt: input.expectedUpdatedAt,
+  }); } catch { return { ok: false, error: "Sản phẩm đã thay đổi. Vui lòng tải lại trước khi lưu để không ghi đè tồn kho." }; }
 
   updateTag("products");
   return { ok: true, id };
@@ -79,9 +81,11 @@ export async function bulkSetProductStatus(ids: number[], status: "active" | "dr
   return { ok: true };
 }
 
-export async function toggleProductFeatured(id: number, data: ProductData, isFeatured: boolean): Promise<AdminActionResult> {
+export async function toggleProductFeatured(id: number, data: ProductData, isFeatured: boolean, expectedUpdatedAt: string): Promise<AdminActionResult> {
   await requireAdmin();
-  await updateBakeryRow(id, "product", { data: { ...data, is_featured: isFeatured } });
+  if (!expectedUpdatedAt) return { ok: false, error: "conflict" };
+  try { await updateBakeryRow(id, "product", { data: { ...data, is_featured: isFeatured }, expectedUpdatedAt }); }
+  catch { return { ok: false, error: "Sản phẩm đã thay đổi. Vui lòng tải lại." }; }
   updateTag("products");
   return { ok: true };
 }
