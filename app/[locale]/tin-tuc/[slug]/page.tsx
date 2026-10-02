@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getAllPosts, getPostBySlug } from "@/lib/bakery/catalog";
+import { getRelatedPosts, getPostBySlug } from "@/lib/bakery/catalog";
 import { buildMetadata } from "@/lib/seo/metadata";
 import type { Locale } from "@/lib/bakery/types";
 import { t as tField } from "@/lib/i18n/text";
@@ -38,13 +38,12 @@ export default async function BlogPostPage({ params }: PageProps<"/[locale]/tin-
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const [t, allPosts] = await Promise.all([
+  const [t, related] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "Blog" }),
-    getAllPosts(),
+    getRelatedPosts(post.id, 3),
   ]);
 
   const title = tField(post.data.title, locale as Locale);
-  const related = allPosts.filter((p) => p.id !== post.id).slice(0, 3);
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">

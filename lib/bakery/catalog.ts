@@ -18,14 +18,20 @@ import {
 import type { BakeryRow } from "./types";
 import { filterAndSortProducts, type ProductListFilters, type ProductListItem } from "./product-list";
 
-async function listActivePublic(type: string, orderBy: "sort_order" | "created_at" = "sort_order") {
+async function listActivePublic(
+  type: string,
+  orderBy: "sort_order" | "created_at" = "sort_order",
+  limit?: number,
+) {
   const supabase = createPublicClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("bakery")
     .select("*")
     .eq("type", type)
     .eq("status", "active")
     .order(orderBy, { ascending: orderBy === "sort_order" });
+  if (limit !== undefined) query = query.limit(limit);
+  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []) as BakeryRow[];
 }
@@ -225,10 +231,29 @@ export async function getActiveBanners() {
 
 export const getRecentPosts = unstable_cache(
   async (limit = 3) => {
-    const rows = await listActivePublic("post", "created_at");
-    return rows.slice(0, limit).map((r) => ({ ...r, data: postDataSchema.parse(r.data) }));
+    const rows = await listActivePublic("post", "created_at", limit);
+    return rows.map((r) => ({ ...r, data: postDataSchema.parse(r.data) }));
   },
   ["bakery-posts-recent"],
+  { tags: ["posts"] },
+);
+
+/** Fetch only the newest related posts needed by an article page. */
+export const getRelatedPosts = unstable_cache(
+  async (excludeId: number, limit = 3) => {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("bakery")
+      .select("id,slug,created_at,data")
+      .eq("type", "post")
+      .eq("status", "active")
+      .neq("id", excludeId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map((row) => ({ ...row, data: postDataSchema.parse(row.data) }));
+  },
+  ["bakery-posts-related"],
   { tags: ["posts"] },
 );
 

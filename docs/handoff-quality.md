@@ -10,6 +10,14 @@ Ngày kiểm tra source/lab: 30-09-2026. Xác nhận production và GET-only smo
 
 Commit `dd44735` làm Vercel Preview build thất bại khi thu thập cấu hình `/robots.txt`: Preview có `NODE_ENV=production` nhưng không khai báo `NEXT_PUBLIC_SITE_URL`. Nguyên nhân là helper SEO áp cùng yêu cầu canonical URL cho Preview và Production. Source đã được sửa để chỉ dùng hostname do Vercel cấp (`VERCEL_URL`) trong môi trường Preview; production vẫn bắt buộc `NEXT_PUBLIC_SITE_URL`, và Preview tiếp tục noindex. Regression tests, lint, typecheck và build theo cấu hình Preview đều đạt; Vercel đã build commit `e1f3569` thành trạng thái Ready. Tuy nhiên, GET-only smoke trên Preview mới trả HTTP 500 ở storefront vì Preview chưa được cấp `NEXT_PUBLIC_SUPABASE_URL` và `NEXT_PUBLIC_SUPABASE_ANON_KEY`; đây là blocker cấu hình môi trường, chưa phải xác minh runtime pass. Cần điền credentials của sandbox riêng vào Preview rồi chạy lại smoke; không sao chép production secrets sang Preview.
 
+## Tối ưu source không cần staging (02-10-2026)
+
+- Nâng Next.js từ `16.3.5` lên `16.3.8` sau khi `pnpm audit` báo lỗ hổng Critical trong dependency và Next.js công bố bản bảo mật 16.3.8. Bản mới khắc phục đợt bảo mật ngày 30-09-2026; `pnpm audit` đầy đủ và `pnpm audit --prod` hiện không báo vulnerability. Source không dùng `next/og` `ImageResponse`; dù vậy Next.js cũng vá các advisory khác trong bản phát hành đó.
+- Bài blog gần đây và bài liên quan trước đó tải toàn bộ danh sách bài rồi cắt còn ba. Truy vấn gần đây giờ áp `.limit()` trong Supabase; trang chi tiết chỉ lấy ba bài mới nhất, loại bài hiện tại ngay ở query. Hành vi hiển thị/thứ tự giữ nguyên; chưa có phép đo thời gian trước/sau riêng cho truy vấn này.
+- Tắt `X-Powered-By` qua `poweredByHeader: false`. Build local xác nhận header này không còn được gửi.
+- Local production build và GET smoke: các trang `/san-pham`, `/gio-hang`, `/thanh-toan`, `/tra-cuu-don-hang` đều HTTP 200; trang sản phẩm có meta description và ba trang riêng tư/giao dịch có `noindex`. Các thay đổi này chưa được đưa lên production.
+- Không có số đo hiệu năng sau thay đổi hợp lệ: lần chạy lab mới bị tranh chấp tài nguyên với browser suite và đã dừng; không dùng các số đó làm kết quả. Báo cáo lab hiện có phía dưới vẫn là đường cơ sở trước đó. Chưa có dữ liệu CrUX/RUM.
+
 ## Phát hiện và xử lý
 
 | Mức | Bằng chứng / nguyên nhân | Xử lý và vị trí | Xác minh / trạng thái |
@@ -43,12 +51,12 @@ So sánh cho thấy LCP desktop trang chi tiết giảm khoảng 504 ms (17.5%);
 
 ## Kiểm thử và kiểm tra
 
-- Unit: `pnpm test` — 125 tests / 21 file đạt.
+- Unit: `pnpm test` — 129 tests / 22 file đạt.
 - Browser: `pnpm exec playwright test --config playwright.qa.config.ts` — 97 đạt; responsive widths, readable contrast, navigation, safe checkout retries/price-change behavior, và reduced-motion/3D flows. Checkout đã chặn/mô phỏng side-effect; không ghi đơn thật.
 - Database: `node scripts/test-order-database.mjs` — PGlite chạy migration trên schema thử, transaction/idempotency/rollback/RLS privacy; không xác minh PostgreSQL nhiều session/tranh chấp đồng thời.
 - Smoke browser: 12 public pages, admin routes, sitemap; public routes 200, admin export anonymous 401, logout thu hồi quyền. Không có JS exception trong các tuyến đã kiểm tra. Local Supabase RPC thiếu như P0 phía trên.
 - Website origin đang cấu hình được kiểm tra riêng bằng `scripts/check-configured-site-readonly.mjs` (chỉ GET/HEAD, không đăng nhập hay submit): 9 route/endpoint 200, 42 URL sitemap GET 2xx, không có runtime exception. HSTS, CSP, X-Frame-Options và Referrer-Policy hiện được gửi. Deployment thực tế còn thiếu description ở product listing và noindex ở 3 trang chuyển đổi/tracking; thay đổi source chưa được deploy.
-- `pnpm audit` sau cập nhật hẹp lockfile: 0 finding / 1053 dependency; chỉ xử lý ba package transitive (`undici`, `ip-address`, `brace-expansion`), không nâng major.
+- `pnpm audit` và `pnpm audit --prod` sau khi cập nhật Next.js lên 16.3.8: không có vulnerability đã biết trong dependency tree.
 - Secret scan giới hạn exact current env values trong file tracked/bundle và reachable history blobs ≤2 MB: không tìm thấy khớp. Đây không phải quét lịch sử đầy đủ.
 - Chưa xác minh: performance RUM/CrUX, Search Console/organic, production auth/email/payment webhook, migration trên Supabase thật, backup/restore thực tế, và distributed rate limit. `pnpm e2e` mặc định chưa chạy để tránh tạo mutation vào Supabase cấu hình; suite read-only/mock đã dùng thay thế. Supabase CLI chưa cài, `supabase/config.toml` chưa có và Docker daemon không chạy; xem hướng dẫn mở staging trong `docs/production-unblock-checklist.md`.
 
