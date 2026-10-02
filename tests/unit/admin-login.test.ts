@@ -1,5 +1,19 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+const sharedCounters = vi.hoisted(() => new Map<string, number>());
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => ({
+    rpc: async (name: string, args: { p_bucket_hash: string; p_limit?: number }) => {
+      if (name === "clear_rate_limit") {
+        sharedCounters.delete(args.p_bucket_hash);
+        return { data: null, error: null };
+      }
+      const count = (sharedCounters.get(args.p_bucket_hash) ?? 0) + 1;
+      sharedCounters.set(args.p_bucket_hash, count);
+      return { data: { allowed: count <= (args.p_limit ?? 0), retry_after_seconds: 900 }, error: null };
+    },
+  }),
+}));
 import { POST } from "@/app/api/admin/login/route";
 import { clearRateLimit } from "@/lib/security/rate-limit";
 const client = "qa-concurrent-login";
@@ -7,10 +21,12 @@ const request = (password: string) => new Request("http://localhost/api/admin/lo
   method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": client },
   body: JSON.stringify({ password }),
 });
-beforeEach(() => {
-  clearRateLimit(`admin-login:${client}`);
+beforeEach(async () => {
+  sharedCounters.clear();
   vi.stubEnv("ADMIN_PASSWORD", "test-only-password");
   vi.stubEnv("ADMIN_SESSION_SECRET", "test-only-session-key-with-32-characters");
+  vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key-for-unit-tests");
+  await clearRateLimit(`admin-login:${client}`);
 });
 afterEach(() => { vi.unstubAllEnvs(); });
 it("limits simultaneous guesses before asynchronous body parsing", async () => {

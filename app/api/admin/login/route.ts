@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const key = `admin-login:${requestClientKey(request)}`;
   // Reserve before reading the body: concurrent guesses must not all pass a
   // separate peek. A successful password check clears its failure budget.
-  const rate = consumeRateLimit(key, MAX_ATTEMPTS, WINDOW_MS);
+  const rate = await consumeRateLimit(key, MAX_ATTEMPTS, WINDOW_MS);
   if (!rate.allowed) {
     return NextResponse.json(
       { error: "too_many_attempts" },
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
   }
 
-  clearRateLimit(key);
+  await clearRateLimit(key);
   let token: string;
   try {
     token = await signAdminToken();

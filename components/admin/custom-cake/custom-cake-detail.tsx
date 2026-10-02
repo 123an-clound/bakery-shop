@@ -149,7 +149,7 @@ export function CustomCakeDetail({ cake }: { cake: AdminCustomCakeRow }) {
             <CardContent className="flex gap-3">
               {cake.data.reference_images.map((url) => (
                 <div key={url} className="relative size-28 overflow-hidden rounded-lg">
-                  <Image src={url} alt="" fill sizes="112px" className="object-cover" />
+                  <Image src={url} alt="Ảnh tham khảo bánh đặt riêng" fill sizes="112px" unoptimized className="object-cover" />
                 </div>
               ))}
             </CardContent>

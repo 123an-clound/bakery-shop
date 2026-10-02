@@ -29,7 +29,10 @@ const inputSchema = z
       try { return shopDatetimeToIso(value); }
       catch { context.addIssue({ code: "custom", message: "invalid_delivery_at" }); return z.NEVER; }
     }),
-    referenceImages: z.array(z.url()).max(3).default([]),
+    referenceImages: z.array(z.union([
+      z.string().regex(/^custom-cake\/[0-9a-f-]{36}\.(?:webp|png|jpe?g|avif)$/i),
+      z.url(), // Backward compatibility for requests created before the private bucket migration.
+    ])).max(3).default([]),
     note: z.string().max(500).optional(),
   })
   .refine(
@@ -86,7 +89,7 @@ export async function submitCustomCakeRequest(
       color_theme: input.colorTheme,
       budget: input.budget,
       need_at: new Date(input.needAt).toISOString(),
-      reference_images: input.referenceImages,
+        reference_images: input.referenceImages,
       note: input.note,
     },
   });

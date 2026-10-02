@@ -123,3 +123,24 @@ Trang chủ vẫn khoảng 3.4 MB và có long task >2 giây trong mobile lab do
 | Đơn hàng/bánh riêng | Admin đơn hàng và checkout | RPC/bảng Supabase; Storage `bakery` | Không cache công khai dữ liệu đơn |
 
 Đây là wiring theo source, chưa xác nhận persistence/RLS ở staging. **Kết luận: chưa đủ điều kiện mở production.** Cần staging riêng, kiểm tra schema/migration, Vercel Preview có credentials staging, E2E dữ liệu giả, xác nhận domain và quyết định riêng tư ảnh/rate limit trước khi lập kế hoạch production.
+## Bảo vệ ảnh tham khảo và rate limit — 02-10-2026
+
+### Đã triển khai trong source
+
+- Khách tải ảnh mới vào bucket `custom-cake-private`; API chỉ trả object key, không trả public URL.
+- Admin xem ảnh qua `/api/admin/custom-cakes/[id]/images/[index]`. Route kiểm tra phiên admin, chỉ đọc ảnh có trong bản ghi `custom_cake`, từ chối path ngoài định dạng dự kiến, và gửi `Cache-Control: private, no-store` cùng `X-Content-Type-Options: nosniff`.
+- Ảnh sản phẩm/banner/bài viết tiếp tục ở bucket public `bakery` để không làm hỏng nội dung public.
+- Rate limit dùng RPC PostgreSQL atomic fixed-window, key HMAC bằng service-role secret (không lưu IP thô), chỉ service role có quyền truy cập; anon/authenticated bị chặn. Nếu migration/RPC chưa có hoặc DB lỗi, app tạm giữ limiter theo process hiện hữu và ghi cảnh báo an toàn; khi đó giới hạn chưa chia sẻ giữa các instance.
+- Thêm script chuyển ảnh cũ `scripts/migrate-custom-cake-images-to-private.mjs`. Script không tự chạy khi không có tham số; `--dry-run` chỉ đọc và thống kê; `--apply` mới copy ảnh, cập nhật JSONB có điều kiện `updated_at`, xác nhận không còn tham chiếu cũ trong bảng `custom_cake`/`order`, rồi xóa object public cũ. Có thể chạy lại sau lỗi một phần.
+
+### Chưa thực hiện trên Supabase
+
+Migration `supabase/migrations/20261002092551_private_custom_cake_uploads_and_shared_rate_limits.sql` chỉ được kiểm tra bằng PGlite cô lập; chưa áp dụng project nào. Chưa tạo staging theo quyết định của chủ dự án. Vì vậy bucket private chưa tồn tại cho đến khi migration được áp dụng; ảnh tham khảo mới sẽ không upload thành công trước bước đó. Ảnh tham khảo cũ vẫn public trực tiếp cho đến khi script chuyển dữ liệu chạy thành công.
+
+Trước khi chuyển production: tạo backup database và tải riêng các file Storage (backup database Supabase không bao gồm object Storage); kiểm tra dung lượng/quota; áp dụng migration trong cửa sổ bảo trì được phép; chạy `node scripts/migrate-custom-cake-images-to-private.mjs --dry-run`, đối chiếu số lượng; rồi mới chạy `--apply`. Script xóa object gốc khỏi public bucket sau khi xác minh bản ghi, vì vậy không chạy nếu chưa có backup và chưa đối chiếu kết quả. Triển khai source sau migration. Chưa có runbook rollback tự động; khôi phục cần backup cả data lẫn file Storage.
+
+Rate limit shared dùng database hiện có, không thêm dịch vụ bên ngoài nhưng mỗi request được giới hạn sẽ tiêu thụ một RPC/DB operation. Chưa đo mức sử dụng/quota trên project thật hoặc chạy concurrency test nhiều kết nối; PGlite chỉ xác minh tính đúng của RPC và quyền truy cập ở môi trường cô lập.
+
+### Kiểm chứng
+
+`pnpm test` 142/142; `pnpm typecheck`; `pnpm lint`; `pnpm build`; `pnpm audit --prod`; `node scripts/test-order-database.mjs` đều đạt. Unit test kiểm tra upload mới đi vào private bucket, URL không bị public hóa, ảnh không truy cập được nếu chưa đăng nhập admin, no-store, path/index sai, và limiter hash/fallback. Không chạy E2E ghi dữ liệu lên Supabase production.

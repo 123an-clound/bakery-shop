@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Loader2, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -32,10 +32,16 @@ const initialState: CustomCakeState = { status: "idle" };
 export function CustomCakeWizard() {
   const t = useTranslations("CustomCake");
   const [step, setStep] = useState(1);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<Array<{ key: string; preview: string }>>([]);
+  const previewUrls = useRef(new Set<string>());
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [state, formAction, isPending] = useActionState(submitCustomCakeRequest, initialState);
+
+  useEffect(() => () => {
+    for (const url of previewUrls.current) URL.revokeObjectURL(url);
+    previewUrls.current.clear();
+  }, []);
 
   const [form, setForm] = useState({
     size: "",
@@ -64,6 +70,8 @@ export function CustomCakeWizard() {
 
     setUploading(true);
     setUploadError(null);
+    const preview = URL.createObjectURL(file);
+    previewUrls.current.add(preview);
     try {
       const body = new FormData();
       body.set("file", file);
@@ -72,10 +80,19 @@ export function CustomCakeWizard() {
         setUploadError(t("uploadError"));
         return;
       }
-      const data = (await res.json()) as { url: string };
-      setImages((prev) => [...prev, data.url]);
+      const data = (await res.json()) as { key?: string };
+      const key = data.key;
+      if (!key) {
+        setUploadError(t("uploadError"));
+        URL.revokeObjectURL(preview);
+        previewUrls.current.delete(preview);
+        return;
+      }
+      setImages((prev) => [...prev, { key, preview }]);
     } catch {
       setUploadError(t("uploadError"));
+      URL.revokeObjectURL(preview);
+      previewUrls.current.delete(preview);
     } finally {
       setUploading(false);
     }
@@ -132,8 +149,8 @@ export function CustomCakeWizard() {
         <input type="hidden" name="phone" value={form.phone} />
         <input type="hidden" name="email" value={form.email} />
         <input type="hidden" name="note" value={form.note} />
-        {images.map((url) => (
-          <input key={url} type="hidden" name="referenceImages" value={url} />
+        {images.map((image) => (
+          <input key={image.key} type="hidden" name="referenceImages" value={image.key} />
         ))}
 
         {step === 1 ? (
@@ -243,12 +260,16 @@ export function CustomCakeWizard() {
                 {t("referenceImages")}
               </span>
               <div role="group" aria-labelledby="cake-ref-images-label" className="flex flex-wrap gap-3">
-                {images.map((url) => (
-                  <div key={url} className="relative size-24 overflow-hidden rounded-2xl">
-                    <Image src={url} alt="" fill sizes="96px" className="object-cover" />
+                {images.map((image) => (
+                  <div key={image.key} className="relative size-24 overflow-hidden rounded-2xl">
+                    <Image src={image.preview} alt="Ảnh tham khảo bánh đặt riêng" fill sizes="96px" className="object-cover" unoptimized />
                     <button
                       type="button"
-                      onClick={() => setImages((prev) => prev.filter((u) => u !== url))}
+                      onClick={() => {
+                        URL.revokeObjectURL(image.preview);
+                        previewUrls.current.delete(image.preview);
+                        setImages((prev) => prev.filter((item) => item.key !== image.key));
+                      }}
                       className="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white"
                     >
                       <X className="size-3" />

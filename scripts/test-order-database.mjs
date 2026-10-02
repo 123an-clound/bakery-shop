@@ -83,5 +83,26 @@ assert.equal((await db.query('select data from bakery where id=$1',[id])).rows.l
 assert.equal((await db.query("select id from bakery where type='product'")).rows.length,1);
 await db.exec('reset role');
 console.log('PASS: previous own-order internal-note exposure reproduced; direct authenticated reads now denied, public catalog preserved.');
+await db.exec(`create schema storage;
+  create table storage.buckets(
+    id text primary key, name text not null, public boolean not null,
+    file_size_limit bigint, allowed_mime_types text[]
+  );`);
+await db.exec(await readFile('supabase/migrations/20261002092551_private_custom_cake_uploads_and_shared_rate_limits.sql','utf8'));
+assert.equal((await db.query("select public from storage.buckets where id='custom-cake-private'")).rows[0].public,false);
+await db.exec('set role anon');
+await assert.rejects(db.query("select * from public.rate_limit_windows"),/permission denied/);
+await assert.rejects(db.query("select public.consume_rate_limit(repeat('a',64),2,60)"),/permission denied/);
+await db.exec('reset role; set role service_role');
+const rate = async (hash) => (await db.query('select public.consume_rate_limit($1,2,60) as result',[hash])).rows[0].result;
+assert.equal((await rate('a'.repeat(64))).allowed,true);
+assert.equal((await rate('a'.repeat(64))).allowed,true);
+assert.equal((await rate('a'.repeat(64))).allowed,false);
+assert.equal((await rate('b'.repeat(64))).allowed,true,'another hashed client gets an independent counter');
+await db.query('select public.clear_rate_limit($1)', ['a'.repeat(64)]);
+assert.equal((await rate('a'.repeat(64))).allowed,true,'clear after valid admin login resets shared budget');
+await assert.rejects(db.query('select public.consume_rate_limit($1,0,60)', ['c'.repeat(64)]),/invalid rate limit arguments/);
+await db.exec('reset role');
+console.log('PASS: private reference bucket and shared rate limiter migration; anon cannot access counters or RPCs; fixed-window limits and clear work.');
 console.log('PASS: atomic order/items/stock/coupon, retry, conflict, rollback, transitions, cancellation, RPC permissions. PGlite is single-connection: multi-session locking requires sandbox PostgreSQL verification.');
 await db.close();

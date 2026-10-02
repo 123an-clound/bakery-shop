@@ -26,7 +26,7 @@ test("custom cake request can be submitted with an uploaded reference image", as
   // Step 3 — message + reference image upload
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles(path.join(__dirname, "fixtures", "test-cake-reference.png"));
-  await expect(page.locator("img[alt='']").first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("img", { name: "Ảnh tham khảo bánh đặt riêng" }).first()).toBeVisible({ timeout: 10_000 });
   await page.getByRole("button", { name: "Tiếp tục" }).click();
 
   // Step 4 — need-at date is prefilled with a valid default; just continue.

@@ -316,6 +316,11 @@ export type Database = {
       };
     };
     Functions: {
+      consume_rate_limit: {
+        Args: { p_bucket_hash: string; p_limit: number; p_window_seconds: number };
+        Returns: Json;
+      };
+      clear_rate_limit: { Args: { p_bucket_hash: string }; Returns: undefined };
       bakery_quote_custom_cake: { Args: { p_id: number; p_price: number; p_reply: string }; Returns: Json };
       bakery_convert_custom_cake: { Args: { p_id: number; p_expected: Json; p_order: Json; p_setting: Json }; Returns: Json };
       bakery_commit_order: {

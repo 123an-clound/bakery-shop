@@ -122,7 +122,7 @@ export async function convertCustomCakeToOrder(
       {
         product_id: 0,
         name: `Bánh theo yêu cầu — ${cake.data.size}, ${cake.data.flavor}`,
-        image: cake.data.reference_images[0],
+        image: cake.data.reference_images[0]?.startsWith("http") ? cake.data.reference_images[0] : undefined,
         unit_price: subtotal,
         qty: 1,
         options: {

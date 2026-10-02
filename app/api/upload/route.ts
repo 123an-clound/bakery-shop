@@ -8,19 +8,20 @@ import { validateImageUpload } from "@/lib/utils/file-validation";
 import { consumeRateLimit, requestClientKey } from "@/lib/security/rate-limit";
 import { readLimitedBody } from "@/lib/security/request-body";
 
-const BUCKET = "bakery";
+const PUBLIC_BUCKET = "bakery";
+const PRIVATE_CUSTOM_CAKE_BUCKET = "custom-cake-private";
 
-/** `custom-cake` stays public (guests upload reference images, Phase 4). Every other folder is admin-only media. */
-const PUBLIC_FOLDERS = new Set(["custom-cake"]);
+/** Public catalog media remains public; customer reference photos use a private bucket. */
+const PRIVATE_FOLDERS = new Set(["custom-cake"]);
 const ADMIN_FOLDERS = new Set(["products", "categories", "banners", "posts", "theme"]);
 
 /**
- * Anh len qua route nay, dung service role — khong co policy INSERT cho
- * anon/authenticated tren storage.objects (chi SELECT public, xem migration
- * 0001). Ten file luon doi thanh uuid — muc 6.3 checklist.
+ * Images upload through this route with service_role; guest reference photos
+ * are stored in the private bucket, while admin catalog assets stay public.
+ * Server-generated UUID names prevent user-controlled paths.
  */
 export async function POST(request: Request) {
-  const rate = consumeRateLimit(`upload:${requestClientKey(request)}`, 20, 15 * 60 * 1000);
+  const rate = await consumeRateLimit(`upload:${requestClientKey(request)}`, 20, 15 * 60 * 1000);
   if (!rate.allowed) return NextResponse.json({ error: "too_many_requests" }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } });
   let formData: FormData | null;
   try {
@@ -33,10 +34,10 @@ export async function POST(request: Request) {
   }
 
   const folderInput = formData?.get("folder");
-  if (typeof folderInput === "string" && !PUBLIC_FOLDERS.has(folderInput) && !ADMIN_FOLDERS.has(folderInput)) {
+  if (typeof folderInput === "string" && !PRIVATE_FOLDERS.has(folderInput) && !ADMIN_FOLDERS.has(folderInput)) {
     return NextResponse.json({ error: "invalid_folder" }, { status: 400 });
   }
-  const folder = typeof folderInput === "string" && PUBLIC_FOLDERS.has(folderInput) ? folderInput : "custom-cake";
+  const privateFolder = typeof folderInput !== "string" || PRIVATE_FOLDERS.has(folderInput);
   const adminFolder = typeof folderInput === "string" && ADMIN_FOLDERS.has(folderInput) ? folderInput : null;
 
   if (adminFolder && !(await isAdminAuthenticated())) {
@@ -48,9 +49,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
-  const path = `${adminFolder ?? folder}/${randomUUID()}.${result.image.ext}`;
+  const path = privateFolder ? `custom-cake/${randomUUID()}.${result.image.ext}` : `${adminFolder}/${randomUUID()}.${result.image.ext}`;
+  const bucket = privateFolder ? PRIVATE_CUSTOM_CAKE_BUCKET : PUBLIC_BUCKET;
   const supabase = createAdminClient();
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(bucket).upload(path, file, {
     contentType: result.image.mime,
     upsert: false,
   });
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "upload_failed" }, { status: 500 });
   }
 
-  const { data: publicUrlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  if (privateFolder) return NextResponse.json({ key: path }, { status: 201 });
+  const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(path);
   return NextResponse.json({ url: publicUrlData.publicUrl }, { status: 201 });
 }

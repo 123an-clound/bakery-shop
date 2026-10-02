@@ -29,7 +29,7 @@ function receiptResponse(code: string, total: number, created: boolean) {
 
 /** Validate/reprice on the server, then atomically commit the verified snapshot. */
 export async function POST(request: Request) {
-  const rate = consumeRateLimit("orders:" + requestClientKey(request), 10, 15 * 60 * 1000);
+  const rate = await consumeRateLimit("orders:" + requestClientKey(request), 10, 15 * 60 * 1000);
   if (!rate.allowed) return NextResponse.json({ error: "too_many_requests" }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } });
   if (!request.headers.get("content-type")?.includes("application/json")) return NextResponse.json({ error: "invalid_input" }, { status: 415 });
   let text: string;
