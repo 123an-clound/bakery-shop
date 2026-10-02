@@ -38,10 +38,11 @@ export function SceneRoot({ posterUrl }: { posterUrl?: string }) {
       if (timer !== undefined) clearTimeout(timer);
     };
   }, []);
-  // Keep the marketing scene on catalog routes; transactional forms need no GPU work.
-  const transactional = /^\/(gio-hang|thanh-toan|tai-khoan|dat-hang-thanh-cong|tra-cuu-don-hang|dat-banh-theo-yeu-cau)(\/|$)/.test(pathname);
-  const canRender3D = pageLoaded && webglSupported && !reducedMotion && !weakMobile && !transactional;
   const isHome = pathname === "/";
+  // Keep WebGL in the hero where it carries the story; product discovery pages
+  // use the configured static poster so their content stays responsive.
+  const transactional = /^\/(gio-hang|thanh-toan|tai-khoan|dat-hang-thanh-cong|tra-cuu-don-hang|dat-banh-theo-yeu-cau)(\/|$)/.test(pathname);
+  const canRender3D = isHome && pageLoaded && webglSupported && !reducedMotion && !weakMobile && !transactional;
 
   return (
     <>

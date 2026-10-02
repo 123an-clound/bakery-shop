@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createBakeryRow, updateBakeryRow, deleteBakeryRow } from "@/lib/bakery/mutations";
@@ -8,6 +8,11 @@ import { productDataSchema, type ProductData } from "@/lib/bakery/schemas";
 import { isProductSlugTaken, reorderProducts as reorderProductsDb } from "@/lib/bakery/admin/products";
 import { slugify } from "@/lib/utils/format";
 import type { AdminActionResult } from "./types";
+
+function revalidateProducts() {
+  updateTag("products");
+  revalidatePath("/sitemap.xml");
+}
 
 export async function createProduct(input: {
   data: ProductData;
@@ -31,7 +36,7 @@ export async function createProduct(input: {
     status: input.status,
   });
 
-  updateTag("products");
+  revalidateProducts();
   return { ok: true, id: row.id };
 }
 
@@ -56,28 +61,28 @@ export async function updateProduct(
     expectedUpdatedAt: input.expectedUpdatedAt,
   }); } catch { return { ok: false, error: "Sản phẩm đã thay đổi. Vui lòng tải lại trước khi lưu để không ghi đè tồn kho." }; }
 
-  updateTag("products");
+  revalidateProducts();
   return { ok: true, id };
 }
 
 export async function deleteProduct(id: number): Promise<AdminActionResult> {
   await requireAdmin();
   await deleteBakeryRow(id, "product");
-  updateTag("products");
+  revalidateProducts();
   return { ok: true };
 }
 
 export async function bulkDeleteProducts(ids: number[]): Promise<AdminActionResult> {
   await requireAdmin();
   await Promise.all(ids.map((id) => deleteBakeryRow(id, "product")));
-  updateTag("products");
+  revalidateProducts();
   return { ok: true };
 }
 
 export async function bulkSetProductStatus(ids: number[], status: "active" | "draft" | "archived"): Promise<AdminActionResult> {
   await requireAdmin();
   await Promise.all(ids.map((id) => updateBakeryRow(id, "product", { status })));
-  updateTag("products");
+  revalidateProducts();
   return { ok: true };
 }
 
@@ -86,13 +91,13 @@ export async function toggleProductFeatured(id: number, data: ProductData, isFea
   if (!expectedUpdatedAt) return { ok: false, error: "conflict" };
   try { await updateBakeryRow(id, "product", { data: { ...data, is_featured: isFeatured }, expectedUpdatedAt }); }
   catch { return { ok: false, error: "Sản phẩm đã thay đổi. Vui lòng tải lại." }; }
-  updateTag("products");
+  revalidateProducts();
   return { ok: true };
 }
 
 export async function reorderProducts(orderedIds: number[]): Promise<AdminActionResult> {
   await requireAdmin();
   await reorderProductsDb(orderedIds);
-  updateTag("products");
+  revalidateProducts();
   return { ok: true };
 }

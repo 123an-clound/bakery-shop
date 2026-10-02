@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createBakeryRow, updateBakeryRow, deleteBakeryRow } from "@/lib/bakery/mutations";
@@ -10,6 +10,11 @@ import { getAdminPageBySlug } from "@/lib/bakery/admin/pages";
 import { slugify } from "@/lib/utils/format";
 import type { AdminActionResult } from "./types";
 
+function revalidateEditorialContent(tag: "posts" | "pages") {
+  updateTag(tag);
+  revalidatePath("/sitemap.xml");
+}
+
 export async function createPost(input: { data: PostData; status: "active" | "draft"; slug?: string }): Promise<AdminActionResult> {
   await requireAdmin();
   const data = postDataSchema.parse(input.data);
@@ -18,7 +23,7 @@ export async function createPost(input: { data: PostData; status: "active" | "dr
   if (await isPostSlugTaken(slug)) slug = `${slug}-${Date.now().toString(36)}`;
 
   const row = await createBakeryRow({ type: "post", data, slug, status: input.status });
-  updateTag("posts");
+  revalidateEditorialContent("posts");
   return { ok: true, id: row.id };
 }
 
@@ -30,14 +35,14 @@ export async function updatePost(id: number, input: { data: PostData; status: "a
   if (await isPostSlugTaken(slug, id)) slug = `${slug}-${Date.now().toString(36)}`;
 
   await updateBakeryRow(id, "post", { data, slug, status: input.status });
-  updateTag("posts");
+  revalidateEditorialContent("posts");
   return { ok: true, id };
 }
 
 export async function deletePost(id: number): Promise<AdminActionResult> {
   await requireAdmin();
   await deleteBakeryRow(id, "post");
-  updateTag("posts");
+  revalidateEditorialContent("posts");
   return { ok: true };
 }
 
@@ -52,6 +57,6 @@ export async function updateStaticPage(slug: string, data: PageData): Promise<Ad
   } else {
     await createBakeryRow({ type: "page", data: parsed, slug, status: "active" });
   }
-  updateTag("pages");
+  revalidateEditorialContent("pages");
   return { ok: true };
 }

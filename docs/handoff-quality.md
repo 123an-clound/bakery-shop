@@ -66,3 +66,60 @@ So sánh cho thấy LCP desktop trang chi tiết giảm khoảng 504 ms (17.5%);
 - Xác nhận domain canonical, locale/thị trường, dữ liệu liên hệ/giờ mở cửa/schema và việc Vercel Supabase hiện tại là sandbox hay có dữ liệu khách thật.
 - Review ba migration trên bản sao backup/sandbox trước, xác nhận consumer ngoài repo không dựa vào quyền đọc trực tiếp `orders/order_items`, chạy smoke checkout sandbox và restore rehearsal. Không có migration nào được áp dụng trong đợt kiểm tra này.
 - Chủ dự án chọn phương án lưu ảnh tham khảo riêng tư và rate limiting dùng chung trước khi mở công khai.
+
+## Cập nhật kiểm chứng 02-10-2026
+
+Phần này cập nhật kết quả của đợt tối ưu mới; kết luận production và các blocker trong báo cáo phía trên vẫn còn hiệu lực.
+
+### Thay đổi
+
+- Danh mục trên điện thoại giữ tìm kiếm hiển thị, gom bộ lọc vào disclosure có thể thao tác bằng bàn phím.
+- WebGL/3D chỉ mount ở trang chủ; route khác dùng poster tĩnh. `prefers-reduced-motion` vẫn tắt canvas.
+- Các thao tác admin tạo/sửa/xóa sản phẩm, danh mục và nội dung biên tập làm mới `/sitemap.xml` cùng tag nội dung. Thêm unit test cho invalidation và lỗi ghi.
+- E2E tìm kiếm dùng tên sản phẩm thực từ dữ liệu thay cho tên cố định.
+
+### Performance lab trước/sau
+
+30 phép đo mỗi lượt: 5 route × desktop/mobile × 3 lần; Chromium 151; production build local; cache tắt. Desktop 1440×900 native; mobile 390×844, CPU 4×, latency 40 ms, download 10 Mbps. Median 3 lần. Đây là số đo lab, không phải RUM/CrUX hay CWV p75.
+
+| Trang / thiết bị | LCP trước → sau | Transfer KB trước → sau | JS KB trước → sau | Long task ms trước → sau |
+|---|---:|---:|---:|---:|
+| Trang chủ desktop | 612 → 248 | 3435 → 3435 | 623 → 623 | 3768 → 3735 |
+| Danh mục desktop | 532 → 492 | 3287 → 1003 | 589 → 311 | 3685 → 0 |
+| Chi tiết bánh desktop | 2952 → 996 | 3364 → 1078 | 631 → 354 | 3723 → 0 |
+| Giỏ hàng desktop | 412 → 488 | 911 → 911 | 311 → 311 | 0 → 0 |
+| Checkout desktop | 368 → 420 | 935 → 935 | 324 → 324 | 0 → 0 |
+| Trang chủ mobile | 688 → 752 | 3287 → 3287 | 623 → 623 | 2526 → 2176 |
+| Danh mục mobile | 828 → 824 | 3123 → 838 | 589 → 311 | 2963 → 700 |
+| Chi tiết bánh mobile | 2412 → 3204 | 3187 → 902 | 631 → 354 | 2820 → 950 |
+| Giỏ hàng mobile | 1080 → 1076 | 742 → 742 | 311 → 311 | 101 → 53 |
+| Checkout mobile | 1540 → 1168 | 770 → 770 | 324 → 324 | 505 → 176 |
+
+Trang chủ vẫn khoảng 3.4 MB và có long task >2 giây trong mobile lab do giữ hero 3D. Trang chi tiết mobile có LCP xấu/dao động hơn dù transfer giảm khoảng 72%; LCP là ảnh sản phẩm từ nguồn ảnh placeholder bên ngoài. Cần ảnh bánh thật và đánh giá CDN trước khi mở bán. Không tuyên bố đã đạt CWV.
+
+### Kiểm tra và cổng nghiệm thu
+
+- `pnpm test`: 134/134 test, 23 file đạt. `pnpm typecheck`, `pnpm lint`, `pnpm build`, `git diff --check` đạt.
+- Browser: `pnpm exec playwright test --config playwright.qa.config.ts`: 98/98 đạt trong 5,4 phút; bao gồm luồng catalog, checkout mock, admin smoke, keyboard, axe, responsive, reduced motion và scene. Không tạo đơn/thanh toán thật.
+- `pnpm audit --prod`: không phát hiện lỗ hổng đã biết.
+- DESIGN: PASS có điều kiện về bố cục; FAIL nội dung ảnh sản phẩm do ảnh placeholder phong cảnh.
+- MOTION: PASS các kiểm tra reduced-motion và chuyển route; 3D chỉ ở trang chủ.
+- ACCESSIBILITY: PASS axe không có lỗi serious/critical trên trang đã test, keyboard smoke và viewport 360–1920; chưa phải audit WCAG đầy đủ với assistive technology.
+- DATA SYNC: CHƯA XÁC MINH qua hai phiên Supabase thật; test invalidation dùng mock.
+- LOGIC: FAIL điều kiện production: 4 RPC mà source cần chưa có trên Supabase đang cấu hình. Checkout E2E chỉ mock; migration chưa chạy.
+- SECURITY: CHƯA ĐẠT production gate: ảnh tham khảo dùng bucket công khai, rate limit là memory từng process. Cần quyết định ảnh private/signed URL và shared limiter/WAF. Secret scan trước chỉ giới hạn tracked/bundle/current env/reachable blob nhỏ.
+- PERFORMANCE: Đã đo lab theo bảng; CHƯA XÁC MINH field CWV/INP. Trang chủ và ảnh chi tiết mobile còn rủi ro.
+- SEO: Source có metadata/robots/sitemap/schema; sitemap revalidation được thêm. Domain canonical, Search Console và crawl production chưa xác minh.
+- TESTING: PASS unit/static/browser local; CHƯA XÁC MINH migration/RLS/persistence trên staging, thanh toán/email thật, backup-restore và concurrent admin.
+
+### Liên kết admin → dữ liệu → public
+
+| Nhóm | Admin | Nguồn Supabase | Cập nhật public |
+|---|---|---|---|
+| Sản phẩm/giá/ảnh/trạng thái | Sản phẩm | `public.bakery` (`product`), Storage `bakery` | Tag products; sitemap khi tạo/sửa/xóa |
+| Danh mục | Danh mục | `public.bakery` (`category`) | Tag categories; sitemap khi tạo/sửa/xóa |
+| Bài viết/trang | Nội dung biên tập | `public.bakery` (type tương ứng) | Tag posts/pages; sitemap khi thay đổi |
+| Trang chủ/cấu hình | Banner/giao diện/cài đặt | `public.bakery` (type cấu hình hiện hữu) | Tag cấu hình theo action hiện có |
+| Đơn hàng/bánh riêng | Admin đơn hàng và checkout | RPC/bảng Supabase; Storage `bakery` | Không cache công khai dữ liệu đơn |
+
+Đây là wiring theo source, chưa xác nhận persistence/RLS ở staging. **Kết luận: chưa đủ điều kiện mở production.** Cần staging riêng, kiểm tra schema/migration, Vercel Preview có credentials staging, E2E dữ liệu giả, xác nhận domain và quyết định riêng tư ảnh/rate limit trước khi lập kế hoạch production.

@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createBakeryRow, updateBakeryRow, deleteBakeryRow } from "@/lib/bakery/mutations";
@@ -8,6 +8,11 @@ import { categoryDataSchema, type CategoryData } from "@/lib/bakery/schemas";
 import { isCategorySlugTaken, reorderCategories as reorderCategoriesDb } from "@/lib/bakery/admin/categories";
 import { slugify } from "@/lib/utils/format";
 import type { AdminActionResult } from "./types";
+
+function revalidateCategories() {
+  updateTag("categories");
+  revalidatePath("/sitemap.xml");
+}
 
 export async function createCategory(input: {
   data: CategoryData;
@@ -21,7 +26,7 @@ export async function createCategory(input: {
   if (await isCategorySlugTaken(slug)) slug = `${slug}-${Date.now().toString(36)}`;
 
   const row = await createBakeryRow({ type: "category", data, slug, status: input.status });
-  updateTag("categories");
+  revalidateCategories();
   return { ok: true, id: row.id };
 }
 
@@ -36,14 +41,14 @@ export async function updateCategory(
   if (await isCategorySlugTaken(slug, id)) slug = `${slug}-${Date.now().toString(36)}`;
 
   await updateBakeryRow(id, "category", { data, status: input.status, slug });
-  updateTag("categories");
+  revalidateCategories();
   return { ok: true, id };
 }
 
 export async function deleteCategory(id: number): Promise<AdminActionResult> {
   await requireAdmin();
   await deleteBakeryRow(id, "category");
-  updateTag("categories");
+  revalidateCategories();
   updateTag("products");
   return { ok: true };
 }
@@ -51,6 +56,6 @@ export async function deleteCategory(id: number): Promise<AdminActionResult> {
 export async function reorderCategories(orderedIds: number[]): Promise<AdminActionResult> {
   await requireAdmin();
   await reorderCategoriesDb(orderedIds);
-  updateTag("categories");
+  revalidateCategories();
   return { ok: true };
 }

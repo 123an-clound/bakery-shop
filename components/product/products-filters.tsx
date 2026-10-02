@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { ChevronDown } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import type { CategoryData } from "@/lib/bakery/schemas";
@@ -73,77 +74,86 @@ export function ProductsFilters({
         />
       </div>
 
-      <div>
-        <h3 className="mb-2 text-sm font-medium">{t("category")}</h3>
-        <div className="flex flex-col gap-1">
-          <button
-            type="button"
-            onClick={() => router.push(pathname)}
-            className={cn(
-              "rounded-xl px-3 py-1.5 text-left text-sm hover:bg-muted",
-              !activeCategorySlug && "bg-primary/15 text-brand-accent font-medium",
-            )}
-          >
-            {t("allCategories")}
-          </button>
-          {categories.map((c) => (
-            <Button
-              key={c.slug}
-              variant="link"
-              asChild
-              className={cn(
-                "h-auto justify-start rounded-xl px-3 py-1.5 text-sm no-underline hover:bg-muted",
-                activeCategorySlug === c.slug && "bg-primary/15 text-brand-accent font-medium",
-              )}
+      <details className="group rounded-2xl border border-border/70 bg-background/55 p-3">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
+          {t("filters")}
+          <ChevronDown aria-hidden="true" className="size-4 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none" />
+        </summary>
+
+        <div className="mt-4 space-y-6">
+          <div>
+            <h3 className="mb-2 text-sm font-medium">{t("category")}</h3>
+            <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => router.push(pathname)}
+                className={cn(
+                  "rounded-xl px-3 py-1.5 text-left text-sm hover:bg-muted",
+                  !activeCategorySlug && "bg-primary/15 text-brand-accent font-medium",
+                )}
+              >
+                {t("allCategories")}
+              </button>
+              {categories.map((c) => (
+                <Button
+                  key={c.slug}
+                  variant="link"
+                  asChild
+                  className={cn(
+                    "h-auto justify-start rounded-xl px-3 py-1.5 text-sm no-underline hover:bg-muted",
+                    activeCategorySlug === c.slug && "bg-primary/15 text-brand-accent font-medium",
+                  )}
+                >
+                  <Link href={`/danh-muc/${c.slug}`}>{tField(c.data.name, locale)}</Link>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-medium">{t("priceRange")}</h3>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                placeholder={t("min")}
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                onBlur={() => pushParams({ min: minPrice || undefined })}
+                className="rounded-full"
+              />
+              <span className="text-muted-foreground">—</span>
+              <Input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                placeholder={t("max")}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                onBlur={() => pushParams({ max: maxPrice || undefined })}
+                className="rounded-full"
+              />
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-medium">{t("sortBy")}</h3>
+            <select
+              value={currentParams.sort ?? "newest"}
+              onChange={(e) => pushParams({ sort: e.target.value })}
+              aria-label={t("sortBy")}
+              className="border-input bg-background w-full rounded-full border px-3 py-2 text-sm"
             >
-              <Link href={`/danh-muc/${c.slug}`}>{tField(c.data.name, locale)}</Link>
-            </Button>
-          ))}
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {t(`sort.${opt}`)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-sm font-medium">{t("priceRange")}</h3>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            min={0}
-            inputMode="numeric"
-            placeholder={t("min")}
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            onBlur={() => pushParams({ min: minPrice || undefined })}
-            className="rounded-full"
-          />
-          <span className="text-muted-foreground">—</span>
-          <Input
-            type="number"
-            min={0}
-            inputMode="numeric"
-            placeholder={t("max")}
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            onBlur={() => pushParams({ max: maxPrice || undefined })}
-            className="rounded-full"
-          />
-        </div>
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-sm font-medium">{t("sortBy")}</h3>
-        <select
-          value={currentParams.sort ?? "newest"}
-          onChange={(e) => pushParams({ sort: e.target.value })}
-          aria-label={t("sortBy")}
-          className="border-input bg-background w-full rounded-full border px-3 py-2 text-sm"
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {t(`sort.${opt}`)}
-            </option>
-          ))}
-        </select>
-      </div>
+      </details>
     </aside>
   );
 }

@@ -15,8 +15,19 @@ test("home page loads with the theme-configured sections", async ({ page }) => {
 
 // mục 13 scenario 2: unaccented search "banh kem" returns accented results.
 test("unaccented search returns accented results", async ({ page }) => {
-  await page.goto("/san-pham?q=banh+kem");
-  await expect(page.getByText(/Bánh kem/i).first()).toBeVisible();
+  await page.goto("/san-pham");
+  const firstProduct = page.locator("main a[href^='/san-pham/'] h3").first();
+  const productName = (await firstProduct.innerText()).trim();
+  const unaccentedName = productName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/gi, "d");
+  const query = unaccentedName.split(/\s+/).slice(0, 2).join(" ");
+
+  expect(query.toLowerCase()).not.toBe(productName.toLowerCase().split(/\s+/).slice(0, 2).join(" "));
+  await page.getByLabel("Tìm kiếm").fill(query);
+  await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe(query);
+  await expect(page.locator("main a[href^='/san-pham/'] h3").first()).toContainText(productName);
 });
 
 // mục 13 scenario 3: category + price filter changes the URL and the results.
@@ -31,6 +42,22 @@ test("category and price filters change the URL and results", async ({ page }) =
   await expect(page).toHaveURL(/max=500000/);
   const prices = await page.locator("main").getByText(/\d[\d.]*\s*₫/).allTextContents();
   expect(prices.length).toBeGreaterThan(0);
+});
+
+test("mobile catalog keeps products in view and exposes filters as a keyboard disclosure", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/san-pham");
+
+  const filters = page.locator("main details").first();
+  await expect(filters).not.toHaveAttribute("open", "");
+  await expect(page.getByLabel("Tìm kiếm")).toBeVisible();
+  await expect(page.locator("main a[href^='/san-pham/']").first()).toBeInViewport();
+
+  const disclosure = page.getByText("Bộ lọc sản phẩm", { exact: true });
+  await disclosure.focus();
+  await page.keyboard.press("Enter");
+  await expect(filters).toHaveAttribute("open", "");
+  await expect(page.getByRole("button", { name: "Tất cả" })).toBeVisible();
 });
 
 // mục 13 scenario 13: switching to EN changes UI strings; content without an
