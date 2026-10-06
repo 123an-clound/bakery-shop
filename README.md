@@ -3,18 +3,15 @@
 Website bán bánh kem & bánh ngọt — Next.js 16 (App Router) + Supabase. Đặc tả đầy đủ ở
 [`KE-HOACH-DU-AN.md`](./KE-HOACH-DU-AN.md).
 
-**Trạng thái bàn giao 01/10/2026: chưa đủ điều kiện production.** Xem
-[báo cáo chất lượng](docs/handoff-quality.md). Database đang cấu hình chưa có các RPC
-transaction mà code đặt hàng cần. Build thành công không thay thế kiểm thử checkout
-với database sandbox đã chạy migration.
+**Cập nhật kết nối 06/10/2026:** dữ liệu và ảnh đã chuyển sang Supabase **Web-project**
+(`jtizooyjnllostamffpp`). Các migration về giao dịch đơn hàng, trường riêng tư, ảnh bánh đặt
+riêng và giới hạn yêu cầu đã được áp dụng trên dự án mới. Database cũ được giữ nguyên.
+Xem [hướng dẫn cấu hình Supabase](docs/supabase-web-project.md).
 
-Các bước mở blocker staging/production: [production-unblock-checklist.md](docs/production-unblock-checklist.md).
-
-Chủ dự án xác nhận Supabase đang cấu hình là **production**. Không chạy migration, seed,
-hay ghi dữ liệu kiểm thử lên môi trường này. Chỉ thử các migration trên một project sandbox
-riêng đã xác nhận; source workspace hiện phụ thuộc vào RPC chưa có trong production database.
-Nếu deploy source này trước migration, checkout và một số cập nhật đơn sẽ lỗi. Luồng ghi trên
-bản website đang chạy chưa được kiểm thử trong phiên này.
+Không chạy lại seed hoặc migration khởi tạo trên Web-project: đây là database dùng chung
+với nhiều website. Những báo cáo bàn giao ngày 01/10 trong `docs/` là lịch sử kiểm tra;
+blocker thiếu RPC đã được xử lý khi chuyển dự án. Chưa gửi email xác nhận hoặc tạo đơn
+hàng thật để kiểm tra trong phiên chuyển dữ liệu này.
 
 Có hai phần trong file này:
 

@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { createBakeryRow } from "@/lib/bakery/mutations";
+import { ensureCustomerProfile } from "@/lib/bakery/customer-profile";
+import { getSiteUrl } from "@/lib/seo/site-url";
 import { signInSchema, signUpSchema } from "@/lib/schemas/auth";
 
 export interface AuthState {
@@ -25,7 +26,10 @@ export async function signUp(_prevState: AuthState, formData: FormData): Promise
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: { data: { full_name: parsed.data.fullName } },
+    options: {
+      data: { full_name: parsed.data.fullName },
+      emailRedirectTo: `${getSiteUrl()}/api/auth/callback`,
+    },
   });
   if (error) {
     return { status: "error", message: error.message };
@@ -39,10 +43,7 @@ export async function signUp(_prevState: AuthState, formData: FormData): Promise
   }
 
   if (data.user) {
-    await createBakeryRow({
-      type: "customer",
-      data: { user_id: data.user.id, full_name: parsed.data.fullName },
-    }).catch((err) => console.error("[auth] khong the tao customer profile:", err));
+    await ensureCustomerProfile(data.user);
   }
 
   redirect("/tai-khoan");
