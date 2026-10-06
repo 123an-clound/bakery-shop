@@ -13,7 +13,7 @@
   (preset `nova`, base `radix`, icon `lucide`).
 - Animation: dùng package **`motion`** (import từ `"motion/react"`), KHÔNG dùng `framer-motion`
   (đã đổi tên/thay thế — xem context7 `/websites/motion_dev`).
-- Supabase project: `xsspvdgnhelzprcqaiek` ("123an-clound's Project", ap-southeast-1).
+- Supabase project: `jtizooyjnllostamffpp` ("Web-project", ap-northeast-2).
 - **CHỈ 1 bảng `public.bakery`** cho toàn bộ dữ liệu, phân biệt bằng cột `type` + `data jsonb`.
   KHÔNG tạo bảng mới. Được phép tạo VIEW/INDEX/FUNCTION/TRIGGER/STORAGE BUCKET.
 - **KHÔNG đụng** các bảng thuộc dự án khác đã tồn tại sẵn trong cùng project Supabase:
