@@ -45,9 +45,11 @@ describe("bakery customer confirmation", () => {
   });
 
   it("exchanges a valid code, creates the verified user's profile and ignores external next URLs", async () => {
-    const response = await GET(new Request(
-      "https://untrusted-host.example/api/auth/callback?code=valid-code&sb_flow_id=flow-1&next=https://evil.example",
-    ));
+    const response = await GET(
+      new Request(
+        "https://untrusted-host.example/api/auth/callback?code=valid-code&sb_flow_id=flow-1&next=https://evil.example",
+      ),
+    );
     expect(mocks.exchange).toHaveBeenCalledWith("valid-code", { flowId: "flow-1" });
     expect(mocks.profile).toHaveBeenCalledWith(user);
     expect(response.headers.get("location")).toBe("https://bakery-shop-gray.vercel.app/tai-khoan");
@@ -67,15 +69,24 @@ describe("bakery customer confirmation", () => {
 
   it("does not create a profile when the code has expired or was rejected", async () => {
     mocks.exchange.mockResolvedValue({ data: { user: null }, error: { message: "expired" } });
-    const response = await GET(new Request("https://bakery-shop-gray.vercel.app/api/auth/callback?code=expired"));
-    expect(response.headers.get("location")).toBe("https://bakery-shop-gray.vercel.app/tai-khoan/dang-nhap");
+    const response = await GET(
+      new Request("https://bakery-shop-gray.vercel.app/api/auth/callback?code=expired"),
+    );
+    expect(response.headers.get("location")).toBe(
+      "https://bakery-shop-gray.vercel.app/tai-khoan/dang-nhap",
+    );
     expect(mocks.profile).not.toHaveBeenCalled();
   });
 
   it.each(["", `?code=${"a".repeat(2049)}`, `?code=valid&sb_flow_id=${"a".repeat(2049)}`])(
-    "rejects a missing or oversized code without calling Auth (%s)", async (query) => {
-      const response = await GET(new Request(`https://bakery-shop-gray.vercel.app/api/auth/callback${query}`));
-      expect(response.headers.get("location")).toBe("https://bakery-shop-gray.vercel.app/tai-khoan/dang-nhap");
+    "rejects a missing or oversized code without calling Auth (%s)",
+    async (query) => {
+      const response = await GET(
+        new Request(`https://bakery-shop-gray.vercel.app/api/auth/callback${query}`),
+      );
+      expect(response.headers.get("location")).toBe(
+        "https://bakery-shop-gray.vercel.app/tai-khoan/dang-nhap",
+      );
       expect(mocks.exchange).not.toHaveBeenCalled();
     },
   );

@@ -7,7 +7,10 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => {
     const query = {
       select: () => query,
-      eq: (key: string, value: string) => { mock.filters.push([key, value]); return query; },
+      eq: (key: string, value: string) => {
+        mock.filters.push([key, value]);
+        return query;
+      },
       limit: () => query,
       maybeSingle: mock.find,
     };
@@ -36,7 +39,8 @@ it("binds the profile to the verified Auth identity", async () => {
   expect(mock.filters).toContainEqual(["type", "customer"]);
   expect(mock.filters).toContainEqual(["data->>user_id", "verified-user"]);
   expect(mock.create).toHaveBeenCalledWith({
-    type: "customer", data: { user_id: "verified-user", full_name: "Customer" },
+    type: "customer",
+    data: { user_id: "verified-user", full_name: "Customer" },
   });
 });
 it("keeps an existing profile instead of creating a duplicate", async () => {

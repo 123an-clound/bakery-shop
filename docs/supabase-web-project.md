@@ -7,7 +7,7 @@ Ngày cập nhật: 06/10/2026.
 - URL: `https://jtizooyjnllostamffpp.supabase.co`.
 - Dữ liệu Bakery nằm trong bảng `public.bakery`, chia theo trường `type`.
 - Ảnh công khai nằm trong bucket `bakery`; ảnh khách gửi cho bánh đặt riêng nằm trong
-  bucket riêng tư `bakery-custom-cake-private`.
+  bucket riêng tư `custom-cake-private`.
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` dùng khóa của Web-project.
 - `SUPABASE_SERVICE_ROLE_KEY` cũng phải thuộc Web-project, chỉ dùng trên máy chủ.
 - Mật khẩu và khóa ký phiên của trang quản trị Bakery được giữ nguyên.
