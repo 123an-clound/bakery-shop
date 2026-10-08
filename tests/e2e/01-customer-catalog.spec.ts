@@ -16,7 +16,7 @@ test("home page loads with the theme-configured sections", async ({ page }) => {
 // mục 13 scenario 2: unaccented search "banh kem" returns accented results.
 test("unaccented search returns accented results", async ({ page }) => {
   await page.goto("/san-pham");
-  const firstProduct = page.locator("main a[href^='/san-pham/'] h3").first();
+  const firstProduct = page.locator("main h3:has(a[href^='/san-pham/'])").first();
   const productName = (await firstProduct.innerText()).trim();
   const unaccentedName = productName
     .normalize("NFD")
@@ -27,7 +27,7 @@ test("unaccented search returns accented results", async ({ page }) => {
   expect(query.toLowerCase()).not.toBe(productName.toLowerCase().split(/\s+/).slice(0, 2).join(" "));
   await page.getByLabel("Tìm kiếm").fill(query);
   await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe(query);
-  await expect(page.locator("main a[href^='/san-pham/'] h3").first()).toContainText(productName);
+  await expect(page.locator("main h3:has(a[href^='/san-pham/'])").first()).toContainText(productName);
 });
 
 // mục 13 scenario 3: category + price filter changes the URL and the results.

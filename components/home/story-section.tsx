@@ -27,30 +27,31 @@ export async function StorySection({ locale }: { locale: Locale }) {
   const excerpt = stripHtml(tField(page.data.content, locale)).slice(0, 220);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="grid items-center gap-10 lg:grid-cols-2">
+    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
         {page.data.cover_url ? (
           <FadeIn>
-            <div className="shadow-soft relative aspect-4/3 overflow-hidden rounded-4xl">
-              <Image src={page.data.cover_url} alt="" fill className="object-cover" />
+            <div className="shadow-soft relative aspect-4/5 overflow-hidden rounded-xl">
+              <Image src={page.data.cover_url} alt="" fill sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
             </div>
           </FadeIn>
         ) : null}
         <FadeIn delay={0.1}>
-          <h2 className="font-heading text-2xl font-bold sm:text-3xl">{t("storyTitle")}</h2>
-          <p className="text-muted-foreground mt-4 leading-relaxed">{excerpt}…</p>
+          <p className="eyebrow">{t("storyEyebrow")}</p>
+          <h2 className="font-heading mt-3 text-3xl font-medium sm:text-4xl lg:text-5xl">{t("storyTitle")}</h2>
+          <p className="text-muted-foreground mt-6 text-base leading-relaxed sm:text-lg">{excerpt}…</p>
           <Button variant="link" className="mt-1 px-0" asChild>
             <Link href="/gioi-thieu">{t("storyReadMore")} →</Link>
           </Button>
 
-          <dl className="mt-8 grid grid-cols-3 gap-4">
+          <dl className="border-border mt-10 grid grid-cols-3 gap-4 border-t pt-8">
             {STATS.map((stat) => (
               // axe "definition-list": a <dl> may only directly contain
               // dt/dd groups — flex-col-reverse keeps dt before dd in DOM
               // order (required) while still showing the number on top.
               <div key={stat.key} className="flex flex-col-reverse text-center sm:text-left">
                 <dt className="text-muted-foreground mt-1 text-xs sm:text-sm">{t(stat.key)}</dt>
-                <dd className="font-heading text-brand-accent text-2xl font-bold sm:text-3xl">
+                <dd className="font-heading text-brand-accent text-3xl font-medium sm:text-4xl">
                   <CountUp value={stat.value} suffix={stat.suffix} />
                 </dd>
               </div>

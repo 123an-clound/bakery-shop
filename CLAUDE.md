@@ -304,3 +304,21 @@
       làm treo main thread, gây fail e2e checkout/bánh riêng. Unit 84/84,
       e2e 34/34 + 4 test admin mới (`04b-admin-extras.spec.ts`, phải chạy
       TRƯỚC `05` vì `05` cố tình khoá login). Lighthouse chưa đo lại.
+- [x] Nâng cấp giao diện "premium patisserie" theo `plan.md` (2026-10-08): bỏ lớp
+      cảnh 3D khỏi layout (code `components/scene/*` vẫn giữ, chỉ không mount;
+      xoá `07-scene-3d.spec.ts`), bỏ nền họa tiết/kính mờ. Theme mặc định mới
+      (`DEFAULT_THEME` + preset "Patisserie Paris"): gold `#D4AF37` / ngà
+      `#FAFAFA` / than `#2C2C2C`, accent chữ `#7A5C22` (vàng đậm, 5.9:1 — gold
+      gốc chỉ ~2:1 nên không dùng làm màu chữ), heading Playfair Display + body
+      Inter (thêm vào Theme Editor), radius 0.75rem, dark mode `#1A1A1A`+gold.
+      Header trong suốt trên hero → kính mờ khi cuộn, logo giữa, icon mảnh;
+      hero ảnh full-screen (`-mt-18` trượt dưới header); ProductCard 4:5 +
+      nút "Thêm vào giỏ" trượt lên khi hover (`quick-add-button.tsx`, luôn
+      hiện trên thiết bị cảm ứng); footer tối có Instagram grid + đăng ký tin
+      (2 section instagram/newsletter trang chủ tắt vì footer đã có). Nút CTA
+      hover nền gold chữ THAN (plan ghi chữ trắng nhưng trắng/gold ~2:1).
+      Dữ liệu: 30 sản phẩm (24 cũ ghi đè ảnh/giá + 6 mới id 60-65), ảnh
+      category/banner/post/hero/gioi-thieu đều từ Unsplash
+      (`images.unsplash.com` đã thêm vào remotePatterns + CSP) — ảnh TẠM, chủ
+      tiệm thay trong admin. `playwright.config.ts` đọc `PORT` env (cổng 3000
+      trên máy này hay bị dự án khác chiếm).

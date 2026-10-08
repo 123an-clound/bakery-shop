@@ -10,7 +10,7 @@ import { slugify } from "@/lib/utils/format";
  * switching fonts never needs a rebuild, and `lib/theme/css-vars.ts`, which
  * points `--font-heading`/`--font-body` at the chosen one.
  */
-export const FONT_OPTIONS = ["Be Vietnam Pro", "Baloo 2", "Quicksand", "Nunito", "Lora", "Playfair Display"] as const;
+export const FONT_OPTIONS = ["Be Vietnam Pro", "Baloo 2", "Quicksand", "Nunito", "Lora", "Playfair Display", "Inter"] as const;
 export type FontOption = (typeof FONT_OPTIONS)[number];
 
 export function fontCssVarName(label: string): string {

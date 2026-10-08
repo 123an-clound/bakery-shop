@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Playful Pastel 3D design system — KE-HOACH-DU-AN.md muc 7.
+ * Premium patisserie design system — plan.md (gold / ivory / charcoal).
  *
  * `theme.colors` (8 keys) from the `theme` DB row are runtime-overridable:
  * app/[locale]/layout.tsx sets these as inline style="--primary: ...; ..." on
@@ -79,8 +79,8 @@
   --color-blush-deep: #e87ba6;
   --color-mint: #a8dcc4;
   --color-berry: #e76a6a;
-  --shadow-soft: 0 8px 30px -8px rgb(123 75 42 / 0.15);
-  --shadow-lift: 0 20px 45px -12px rgb(232 123 166 / 0.35);
+  --shadow-soft: 0 10px 40px rgb(0 0 0 / 0.05);
+  --shadow-lift: 0 20px 50px -12px rgb(0 0 0 / 0.14);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --animate-marquee: marquee 30s linear infinite;
   --animate-blob: blob-float 12s ease-in-out infinite;
@@ -128,7 +128,9 @@
   --secondary: var(--bakery-secondary, #ffe7c7);
   --secondary-foreground: var(--bakery-foreground, #3a2a22);
   --muted: var(--bakery-muted, #f3e9e1);
-  --muted-foreground: var(--bakery-foreground, #6b5a4e);
+  /* Subtext gray (plan #717171, nudged to #666666 so it keeps a margin over
+     4.5:1 on the vanilla #FDF2E9 surfaces too). */
+  --muted-foreground: #666666;
   --accent: var(--bakery-muted, #f3e9e1);
   --accent-foreground: var(--bakery-foreground, #3a2a22);
   /* Phase 7 muc 7.4 WCAG re-pass: --destructive is rendered as TEXT
@@ -142,8 +144,8 @@
      solid-background pairing — measured contrast on #E76A6A was only
      3.06:1 (fails WCAG AA 4.5:1); this deepened cocoa passes at 5.19:1. */
   --destructive-foreground: #2a1d16;
-  --border: #f0e2d6;
-  --input: #f0e2d6;
+  --border: #ece6dc;
+  --input: #e4ddd2;
   --ring: #f7a8c4;
   --brand-accent: var(--bakery-accent, #7b4b2a);
   --brand-accent-foreground: #fffbf7;
@@ -168,42 +170,42 @@
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.145 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --brand-accent: oklch(0.708 0 0);
-  --brand-accent-foreground: oklch(0.145 0 0);
-  --success: oklch(0.6 0.15 145);
-  --success-foreground: oklch(0.145 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #1a1a1a;
+  --foreground: #f5f2ec;
+  --card: #222222;
+  --card-foreground: #f5f2ec;
+  --popover: #222222;
+  --popover-foreground: #f5f2ec;
+  --primary: #d4af37;
+  --primary-foreground: #1a1a1a;
+  --secondary: #2a2621;
+  --secondary-foreground: #f5f2ec;
+  --muted: #2a2a2a;
+  --muted-foreground: #b8b2a8;
+  --accent: #2a2a2a;
+  --accent-foreground: #f5f2ec;
+  --destructive: #ff9b9b;
+  --destructive-foreground: #1a1a1a;
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.15);
+  --ring: #d4af37;
+  --brand-accent: #d4af37;
+  --brand-accent-foreground: #1a1a1a;
+  --success: #275b38;
+  --success-foreground: #d3f9dc;
+  --chart-1: #d4af37;
+  --chart-2: #8a7a5a;
+  --chart-3: #5a5246;
+  --chart-4: #3a3530;
+  --chart-5: #2a2621;
+  --sidebar: #222222;
+  --sidebar-foreground: #f5f2ec;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #2a2a2a;
+  --sidebar-accent-foreground: #f5f2ec;
+  --sidebar-border: rgb(255 255 255 / 0.1);
+  --sidebar-ring: #d4af37;
 }
 
 /* Admin console — muc 9: "tong mau sach se, trung tinh hon trang khach nhung
@@ -270,193 +272,56 @@
   }
 }
 
-/* Storefront stack: light bloom (z-4), paper pattern (z-5), cake (z-6), UI (z-10). */
-.storefront-background {
-  --foreground: #111827;
-  --muted-foreground: #202d40;
-  --card-foreground: #111827;
-  --popover-foreground: #111827;
-  --primary-foreground: #111827;
-  --secondary-foreground: #111827;
-  --accent-foreground: #111827;
-  --sidebar-foreground: #111827;
-  --sidebar-primary-foreground: #111827;
-  --sidebar-accent-foreground: #111827;
-  --brand-accent: #3d2314;
-  --destructive: #590f22;
-  --destructive-foreground: #ffffff;
-  --frost-tint: 255 245 229;
-  --frost-opacity: 0.62;
-  --frost-blur: 6px;
-  --frost-highlight: rgb(255 253 245 / 0.12);
-  --frost-edge: rgb(255 250 237 / 0.6);
-  --frost-shadow: rgb(107 65 32 / 0.14);
-  --reading-surface: rgb(var(--frost-tint));
-  --reading-backdrop: none;
+/* Premium patisserie storefront (plan.md muc 2): solid ivory canvas, soft
+   wide shadows, gold accents. Buttons get a light sweep on hover. */
+.storefront {
   background-color: var(--background);
-  background-image:
-    radial-gradient(ellipse at 83% 12%, color-mix(in srgb, var(--primary) 32%, transparent) 0%, transparent 34%),
-    radial-gradient(ellipse at 11% 42%, color-mix(in srgb, var(--secondary) 62%, transparent) 0%, transparent 36%),
-    radial-gradient(ellipse at 83% 78%, color-mix(in srgb, var(--color-mint) 22%, transparent) 0%, transparent 33%);
-  background-attachment: fixed;
 }
 
-.dark .storefront-background {
-  --foreground: #f8fafc;
-  --muted-foreground: #e2e8f0;
-  --card-foreground: #f8fafc;
-  --popover-foreground: #f8fafc;
-  --secondary-foreground: #f8fafc;
-  --accent-foreground: #f8fafc;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-accent-foreground: #f8fafc;
-  --destructive: #ffe1e6;
-  --destructive-foreground: #111827;
-  --brand-accent: #ffe6cd;
-  --brand-accent-foreground: #241810;
-  --success: #275b38;
-  --success-foreground: #d3f9dc;
-  --frost-tint: 36 24 16;
-  --frost-opacity: 0.7;
-  --frost-highlight: rgb(255 220 170 / 0.025);
-  --frost-edge: rgb(234 193 145 / 0.22);
-  --frost-shadow: rgb(0 0 0 / 0.24);
+.storefront [data-slot="button"][data-variant="default"] {
+  position: relative;
+  overflow: hidden;
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    box-shadow 300ms ease,
+    transform 300ms ease;
 }
 
-/* A vanilla/cocoa tint preserves contrast while the moving cake is diffused
-   behind each reading surface. Unsupported browsers retain the solid fill. */
-.storefront-content > :not(.storefront-home, script, style, template),
-.storefront-home > section:not(.storefront-hero) {
-  width: calc(100% - 2rem);
-  margin-block: 1rem;
-  margin-inline: auto;
-  border-radius: var(--radius);
+.storefront [data-slot="button"][data-variant="default"]::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 700ms ease;
 }
 
-.storefront-hero-copy {
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-  border-radius: var(--radius);
+.storefront [data-slot="button"][data-variant="default"]:hover::after {
+  transform: translateX(120%);
 }
 
-.storefront-content > :not(.storefront-home, script, style, template),
-.storefront-home > section:not(.storefront-hero),
-.storefront-hero-copy {
-  background-color: var(--reading-surface);
-  background-image: linear-gradient(145deg, var(--frost-highlight), transparent 55%);
-  box-shadow:
-    inset 0 0 0 1px var(--frost-edge),
-    0 16px 40px -24px var(--frost-shadow);
-  -webkit-backdrop-filter: var(--reading-backdrop);
-  backdrop-filter: var(--reading-backdrop);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .storefront-background {
-    --reading-surface: rgb(var(--frost-tint) / var(--frost-opacity));
-    --reading-backdrop: blur(var(--frost-blur)) saturate(0.85);
-  }
-}
-
-@media (max-width: 640px) {
-  .storefront-background {
-    --frost-blur: 4px;
-    --frost-opacity: 0.66;
-  }
-}
-
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .storefront-background {
-    --reading-surface: rgb(var(--frost-tint));
-    --reading-backdrop: none;
-    --frost-highlight: transparent;
-  }
-}
-
-.storefront-background [data-slot="tabs-trigger"] {
+/* Radix inactive tabs default to a faded foreground that fails 4.5:1. */
+.storefront [data-slot="tabs-trigger"] {
   color: var(--foreground);
 }
 
-/* Rich notification colors also need contrast against their tinted surfaces. */
-.storefront-background [data-sonner-toaster][data-sonner-theme="light"] {
+/* Sonner rich colors need darker text on their tinted surfaces. */
+.storefront [data-sonner-toaster][data-sonner-theme="light"] {
   --success-text: #166534;
   --info-text: #1e40af;
   --warning-text: #854d0e;
   --error-text: #a53041;
 }
 
-.storefront-background::before {
-  position: fixed;
-  z-index: 5;
-  pointer-events: none;
-  content: "";
-  inset: 0;
-  background-image: url("/images/bakery-piping-pattern-v2.webp");
-  background-repeat: repeat;
-  background-size: 820px 820px;
-  opacity: 0.21;
-  mix-blend-mode: multiply;
-}
-
-.storefront-background::after {
-  --glow-low: 0.46;
-  --glow-high: 0.82;
-  position: fixed;
-  z-index: 4;
-  pointer-events: none;
-  content: "";
-  inset: -6%;
-  background-image:
-    radial-gradient(ellipse 24rem 21rem at 67% 46%, rgb(255 205 112 / 0.56) 0%, rgb(255 225 158 / 0.3) 38%, transparent 74%),
-    radial-gradient(ellipse 31rem 27rem at 69% 47%, rgb(235 117 154 / 0.28) 0%, transparent 77%),
-    radial-gradient(ellipse 20rem 17rem at 20% 78%, rgb(247 174 119 / 0.24) 0%, transparent 74%),
-    radial-gradient(circle at 79% 28%, rgb(255 252 231 / 0.92) 0 1px, rgb(255 233 187 / 0.5) 2px, transparent 9px),
-    radial-gradient(circle at 85% 48%, rgb(255 252 231 / 0.86) 0 1px, rgb(255 233 187 / 0.44) 2px, transparent 8px),
-    radial-gradient(circle at 57% 66%, rgb(255 252 231 / 0.82) 0 1px, rgb(255 233 187 / 0.4) 2px, transparent 8px);
-  opacity: 0.64;
-  mix-blend-mode: screen;
-}
-
-.dark .storefront-background::after {
-  --glow-low: 0.2;
-  --glow-high: 0.36;
-  background-image:
-    radial-gradient(ellipse 24rem 21rem at 67% 46%, rgb(255 186 92 / 0.28) 0%, transparent 74%),
-    radial-gradient(ellipse 31rem 27rem at 69% 47%, rgb(235 117 154 / 0.24) 0%, transparent 77%),
-    radial-gradient(ellipse 20rem 17rem at 20% 78%, rgb(247 174 119 / 0.16) 0%, transparent 74%),
-    radial-gradient(circle at 79% 28%, rgb(255 252 231 / 0.56) 0 1px, transparent 9px),
-    radial-gradient(circle at 85% 48%, rgb(255 252 231 / 0.5) 0 1px, transparent 8px),
-    radial-gradient(circle at 57% 66%, rgb(255 252 231 / 0.46) 0 1px, transparent 8px);
-}
-
-@keyframes bakery-glow-breathe {
-  from {
-    opacity: var(--glow-low);
-  }
-  to {
-    opacity: var(--glow-high);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .storefront-background::after {
-    animation: bakery-glow-breathe 9s ease-in-out infinite alternate;
-  }
-}
-
-.dark .storefront-background::before {
-  opacity: 0.045;
-  mix-blend-mode: screen;
-}
-
-@media (max-width: 640px) {
-  .storefront-background::before {
-    background-size: 680px 680px;
-    opacity: 0.18;
-  }
-
-  .storefront-background::after {
-    inset: -2%;
-  }
+/* Section eyebrow: small tracked gold caps above serif headings. */
+.eyebrow {
+  color: var(--brand-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
 }
 
 /* Respect prefers-reduced-motion — mục 7.3: tat toan bo parallax/confetti/smooth-scroll */

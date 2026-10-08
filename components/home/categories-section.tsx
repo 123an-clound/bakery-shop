@@ -6,6 +6,7 @@ import { getCategories } from "@/lib/bakery/catalog";
 import { t as tField } from "@/lib/i18n/text";
 import type { Locale } from "@/lib/bakery/types";
 import { FadeIn } from "@/components/motion/fade-in";
+import { SectionHeading } from "./section-heading";
 
 export async function CategoriesSection({ locale }: { locale: Locale }) {
   const [t, categories] = await Promise.all([
@@ -16,32 +17,34 @@ export async function CategoriesSection({ locale }: { locale: Locale }) {
   if (!categories.length) return null;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <FadeIn>
-        <h2 className="font-heading mb-8 text-2xl font-bold sm:text-3xl">{t("categoriesTitle")}</h2>
-      </FadeIn>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {categories.map((category, i) => (
-          <FadeIn key={category.id} delay={(i * 60) / 1000}>
-            <Link
-              href={`/danh-muc/${category.slug}`}
-              className="group focus-visible:ring-primary flex flex-col items-center gap-2 rounded-3xl p-3 text-center transition-transform hover:-translate-y-1 focus-visible:ring-4 focus-visible:outline-none"
-            >
-              <div className="bg-secondary/50 shadow-soft relative size-20 overflow-hidden rounded-full sm:size-24">
-                {category.data.image_url ? (
-                  <Image
-                    src={category.data.image_url}
-                    alt={tField(category.data.name, locale)}
-                    fill
-                    sizes="96px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                ) : null}
-              </div>
-              <span className="text-sm font-medium">{tField(category.data.name, locale)}</span>
-            </Link>
-          </FadeIn>
-        ))}
+    <section className="bg-secondary/60 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading eyebrow={t("categoriesEyebrow")} title={t("categoriesTitle")} />
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+          {categories.map((category, i) => (
+            <FadeIn key={category.id} delay={i * 0.06}>
+              <Link
+                href={`/danh-muc/${category.slug}`}
+                className="group focus-visible:ring-ring flex flex-col items-center gap-4 rounded-xl p-3 text-center focus-visible:ring-2 focus-visible:outline-none"
+              >
+                <div className="bg-card shadow-soft group-hover:shadow-lift relative size-28 overflow-hidden rounded-full transition-shadow duration-500 sm:size-32">
+                  {category.data.image_url ? (
+                    <Image
+                      src={category.data.image_url}
+                      alt=""
+                      fill
+                      sizes="128px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : null}
+                </div>
+                <span className="font-heading group-hover:text-brand-accent text-base transition-colors duration-300">
+                  {tField(category.data.name, locale)}
+                </span>
+              </Link>
+            </FadeIn>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,40 +1,44 @@
 import type { ThemeData } from "@/lib/bakery/schemas";
 
 /**
- * The original "Hồng phấn" theme exactly as `scripts/seed.ts` writes it —
+ * The premium patisserie theme (plan.md: gold / ivory / charcoal) —
  * used by the Theme Editor's "Khôi phục mặc định" button (mục 9.6.8).
  */
 export const DEFAULT_THEME: ThemeData = {
   colors: {
-    primary: "#C89B6B",
-    secondary: "#F3E4D0",
-    accent: "#5C3A21",
-    background: "#FFFBF5",
-    foreground: "#3A2A1D",
-    muted: "#EFE3D3",
+    primary: "#D4AF37",
+    secondary: "#FDF2E9",
+    accent: "#7A5C22",
+    background: "#FAFAFA",
+    foreground: "#2C2C2C",
+    muted: "#F4EEE6",
     success: "#8BC79A",
-    destructive: "#E76A6A",
+    destructive: "#B84545",
   },
-  radius: "1.5rem",
-  fonts: { heading: "Playfair Display", body: "Be Vietnam Pro" },
+  radius: "0.75rem",
+  fonts: { heading: "Playfair Display", body: "Inter" },
   hero: {
-    variant: "pastel-3d",
-    title: { vi: "Bánh kem tươi mỗi ngày, ngọt ngào mỗi khoảnh khắc", en: "Fresh cakes every day" },
-    subtitle: { vi: "Đặt bánh online, giao tận nơi trong 2 giờ", en: "Order online, delivered in 2 hours" },
-    image_url: "https://picsum.photos/seed/bakery-hero/1200/900",
-    cta: { label: { vi: "Đặt bánh ngay" }, href: "/san-pham" },
+    variant: "image-full",
+    title: { vi: "Nghệ thuật bánh ngọt Pháp, làm thủ công mỗi ngày", en: "The art of French pâtisserie, handmade daily" },
+    subtitle: {
+      vi: "Bánh kem, pastry và quà tặng tinh tế — đặt online, giao tận nơi trong 2 giờ.",
+      en: "Cakes, pastries and refined gifts — order online, delivered within 2 hours.",
+    },
+    image_url: "https://images.unsplash.com/photo-1566760375903-061dfd31c175?auto=format&fit=crop&w=2400&q=80",
+    cta: { label: { vi: "Khám phá thực đơn", en: "Explore menu" }, href: "/san-pham" },
   },
   sections: [
     { key: "hero", enabled: true, order: 1 },
     { key: "featured", enabled: true, order: 2, props: { limit: 8 } },
-    { key: "story", enabled: true, order: 3 },
-    { key: "categories", enabled: true, order: 4 },
-    { key: "custom_cake", enabled: true, order: 5 },
-    { key: "best_sellers", enabled: true, order: 6 },
+    { key: "categories", enabled: true, order: 3 },
+    { key: "story", enabled: true, order: 4 },
+    { key: "best_sellers", enabled: true, order: 5 },
+    { key: "custom_cake", enabled: true, order: 6 },
     { key: "testimonials", enabled: true, order: 7 },
-    { key: "blog", enabled: false, order: 8 },
+    { key: "blog", enabled: true, order: 8 },
+    // The footer already carries the Instagram grid + newsletter form.
     { key: "instagram", enabled: false, order: 9 },
-    { key: "newsletter", enabled: true, order: 10 },
+    { key: "newsletter", enabled: false, order: 10 },
   ],
   effects: {
     smooth_scroll: true,

@@ -27,8 +27,8 @@ export function MiniCart({ locale }: { locale: Locale }) {
     // route changes.
     <Sheet key={pathname}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative rounded-full" aria-label={t("title")}>
-          <ShoppingBag className="size-5" />
+        <Button variant="ghost" size="icon" className="relative min-h-11 min-w-11 rounded-full" aria-label={t("title")}>
+          <ShoppingBag className="size-5" strokeWidth={1.5} />
           {count > 0 ? (
             <Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center rounded-full px-1">
               {count}

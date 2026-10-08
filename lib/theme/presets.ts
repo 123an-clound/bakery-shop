@@ -11,6 +11,19 @@ import type { ThemeData } from "@/lib/bakery/schemas";
  */
 export const THEME_PRESETS: { name: string; colors: ThemeData["colors"] }[] = [
   {
+    name: "Patisserie Paris (vàng gold)",
+    colors: {
+      primary: "#D4AF37",
+      secondary: "#FDF2E9",
+      accent: "#7A5C22",
+      background: "#FAFAFA",
+      foreground: "#2C2C2C",
+      muted: "#F4EEE6",
+      success: "#8BC79A",
+      destructive: "#B84545",
+    },
+  },
+  {
     name: "Bánh ngọt cao cấp",
     colors: {
       primary: "#C89B6B",

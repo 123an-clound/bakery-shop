@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, Be_Vietnam_Pro, Quicksand, Nunito, Lora, Playfair_Display } from "next/font/google";
+import { Baloo_2, Be_Vietnam_Pro, Quicksand, Nunito, Lora, Playfair_Display, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -20,7 +20,6 @@ import { CartHydration } from "@/components/cart/cart-hydration";
 import { ThemePreviewListener } from "@/components/theme/theme-preview-listener";
 import { ColorModeProvider } from "@/components/theme/color-mode-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { SceneRoot } from "@/components/scene/scene-root";
 import { getSiteUrl } from "@/lib/seo/site-url";
 
 // Every Theme Editor font choice (mục 9.6) loads statically here, each under
@@ -34,8 +33,8 @@ import { getSiteUrl } from "@/lib/seo/site-url";
 // here — regardless of whether it's the theme's actually-selected font.
 // Lighthouse mobile-throttled LCP showed the hero image competing with a
 // dozen+ preloaded font files most visits never use. Only the two fonts the
-// seeded default theme actually picks (Playfair Display heading / Be Vietnam
-// Pro body — lib/theme/default-theme.ts) get preloaded; the other 4 still
+// default theme actually picks (Playfair Display heading / Inter
+// body — lib/theme/default-theme.ts) get preloaded; the other 5 still
 // declare @font-face (so an admin can switch to them with zero rebuild) but
 // load normally, on demand, once actually referenced.
 const baloo2 = Baloo_2({
@@ -50,6 +49,7 @@ const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["vietnamese", "latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 const quicksand = Quicksand({
   variable: "--font-quicksand",
@@ -78,7 +78,12 @@ const playfairDisplay = Playfair_Display({
   weight: ["500", "600", "700"],
   display: "swap",
 });
-const THEME_FONT_VARIABLES = [baloo2, beVietnamPro, quicksand, nunito, lora, playfairDisplay]
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["vietnamese", "latin"],
+  display: "swap",
+});
+const THEME_FONT_VARIABLES = [baloo2, beVietnamPro, quicksand, nunito, lora, playfairDisplay, inter]
   .map((f) => f.variable)
   .join(" ");
 
@@ -132,10 +137,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       style={theme ? themeToCssVars(theme.colors, theme.radius, theme.fonts) : undefined}
       suppressHydrationWarning
     >
-      <body className="storefront-background isolate flex min-h-full flex-col">
+      <body className="storefront isolate flex min-h-full flex-col">
         <ColorModeProvider>
           <NextIntlClientProvider>
-          <SceneRoot posterUrl={theme?.hero.image_url} />
           <div className="relative z-10 flex flex-1 flex-col">
             <LenisProvider enabled={theme?.effects.smooth_scroll ?? true}>
               {theme?.announcement_bar ? <AnnouncementBar config={theme.announcement_bar} /> : null}
@@ -147,7 +151,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
                   userEmail={userEmail}
                 />
               ) : null}
-              <main className="storefront-content flex flex-1 flex-col pb-16 lg:pb-0">{children}</main>
+              <main className="flex flex-1 flex-col pb-16 lg:pb-0 [&>*]:w-full">{children}</main>
               {settings ? <Footer settings={settings} locale={locale as Locale} /> : null}
               <MobileNav />
             </LenisProvider>

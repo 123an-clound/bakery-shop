@@ -30,7 +30,10 @@
     "newsletterTitle": "Subscribe",
     "newsletterPlaceholder": "Your email",
     "newsletterSubmit": "Subscribe",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "newsletterSubtitle": "New bakes and members-only offers every week.",
+    "instagramTitle": "Instagram",
+    "newsletterComingSoon": "Thanks for your interest! Newsletter sign-up is coming soon."
   },
   "LanguageSwitcher": {
     "vi": "Tiếng Việt",
@@ -68,7 +71,17 @@
     "newsletterPlaceholder": "Your email",
     "newsletterSubmit": "Subscribe",
     "newsletterComingSoon": "Thanks for your interest! Newsletter sign-up is coming soon.",
-    "emptyProducts": "No products yet."
+    "emptyProducts": "No products yet.",
+    "heroEyebrow": "Artisan pâtisserie",
+    "featuredEyebrow": "Signature Collection",
+    "bestSellersEyebrow": "Most loved",
+    "heroScroll": "Scroll down",
+    "promoEyebrow": "Offers",
+    "categoriesEyebrow": "The menu",
+    "storyEyebrow": "Our story",
+    "testimonialsEyebrow": "Kind words",
+    "blogEyebrow": "From the kitchen",
+    "customCakeEyebrow": "Bespoke"
   },
   "Products": {
     "pageTitle": "Menu",

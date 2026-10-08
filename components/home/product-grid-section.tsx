@@ -5,8 +5,10 @@ import type { ProductListItem } from "@/lib/bakery/product-list";
 import type { Locale } from "@/lib/bakery/types";
 import { ProductCard } from "@/components/product/product-card";
 import { FadeIn } from "@/components/motion/fade-in";
+import { SectionHeading } from "./section-heading";
 
 export function ProductGridSection({
+  eyebrow,
   title,
   products,
   locale,
@@ -14,6 +16,7 @@ export function ProductGridSection({
   viewAllLabel,
   favoriteIds,
 }: {
+  eyebrow?: string;
   title: string;
   products: ProductListItem[];
   locale: Locale;
@@ -24,20 +27,11 @@ export function ProductGridSection({
   if (!products.length) return null;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <FadeIn>
-        <div className="mb-8 flex items-end justify-between">
-          <h2 className="font-heading text-2xl font-bold sm:text-3xl">{title}</h2>
-          {viewAllHref ? (
-            <Link href={viewAllHref} className="text-brand-accent text-sm font-medium hover:underline">
-              {viewAllLabel}
-            </Link>
-          ) : null}
-        </div>
-      </FadeIn>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+    <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <SectionHeading eyebrow={eyebrow} title={title} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 lg:gap-8">
         {products.map((product, i) => (
-          <FadeIn key={product.id} delay={(i * 60) / 1000}>
+          <FadeIn key={product.id} delay={(i % 4) * 0.08} className="h-full">
             <ProductCard
               id={product.id}
               slug={product.slug}
@@ -48,6 +42,16 @@ export function ProductGridSection({
           </FadeIn>
         ))}
       </div>
+      {viewAllHref ? (
+        <div className="mt-14 text-center">
+          <Link
+            href={viewAllHref}
+            className="border-foreground/80 hover:bg-foreground hover:text-background inline-flex min-h-12 items-center border px-10 text-xs font-medium tracking-[0.2em] uppercase transition-colors duration-300"
+          >
+            {viewAllLabel}
+          </Link>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -64,6 +68,7 @@ export async function FeaturedProductsSection({
   const t = await getTranslations({ locale, namespace: "Home" });
   return (
     <ProductGridSection
+      eyebrow={t("featuredEyebrow")}
       title={t("featuredTitle")}
       products={products}
       locale={locale}
@@ -86,6 +91,7 @@ export async function BestSellersSection({
   const t = await getTranslations({ locale, namespace: "Home" });
   return (
     <ProductGridSection
+      eyebrow={t("bestSellersEyebrow")}
       title={t("bestSellersTitle")}
       products={products}
       locale={locale}

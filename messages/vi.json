@@ -30,7 +30,10 @@
     "newsletterTitle": "Đăng ký nhận tin",
     "newsletterPlaceholder": "Email của bạn",
     "newsletterSubmit": "Đăng ký",
-    "rights": "Bảo lưu mọi quyền."
+    "rights": "Bảo lưu mọi quyền.",
+    "newsletterSubtitle": "Nhận thông tin bánh mới và ưu đãi riêng mỗi tuần.",
+    "instagramTitle": "Instagram",
+    "newsletterComingSoon": "Cảm ơn bạn quan tâm! Tính năng đăng ký nhận tin sẽ sớm ra mắt."
   },
   "LanguageSwitcher": {
     "vi": "Tiếng Việt",
@@ -68,7 +71,17 @@
     "newsletterPlaceholder": "Email của bạn",
     "newsletterSubmit": "Đăng ký",
     "newsletterComingSoon": "Cảm ơn bạn quan tâm! Tính năng đăng ký nhận tin sẽ sớm ra mắt.",
-    "emptyProducts": "Chưa có sản phẩm nào."
+    "emptyProducts": "Chưa có sản phẩm nào.",
+    "heroEyebrow": "Pâtisserie thủ công",
+    "featuredEyebrow": "Signature Collection",
+    "bestSellersEyebrow": "Được yêu thích nhất",
+    "heroScroll": "Cuộn xuống",
+    "promoEyebrow": "Ưu đãi",
+    "categoriesEyebrow": "Thực đơn",
+    "storyEyebrow": "Câu chuyện của chúng tôi",
+    "testimonialsEyebrow": "Cảm nhận",
+    "blogEyebrow": "Nhật ký bếp bánh",
+    "customCakeEyebrow": "Bespoke"
   },
   "Products": {
     "pageTitle": "Thực đơn",

@@ -52,9 +52,9 @@ async function settle(page: Page) {
     .toEqual([]);
 }
 
-/** A foreground color alone cannot protect text from a moving WebGL backdrop.
- * Every visible text run must have a solid or contrast-tested frosted surface
- * above the scene, before reaching <body> (whose background is UNDER the scene).
+/** Every visible text run must sit on a solid (or blurred, mostly opaque)
+ * surface — <body> counts, since the storefront no longer has a backdrop
+ * layer underneath it.
  */
 async function expectProtectedText(page: Page) {
   const exposed = await page.evaluate(() => {
@@ -87,7 +87,7 @@ async function expectProtectedText(page: Page) {
       let visible = true;
       for (
         let parent: HTMLElement | null = el;
-        parent && parent !== document.body;
+        parent && parent !== document.documentElement;
         parent = parent.parentElement
       ) {
         const style = getComputedStyle(parent);
@@ -122,55 +122,11 @@ async function expectProtectedText(page: Page) {
   );
 }
 
-/** Check the tint over both extremes of a moving backdrop, including the
- * brightest highlight. Axe alone cannot model pixels from a WebGL canvas. */
-async function expectFrostedPalette(page: Page) {
-  const ratios = await page.locator(".storefront-hero-copy").evaluate((surface) => {
-    const style = getComputedStyle(surface);
-    const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = 1;
-    const ctx = canvas.getContext("2d")!;
-    const rgba = (color: string) => {
-      ctx.clearRect(0, 0, 1, 1);
-      ctx.fillStyle = color;
-      ctx.fillRect(0, 0, 1, 1);
-      return [...ctx.getImageData(0, 0, 1, 1).data].map((v) => v / 255);
-    };
-    const over = (fill: number[], base: number[]) =>
-      base.slice(0, 3).map((v, i) => fill[i]! * fill[3]! + v * (1 - fill[3]!));
-    const luminance = (color: number[]) =>
-      color
-        .slice(0, 3)
-        .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
-        .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i]!, 0);
-    const fill = rgba(style.backgroundColor);
-    const highlight = rgba(style.getPropertyValue("--frost-highlight"));
-    const backgrounds = [0, 1].flatMap((value) => {
-      const base = over(fill, [value, value, value]);
-      return [base, over(highlight, base)];
-    });
-    return ["--foreground", "--muted-foreground", "--brand-accent", "--destructive"].map(
-      (token) => {
-        const foreground = luminance(rgba(style.getPropertyValue(token)));
-        const minimum = Math.min(
-          ...backgrounds.map((bg) => {
-            const background = luminance(bg);
-            return (
-              (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
-            );
-          }),
-        );
-        return { token, minimum };
-      },
-    );
-  });
-  for (const { token, minimum } of ratios) {
-    expect(minimum, `${token} against the worst-case frosted backdrop`).toBeGreaterThanOrEqual(4.5);
-  }
-}
-
-async function expectTextContrast(page: Page) {
-  const result = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
+/** `scope` limits the scan, e.g. to an open modal — content behind a modal
+ * overlay is inert and axe mis-blends it with the overlay's backdrop blur. */
+async function expectTextContrast(page: Page, scope?: string) {
+  const builder = new AxeBuilder({ page }).withRules(["color-contrast"]);
+  const result = await (scope ? builder.include(scope) : builder).analyze();
   expect(
     result.violations.map((v) => ({
       id: v.id,
@@ -192,7 +148,6 @@ for (const viewport of viewports) {
         await page.goto("/", { waitUntil: "domcontentloaded" });
         await settle(page);
         await expectProtectedText(page);
-        await expectFrostedPalette(page);
         const sections = page.locator("main section");
         for (const section of await sections.all()) {
           await section.evaluate((el) =>
@@ -227,13 +182,13 @@ for (const viewport of viewports) {
           .getByRole("button", { name: "Giỏ hàng", exact: true })
           .click();
         await expect(page.getByRole("dialog")).toBeVisible();
-        await expectTextContrast(page);
+        await expectTextContrast(page, '[role="dialog"]');
         await expectProtectedText(page);
         await page.keyboard.press("Escape");
         if (viewport.name === "mobile") {
           await page.getByRole("button", { name: "Menu", exact: true }).click();
           await expect(page.getByRole("dialog")).toBeVisible();
-          await expectTextContrast(page);
+          await expectTextContrast(page, '[role="dialog"]');
           await expectProtectedText(page);
           await page.keyboard.press("Escape");
         }

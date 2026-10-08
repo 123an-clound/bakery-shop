@@ -26,7 +26,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   }
 
   return (
-    <div className="storefront-home flex flex-col">
+    <div>
       {settingsRow ? <LocalBusinessJsonLd settings={settingsRow.data} locale={locale as Locale} /> : null}
       <HomeSections theme={themeRow.data} locale={locale as Locale} />
     </div>

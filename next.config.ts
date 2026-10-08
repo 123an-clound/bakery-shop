@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "picsum.photos" },
+      { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
@@ -37,7 +38,7 @@ const nextConfig: NextConfig = {
             "style-src 'self' 'unsafe-inline'",
             // canvas-confetti renders in a Worker built from a blob: URL.
             "worker-src 'self' blob:",
-            "img-src 'self' data: blob: https://*.supabase.co https://picsum.photos https://img.vietqr.io",
+            "img-src 'self' data: blob: https://*.supabase.co https://picsum.photos https://images.unsplash.com https://img.vietqr.io",
             "font-src 'self' data:",
             // blob: — GLTFLoader fetches the model's embedded textures as blob URLs.
             "connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co",

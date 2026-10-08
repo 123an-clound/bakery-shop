@@ -14,6 +14,9 @@ try {
  * (not dev mode) so results match what a real deploy would behave like —
  * `webServer` below builds once, then starts the production server.
  */
+// `next start` reads PORT too, so one env var moves both server and tests.
+const BASE_URL = `http://localhost:${process.env.PORT ?? "3000"}`;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false, // shared Supabase project — avoid cross-test data races
@@ -22,7 +25,7 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: BASE_URL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     // Chromium's default Accept-Language (en-US) made next-intl's automatic
@@ -36,7 +39,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "pnpm build && pnpm start",
-    url: "http://localhost:3000",
+    url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
   },

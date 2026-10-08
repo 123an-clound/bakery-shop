@@ -22,14 +22,14 @@ test("adding a product with a variant applies price_delta correctly", async ({ p
 
   // Default variant is 16cm (+0); switch to 20cm (+120.000₫).
   await page.getByRole("button", { name: "20cm" }).click();
-  await page.getByRole("button", { name: "Thêm vào giỏ" }).click();
+  await page.getByRole("button", { name: "Thêm vào giỏ", exact: true }).click();
 
   await page.goto("/gio-hang");
   await expect(page.getByText("20cm")).toBeVisible();
-  // Base sale price (102.000) + 120.000 variant delta = 222.000₫ per unit.
+  // Base sale price (315.000) + 120.000 variant delta = 435.000₫ per unit.
   // The item price and the (single-item) order subtotal both render this
   // value, so scope to just the first match rather than asserting uniqueness.
-  await expect(page.getByText("222.000").first()).toBeVisible();
+  await expect(page.getByText("435.000").first()).toBeVisible();
 });
 
 // mục 13 scenario 5: a coupon below its min_order shows the insufficient-order message.
@@ -39,11 +39,11 @@ test("coupon below minimum order amount is rejected with a clear message", async
   if (await couponInput.count() === 0) {
     // Cart may be empty if the previous test's item was cleared by a
     // different worker — re-add one item first.
-    await page.goto("/san-pham/banh-kem-dau-tay-1");
-    await page.getByRole("button", { name: "Thêm vào giỏ" }).click();
+    await page.goto("/san-pham/banh-tiramisu-6");
+    await page.getByRole("button", { name: "Thêm vào giỏ", exact: true }).click();
     await page.goto("/gio-hang");
   }
-  // SINHNHAT10 requires a 300.000đ minimum order; a single 16cm cake (102.000đ) is below it.
+  // SINHNHAT10 requires a 300.000đ minimum order; a single tiramisu (65.000đ) is below it.
   await page.locator("#coupon-input").fill("SINHNHAT10");
   await page.getByRole("button", { name: "Áp dụng" }).click();
   await expect(page.getByText(/không hợp lệ|hết hạn|tối thiểu/i)).toBeVisible();
@@ -53,7 +53,7 @@ test("coupon below minimum order amount is rejected with a clear message", async
 // looked up with the code + last-4 phone digits.
 test("COD checkout succeeds and the order can be tracked by code + last 4 phone digits", async ({ page }) => {
   await page.goto("/san-pham/banh-kem-dau-tay-1");
-  await page.getByRole("button", { name: "Thêm vào giỏ" }).click();
+  await page.getByRole("button", { name: "Thêm vào giỏ", exact: true }).click();
   await page.goto("/thanh-toan");
 
   await fillDeliveryAndAddress(page, "COD");
@@ -73,7 +73,7 @@ test("COD checkout succeeds and the order can be tracked by code + last 4 phone 
 // mục 13 scenario 7: bank-transfer checkout shows a VietQR image sized to the order total.
 test("bank-transfer checkout shows a VietQR image", async ({ page }) => {
   await page.goto("/san-pham/banh-kem-dau-tay-1");
-  await page.getByRole("button", { name: "Thêm vào giỏ" }).click();
+  await page.getByRole("button", { name: "Thêm vào giỏ", exact: true }).click();
   await page.goto("/thanh-toan");
 
   await fillDeliveryAndAddress(page, "BankTransfer");

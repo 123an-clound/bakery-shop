@@ -52,7 +52,7 @@ export function FavoriteButton({
         className,
       )}
     >
-      <Heart className={cn("size-4", favorited ? "fill-destructive text-destructive" : "text-foreground")} />
+      <Heart className={cn("size-4", favorited ? "fill-[#b84545] text-[#b84545]" : "text-[#2c2c2c]")} />
     </button>
   );
 }
